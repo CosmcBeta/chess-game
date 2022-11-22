@@ -34,7 +34,6 @@ public:
 	void setPos(sf::Vector2f p_pos);
 	virtual void calcMoves(Piece* p_field[8][8]);
 	std::vector<sf::Vector2f> getMoves();
-
 	void toggleFirstMove();
 	bool getFirstMove();
 
@@ -48,3 +47,4 @@ protected:
 	std::vector<sf::Vector2f> possibleMoves;
 	bool m_firstMove;
 };
+

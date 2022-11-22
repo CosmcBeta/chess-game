@@ -29,7 +29,8 @@ sf::Time Game::getElapsed() { return m_elapsed; }
 void Game::restartClock() { m_elapsed = m_clock.restart(); }
 Window* Game::getWindow() { return &m_window; }
 
-void Game::handleInput() // Handles input; mainly mouse
+// Handles input from user
+void Game::handleInput()
 {
 	static bool lock_click;
 	static sf::Vector2i currentPiecePos(0, 0);
@@ -50,6 +51,8 @@ void Game::handleInput() // Handles input; mainly mouse
 			{
 				m_field[mousePosArray.x][mousePosArray.y]->calcMoves(m_field);
 				possibleMoves = m_field[mousePosArray.x][mousePosArray.y]->getMoves();
+				if (m_field[mousePosArray.x][mousePosArray.y]->getPieceType() == PieceType::KING)
+					removeInvalidMoves(m_field[mousePosArray.x][mousePosArray.y]->getTeam());
 				displayMoves();
 				pieceSelected = true;
 				currentPiecePos = mousePosArray;
@@ -70,6 +73,8 @@ void Game::handleInput() // Handles input; mainly mouse
 				lock_click = true;
 				m_field[mousePosArray.x][mousePosArray.y]->calcMoves(m_field);
 				possibleMoves = m_field[mousePosArray.x][mousePosArray.y]->getMoves();
+				if (m_field[mousePosArray.x][mousePosArray.y]->getPieceType() == PieceType::KING)
+					removeInvalidMoves(m_field[mousePosArray.x][mousePosArray.y]->getTeam());
 				displayMoves();
 				pieceSelected = true;
 				currentPiecePos = mousePosArray;
@@ -77,7 +82,6 @@ void Game::handleInput() // Handles input; mainly mouse
 			}
 			if (!wkInCheck && !bkInCheck)
 			{
-				std::cout << possibleMoves.size();
 				for (sf::Vector2f move : possibleMoves) // Moves if correct move
 				{
 					if (static_cast<sf::Vector2f>(mousePos) == move)
@@ -116,16 +120,16 @@ void Game::handleInput() // Handles input; mainly mouse
 			}
 			else if (bkInCheck)
 			{
-				std::cout << possibleMoves.size();
 				for (sf::Vector2f move : possibleMoves) // Moves if correct move
 				{
 					if (static_cast<sf::Vector2f>(mousePos) == move)
 					{
-						if (isInCheck(mousePosArray)) // Checks if the new position will keep the king in check
+						if (m_field[currentPiecePos.x][currentPiecePos.y]->getPieceType() == PieceType::KING && isInCheck(mousePosArray, Team::BLACK)) // Checks if the new position will keep the king in check
 						{
 							std::cout << "Not a valid move\n";
 							continue;
 						}
+						else if (m_field[currentPiecePos.x][currentPiecePos.y]->getPieceType() != PieceType::KING && getKing(Team::BLACK))
 						else
 						{
 							m_field[mousePosArray.x][mousePosArray.y] = m_field[currentPiecePos.x][currentPiecePos.y];
@@ -140,12 +144,11 @@ void Game::handleInput() // Handles input; mainly mouse
 			}
 			else if (wkInCheck)
 			{
-				std::cout << possibleMoves.size();
 				for (sf::Vector2f move : possibleMoves) // Moves if correct move
 				{
 					if (static_cast<sf::Vector2f>(mousePos) == move)
 					{
-						if (isInCheck(mousePosArray))
+						if (isInCheck(mousePosArray, Team::WHITE))
 						{
 							std::cout << "Not a valid move\n";
 							continue;
@@ -178,7 +181,20 @@ void Game::handleInput() // Handles input; mainly mouse
 
 }
 
-void Game::displayMoves() // Displays the moves for one piece
+void Game::removeInvalidMoves(Team p_kingTeam)
+{
+	for (int i = 0; i < possibleMoves.size(); i++)
+	{
+		sf::Vector2i temp(possibleMoves.at(i).x / 80, possibleMoves.at(i).y / 80);
+		if (isInCheck(temp, p_kingTeam))
+		{
+			possibleMoves.erase(possibleMoves.begin() + i);
+		}
+	}
+}
+
+// Displays the moves for one piece as circles on the screen
+void Game::displayMoves() 
 {
 	circles.clear();
 
@@ -192,11 +208,12 @@ void Game::displayMoves() // Displays the moves for one piece
 	}
 }
 
-void Game::update() // Updates once every frame
+// Updates once every frame
+void Game::update() 
 {
 	m_window.update();
 
-	for (int i = 0; i < 8; i++)
+	for (int i = 0; i < 8; i++) // Updates the positions of the pieces
 	{
 		for (int j = 0; j < 8; j++)
 		{
@@ -206,40 +223,44 @@ void Game::update() // Updates once every frame
 		}
 	}
 
-	sf::Vector2i wkPos(0, 0), bkPos(0, 0);
+	wkPos = getKing(Team::WHITE);
+	bkPos = getKing(Team::BLACK);
 
-	for (auto& row : m_field) // Gets the position of the two kings
+	if (isInCheck(wkPos, Team::WHITE))
+	{
+		if (!wkInCheck)
+			std::cout << "White king is in check\n";
+		wkInCheck = true;
+	}
+	if (isInCheck(bkPos, Team::BLACK))
+	{
+		if (!bkInCheck)
+			std::cout << "Black king is in check\n";
+		bkInCheck = true;
+	}
+}
+
+// Gets the position of the king given its team
+sf::Vector2i Game::getKing(Team p_kingTeam)
+{
+	for (auto& row : m_field) 
 	{
 		for (auto& elem : row)
 		{
 			if (elem == nullptr)
 				continue;
 
-			if (elem->getPieceType() == PieceType::KING && elem->getTeam() == Team::WHITE)
-				wkPos = elem->getArrayPos();
-			if (elem->getPieceType() == PieceType::KING && elem->getTeam() == Team::BLACK)
-				bkPos = elem->getArrayPos();
+			if (elem->getPieceType() == PieceType::KING && elem->getTeam() == p_kingTeam)
+				return elem->getArrayPos();
 		}
 	}
-
-	if (isInCheck(wkPos))
-	{
-		if (!wkInCheck)
-			std::cout << "White king is in check\n";
-		wkInCheck = true;
-	}
-	if (isInCheck(bkPos))
-	{
-		if (!bkInCheck)
-			std::cout << "Black king is in check\n";
-		bkInCheck = true;
-	}
-
+	return sf::Vector2i(0, 0);
 }
 
-bool Game::isInCheck(sf::Vector2i p_kingPos)
+// Checks if the piece at the given position is in check
+bool Game::isInCheck(sf::Vector2i p_kingPos, Team p_kingTeam)
 {
-	std::vector<sf::Vector2i> allMoves;
+	std::vector<sf::Vector2i> allWhiteMoves, allBlackMoves;
 	for (auto& row : m_field)
 	{
 		for (auto& elem : row)
@@ -249,26 +270,44 @@ bool Game::isInCheck(sf::Vector2i p_kingPos)
 			
 			elem->calcMoves(m_field);
 			std::vector<sf::Vector2f> elemMoves = elem->getMoves();
+
 			for (auto& move : elemMoves)
 			{
 				sf::Vector2i temp(move.x / 80, move.y / 80);
 				
-				allMoves.push_back(temp);
+				if (elem->getTeam() == Team::WHITE)
+					allWhiteMoves.push_back(temp);
+				else
+					allBlackMoves.push_back(temp);
 			}
 		}
 	}
-
-	for (auto& move : allMoves)
+	if (p_kingTeam == Team::WHITE)
 	{
-		if (p_kingPos == move)
+		for (auto& move : allBlackMoves)
 		{
-			return true;
+			if (p_kingPos == move)
+			{
+				return true;
+			}
 		}
 	}
+	else
+	{
+		for (auto& move : allWhiteMoves)
+		{
+			if (p_kingPos == move)
+			{
+				return true;
+			}
+		}
+	}
+	
 	return false;
 }
 
-void Game::switchTeam()
+// Called at the end of a playerss turn
+void Game::endTurn(sf::Vector2i p_mousepos)
 {
 	if (playerTurn == Team::WHITE)
 	{
@@ -280,13 +319,8 @@ void Game::switchTeam()
 		playerTurn = Team::WHITE;
 		gameState = State::WHITE_TURN;
 	}
-}
 
-void Game::endTurn(sf::Vector2i p_mousepos)
-{
-	switchTeam();
-
-	if (m_field[p_mousepos.x][p_mousepos.y]->getFirstMove()) // If first move change that since it moved
+	if (m_field[p_mousepos.x][p_mousepos.y]->getFirstMove())
 		m_field[p_mousepos.x][p_mousepos.y]->toggleFirstMove();
 
 	circles.clear();
@@ -295,9 +329,10 @@ void Game::endTurn(sf::Vector2i p_mousepos)
 	pieceSelected = false;
 }
 
-void Game::render() // Displays stuff to screen
+// Displays objects to the screen
+void Game::render() 
 {
-	m_window.beginDraw(); // Clear.
+	m_window.beginDraw(); // Clear
 
 	for (sf::RectangleShape i : backgroundArray)
 	{
@@ -323,10 +358,11 @@ void Game::render() // Displays stuff to screen
 		}
 	}
 
-	m_window.endDraw(); // Display.
+	m_window.endDraw(); // Display
 }
 
-void Game::createBackground()  // Creates the background tile array
+// Creates the background tile array
+void Game::createBackground()  
 {
 	sf::RectangleShape lightRect(sf::Vector2f(80, 80));
 	lightRect.setFillColor(lightBack);
@@ -348,7 +384,8 @@ void Game::createBackground()  // Creates the background tile array
 	}
 }
 
-void Game::createPieces() // Creates all the pieces and adds them to 2d array; might try to delete them all and make objects local instead of global; could save memory
+// Creates all the pieces and adds them to 2d array m_field
+void Game::createPieces() 
 {
 	whitePawnTex = *(m_resourceManager.getTexture("whitePawn"));
 	whiteRookTex = *(m_resourceManager.getTexture("whiteRook"));
