@@ -44,6 +44,7 @@ public:
 	void createPieces();
 	void displayMoves();
 	bool isInCheck(sf::Vector2i p_kingPos, Team p_kingTeam);
+	bool isInCheckNotKing(sf::Vector2i p_piecePos, Team p_pieceTeam);
 	void removeInvalidMoves(Team p_kingTeam);
 	sf::Vector2i getKing(Team p_kingTeam);
 	void endTurn(sf::Vector2i p_mousePos);
