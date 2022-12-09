@@ -64,4 +64,39 @@ void Pawn::calcMoves(Piece* p_field[8][8])
 			possibleMoves.push_back(sf::Vector2f(m_sprite.getPosition().x - 80, (m_sprite.getPosition().y - 80)));
 
 	}
+
+	//// En Passant
+	//if (m_team == Team::BLACK)
+	//{
+	//	if (p_field[m_position.x - 1][m_position.y] != nullptr &&
+	//		p_field[m_position.x - 1][m_position.y]->getTeam() != m_team &&
+	//		p_field[m_position.x - 1][m_position.y]->getEnPassant())
+	//	{
+	//		possibleMoves.push_back(sf::Vector2f(m_sprite.getPosition().x - 80, m_sprite.getPosition().y + 80));
+	//	}
+	//	if (p_field[m_position.x + 1][m_position.y] != nullptr &&
+	//		p_field[m_position.x + 1][m_position.y]->getTeam() != m_team &&
+	//		p_field[m_position.x + 1][m_position.y]->getEnPassant())
+	//	{
+	//		possibleMoves.push_back(sf::Vector2f(m_sprite.getPosition().x + 80, m_sprite.getPosition().y + 80));
+	//	}
+	//}
+	//else
+	//{
+	//	if (p_field[m_position.x - 1][m_position.y] != nullptr &&
+	//		p_field[m_position.x - 1][m_position.y]->getTeam() != m_team &&
+	//		p_field[m_position.x - 1][m_position.y]->getEnPassant())
+	//	{
+	//		possibleMoves.push_back(sf::Vector2f(m_sprite.getPosition().x - 80, m_sprite.getPosition().y - 80));
+	//	}
+	//	if (p_field[m_position.x + 1][m_position.y] != nullptr &&
+	//		p_field[m_position.x + 1][m_position.y]->getTeam() != m_team &&
+	//		p_field[m_position.x + 1][m_position.y]->getEnPassant())
+	//	{
+	//		possibleMoves.push_back(sf::Vector2f(m_sprite.getPosition().x + 80, m_sprite.getPosition().y - 80));
+	//	}
+	//}
+
+	
+
 }

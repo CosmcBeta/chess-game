@@ -36,6 +36,8 @@ public:
 	std::vector<sf::Vector2f> getMoves();
 	void toggleFirstMove();
 	bool getFirstMove();
+	void toggleEnPassant();
+	bool getEnPassant();
 
 protected:
 	sf::Sprite m_sprite;
@@ -46,5 +48,6 @@ protected:
 	const float scale = 0.24024024f;
 	std::vector<sf::Vector2f> possibleMoves;
 	bool m_firstMove;
+	bool m_canEnPassant;
 };
 

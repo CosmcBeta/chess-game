@@ -9,14 +9,15 @@
 #include "Knight.hpp"
 #include "Rook.hpp"
 #include "Pawn.hpp"
+#include "Button.hpp"
 #include "ResourceManager.hpp"
 
 // Game state enum
 enum class State
 {
 	MENU,
-	WHITE_TURN,
-	BLACK_TURN,
+	CREATE_GAME,
+	PLAYING_GAME,
 	GAME_OVER
 };
 
@@ -39,25 +40,39 @@ public:
 	sf::Time getElapsed();
 	void restartClock();
 
-	// Functions for gameplay
+	// Start of state functions
+	void createMenu();
+	void cleanScreen();
 	void createBackground();
 	void createPieces();
-	void displayMoves();
+
+	// Functions relating to the king
 	bool isInCheck(sf::Vector2i p_kingPos, Team p_kingTeam);
-	bool isInCheckFuture(sf::Vector2i p_oldPos, sf::Vector2i p_newPos, Team p_team);
-	void createFutureBoard(sf::Vector2i p_oldPos, sf::Vector2i p_newPos, Team p_pieceTeam);
-	void removeInvalidMoves(Team p_kingTeam, sf::Vector2i p_oldPos);
-	std::vector<sf::Vector2f> removeInvalidMoves(Team p_kingTeam, sf::Vector2i p_oldPos, std::vector<sf::Vector2f> p_moves);
-	int getTotalMoveCount(Team p_team);
 	sf::Vector2i getKing(Team p_kingTeam);
-	sf::Vector2i getKingFuture(Team p_kingTeam);
+
+	// Functions regarding to the next move
+	bool willBeInCheck(sf::Vector2i p_oldPos, sf::Vector2i p_newPos, Team p_team);
+	void createPotentialBoard(sf::Vector2i p_oldPos, sf::Vector2i p_newPos, Team p_pieceTeam);
+	sf::Vector2i getPotentialKing(Team p_kingTeam);
+
+	// Functions for displaying moves
+	void displayMoves();
+	void removeInvalidMoves(Team p_kingTeam, sf::Vector2i p_oldPos);
+	void removeInvalidMoves(Team p_kingTeam, sf::Vector2i p_oldPos, std::vector<sf::Vector2f>& p_moves);
+
+	// Other functions
+	int getTotalMoveCount(Team p_team);
 	void endTurn(sf::Vector2i p_mousePos);
+	void changeGamestate(State p_newState);
+	void startGame();
+	void openSettings();
+	void createGameOverScreen();
 
 private:
 	// Bools and consts
 	const float circleRadius = 20.f;
 	bool wkInCheck, bkInCheck;
-	bool pieceSelected;
+	bool pieceSelected, pieceMoved;
 
 	// Window and time
 	Window m_window;
@@ -69,7 +84,7 @@ private:
 	std::vector<sf::Sprite> sprites;
 	std::vector<sf::Vector2f> possibleMoves;
 	Piece* m_field[8][8];
-	Piece* m_futureField[8][8];
+	Piece* m_potentialField[8][8];
 	sf::RectangleShape backgroundArray[64];
 
 	// King positions and game states
@@ -85,7 +100,14 @@ private:
 	// Colors
 	sf::Color redHighlight;
 	sf::Color yellowHighlight;
-	sf::Color lightBack;
-	sf::Color darkBack;
+	sf::Color lightBrown;
+	sf::Color darkBrown;
 	sf::Color grayCircle;
+	sf::Color textHighlight;
+
+	sf::RectangleShape background;
+	sf::Font myriadBold, myriadRegular, myriadSemibold;
+	sf::Text titleText;
+	sf::FloatRect titleRect;
+	Button startButton, settingsButton, exitButton;
 };

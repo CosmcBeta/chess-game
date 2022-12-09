@@ -18,7 +18,8 @@ void Window::create()
 	m_window.create({ m_windowSize.x, m_windowSize.y, 32 }, m_windowTitle, sf::Style::Default);
 }
 
-void Window::destroy() {
+void Window::destroy() 
+{
 	m_window.close();
 }
 
@@ -26,8 +27,15 @@ void Window::beginDraw() { m_window.clear(sf::Color::Black); }
 void Window::endDraw() { m_window.display(); }
 
 bool Window::isDone() { return m_isDone; }
+sf::RenderWindow* Window::getRenderWindow() { return &m_window; }
 
-void Window::draw(sf::Drawable& drawable) {
+void Window::setIsDone(bool p_isDone)
+{
+	m_isDone = p_isDone;
+}
+
+void Window::draw(sf::Drawable& drawable) 
+{
 	m_window.draw(drawable);
 }
 

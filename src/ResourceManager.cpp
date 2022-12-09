@@ -26,6 +26,9 @@ void ResourceManager::loadResources()
     addTexture("blackKnight", "assets/black_knight.png");
     addTexture("blackQueen", "assets/black_queen.png");
     addTexture("blackKing", "assets/black_king.png");
+    addFont("regularMyriadFont", "assets/myriad_pro_regular.ttf");
+    addFont("boldMyriadFont", "assets/myriad_pro_bold.ttf");
+    addFont("semiboldMyriadFont", "assets/myriad_pro_semibold.ttf");
 }
 
 bool ResourceManager::addTexture(const std::string& id, const std::string& texturePath)
@@ -61,3 +64,34 @@ std::shared_ptr<sf::Texture> ResourceManager::getTexture(const std::string& id)
     return std::move(it->second);
 }
 
+bool ResourceManager::addFont(const std::string& id, const std::string& fontPath)
+{
+    auto it = m_fontMap.find(id);
+    if (it != m_fontMap.end())
+    {
+        std::cout << "Unable to add font: " << id << " already exists\n";
+        return false;
+    }
+
+    std::unique_ptr<sf::Font> font = std::make_unique<sf::Font>();
+
+    if (!font->loadFromFile(fontPath))
+    {
+        std::cout << "Unable to open font: " << fontPath << "\n";
+        return false;
+    }
+
+    m_fontMap.emplace(id, std::move(font));
+    return true;
+}
+
+std::shared_ptr<sf::Font> ResourceManager::getFont(const std::string& id)
+{
+    auto it = m_fontMap.find(id);
+    if (it == m_fontMap.end())
+    {
+        std::cout << "Unable to load font: " << id << " doesn't exist\n";
+        return nullptr;
+    }
+    return std::move(it->second);
+}

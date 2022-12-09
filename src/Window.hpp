@@ -19,9 +19,11 @@ public:
 	sf::Vector2i getMousePos();
 
 	sf::Event& getEvent();
+	sf::RenderWindow* getRenderWindow();
 
 	bool isDone();
 	sf::Vector2u getWindowSize();
+	void setIsDone(bool p_isDone);
 
 	void draw(sf::Drawable& p_drawable);
 	sf::Event m_event;
