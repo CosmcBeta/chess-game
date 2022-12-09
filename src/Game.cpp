@@ -16,11 +16,13 @@ Game::Game()
 	background(sf::Vector2f(800, 800)), 
 	startButton(sf::String("Play"), FontType::REGULAR, 60u, sf::Vector2f(320.f, 320.f)),
 	settingsButton(sf::String("Settings"), FontType::REGULAR, 60u, sf::Vector2f(320.f, 400.f)),
-	exitButton(sf::String("Exit"), FontType::REGULAR, 60u, sf::Vector2f(320.f, 480.f))
+	exitButton(sf::String("Exit"), FontType::REGULAR, 60u, sf::Vector2f(320.f, 480.f)),
+	settingsBackButton(sf::String("Main Menu"), FontType::REGULAR, 60u, sf::Vector2f(320.f, 320.f))
 {
 	restartClock();
 	srand(time(NULL));
 
+	createTexts();
 	changeGamestate(State::MENU);
 
 	m_resourceManager.loadResources();
@@ -40,7 +42,10 @@ void Game::changeGamestate(State p_newState)
 	switch (gameState)
 	{
 	case State::MENU:
-		createMenu();
+		
+		break;
+	case State::SETTINGS:
+		
 		break;
 	case State::CREATE_GAME:
 		createBackground();
@@ -85,13 +90,28 @@ void Game::handleInput()
 				if (startButton.getMouseInText())
 					startGame();
 				if (settingsButton.getMouseInText())
-					openSettings();
+					changeGamestate(State::SETTINGS);
 				if (exitButton.getMouseInText())
 					m_window.setIsDone(true);
 			}
 		}
 	}
 	
+	// Settings
+	if (gameState == State::SETTINGS)
+	{
+		settingsBackButton.update(actualMousePos);
+
+		if (event.type == sf::Event::MouseButtonPressed)
+		{
+			if (event.mouseButton.button == sf::Mouse::Left && lock_click != true)
+			{
+				if (settingsBackButton.getMouseInText())
+					changeGamestate(State::MENU);
+			}
+		}
+	}
+
 	// Playing the game
 	if (gameState == State::PLAYING_GAME)
 	{
@@ -314,6 +334,32 @@ void Game::handleInput()
 
 }
 
+void Game::createTexts()
+{
+	sf::FloatRect textBounds;
+
+	background.setFillColor(lightBrown);
+	myriadBold.loadFromFile("assets/myriad_pro_bold.ttf");// = *(m_resourceManager.getInstance().getFont("boldMyriadFont")); //
+	myriadRegular.loadFromFile("assets/myriad_pro_regular.ttf"); // = *(m_resourceManager.getInstance().getFont("regularMyriadFont"));
+	myriadSemibold.loadFromFile("assets/myriad_pro_semibold.ttf"); // = *(m_resourceManager.getInstance().getFont("semiboldMyriadFont"));
+
+	titleText.setString(sf::String("Chess"));
+	titleText.setFont(myriadBold);
+	titleText.setCharacterSize(185);
+	titleText.setFillColor(darkBrown);
+	textBounds = titleText.getLocalBounds();
+	titleText.setOrigin(textBounds.left + textBounds.width / 2.f, textBounds.top + textBounds.height / 2.f);
+	titleText.setPosition(sf::Vector2f(320.f, 160.f));
+
+	settingsTitleText.setString(sf::String("Settings"));
+	settingsTitleText.setFont(myriadBold);
+	settingsTitleText.setCharacterSize(185);
+	settingsTitleText.setFillColor(darkBrown);
+	textBounds = titleText.getLocalBounds();
+	settingsTitleText.setOrigin(textBounds.left + textBounds.width / 2.f, textBounds.top + textBounds.height / 2.f);
+	settingsTitleText.setPosition(sf::Vector2f(320.f, 160.f));
+}
+
 void Game::startGame()
 {
 	changeGamestate(State::CREATE_GAME);
@@ -321,11 +367,6 @@ void Game::startGame()
 }
 
 void Game::createGameOverScreen()
-{
-
-}
-
-void Game::openSettings()
 {
 
 }
@@ -343,24 +384,6 @@ void Game::cleanScreen()
 
 
 }
-
-void Game::createMenu()
-{
-	background.setFillColor(lightBrown);
-
-	myriadBold.loadFromFile("assets/myriad_pro_bold.ttf");// = *(m_resourceManager.getInstance().getFont("boldMyriadFont")); //
-	myriadRegular.loadFromFile("assets/myriad_pro_regular.ttf"); // = *(m_resourceManager.getInstance().getFont("regularMyriadFont"));
-	myriadSemibold.loadFromFile("assets/myriad_pro_semibold.ttf"); // = *(m_resourceManager.getInstance().getFont("semiboldMyriadFont"));
-
-	titleText.setString(sf::String("Chess"));
-	titleText.setFont(myriadBold);
-	titleText.setCharacterSize(185);
-	titleText.setFillColor(darkBrown);
-	titleRect = titleText.getLocalBounds();
-	titleText.setOrigin(titleRect.left + titleRect.width / 2.f, titleRect.top + titleRect.height / 2.f);
-	titleText.setPosition(sf::Vector2f(320.f, 160.f));
-}
-
 
 // Removes any moves that puts king in check
 void Game::removeInvalidMoves(Team p_kingTeam, sf::Vector2i p_oldPos)
@@ -447,17 +470,22 @@ void Game::update()
 	{
 		if (getTotalMoveCount(Team::WHITE) == 0)
 		{
-			std::cout << "White Checkmate\n";
+			if (isInCheck(wkPos, Team::WHITE))
+				std::cout << "White Checkmate\n";
+			else
+				std::cout << "Stalemate\n";
 			changeGamestate(State::GAME_OVER);
 		}
 		if (getTotalMoveCount(Team::BLACK) == 0)
 		{
-			std::cout << "Black Checkmate\n";
+			if (isInCheck(bkPos, Team::BLACK))
+				std::cout << "Black Checkmate\n";
+			else
+				std::cout << "Stalemate\n";
 			changeGamestate(State::GAME_OVER);
 		}
 		pieceMoved = false;
 	}
-	
 }
 
 // Gets the total number of moves given the team
@@ -663,6 +691,31 @@ void Game::render()
 		m_window.draw(exitButton);
 	}
 
+	// Settings display
+	if (gameState == State::SETTINGS)
+	{
+		m_window.draw(settingsBackButton);
+		m_window.draw(settingsTitleText);
+	}
+
+	// Game over screen display
+	if (gameState == State::GAME_OVER)
+	{
+		for (auto& rows : m_field)
+		{
+			for (auto& elem : rows)
+			{
+				if (elem == nullptr)
+					continue;
+				sf::Sprite temp = elem->getSprite();
+				m_window.draw(temp);
+			}
+		}
+
+
+
+	}
+
 	m_window.endDraw(); // Display
 }
 
@@ -692,19 +745,19 @@ void Game::createBackground()
 // Creates all the pieces and adds them to 2d array m_field
 void Game::createPieces()
 {
-	whitePawnTex = *(m_resourceManager.getTexture("whitePawn"));
-	whiteRookTex = *(m_resourceManager.getTexture("whiteRook"));
-	whiteBishopTex = *(m_resourceManager.getTexture("whiteBishop"));
-	whiteKnightTex = *(m_resourceManager.getTexture("whiteKnight"));
-	whiteQueenTex = *(m_resourceManager.getTexture("whiteQueen"));
-	whiteKingTex = *(m_resourceManager.getTexture("whiteKing"));
+	whitePawnTex.loadFromFile("assets/white_pawn.png");// = *(m_resourceManager.getTexture("whitePawn"));
+	whiteRookTex.loadFromFile("assets/white_rook.png");// = *(m_resourceManager.getTexture("whiteRook"));
+	whiteBishopTex.loadFromFile("assets/white_bishop.png");// = *(m_resourceManager.getTexture("whiteBishop"));
+	whiteKnightTex.loadFromFile("assets/white_knight.png");// = *(m_resourceManager.getTexture("whiteKnight"));
+	whiteQueenTex.loadFromFile("assets/white_queen.png");// = *(m_resourceManager.getTexture("whiteQueen"));
+	whiteKingTex.loadFromFile("assets/white_king.png");// = *(m_resourceManager.getTexture("whiteKing"));
 
-	blackPawnTex = *(m_resourceManager.getTexture("blackPawn"));
-	blackRookTex = *(m_resourceManager.getTexture("blackRook"));
-	blackBishopTex = *(m_resourceManager.getTexture("blackBishop"));
-	blackKnightTex = *(m_resourceManager.getTexture("blackKnight"));
-	blackQueenTex = *(m_resourceManager.getTexture("blackQueen"));
-	blackKingTex = *(m_resourceManager.getTexture("blackKing"));
+	blackPawnTex.loadFromFile("assets/black_pawn.png");// = *(m_resourceManager.getTexture("blackPawn"));
+	blackRookTex.loadFromFile("assets/black_rook.png");// = *(m_resourceManager.getTexture("blackRook"));
+	blackBishopTex.loadFromFile("assets/black_bishop.png");// = *(m_resourceManager.getTexture("blackBishop"));
+	blackKnightTex.loadFromFile("assets/black_knight.png");// = *(m_resourceManager.getTexture("blackKnight"));
+	blackQueenTex.loadFromFile("assets/black_queen.png");// = *(m_resourceManager.getTexture("blackQueen"));
+	blackKingTex.loadFromFile("assets/black_king.png");// = *(m_resourceManager.getTexture("blackKing"));
 
 	m_field[4][7] = new King(Team::WHITE, sf::Vector2f(4, 7), whiteKingTex);
 	m_field[3][7] = new Queen(Team::WHITE, sf::Vector2f(3, 7), whiteQueenTex);

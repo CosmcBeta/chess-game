@@ -16,6 +16,7 @@
 enum class State
 {
 	MENU,
+	SETTINGS,
 	CREATE_GAME,
 	PLAYING_GAME,
 	GAME_OVER
@@ -67,6 +68,7 @@ public:
 	void startGame();
 	void openSettings();
 	void createGameOverScreen();
+	void createTexts();
 
 private:
 	// Bools and consts
@@ -107,7 +109,6 @@ private:
 
 	sf::RectangleShape background;
 	sf::Font myriadBold, myriadRegular, myriadSemibold;
-	sf::Text titleText;
-	sf::FloatRect titleRect;
-	Button startButton, settingsButton, exitButton;
+	sf::Text titleText, settingsTitleText;
+	Button startButton, settingsButton, exitButton, settingsBackButton;
 };
