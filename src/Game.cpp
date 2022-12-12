@@ -13,11 +13,14 @@ Game::Game()
 	textHighlight(143, 107, 74, 255),
 	bkInCheck(false), wkInCheck(false),
 	pieceMoved(false),
-	background(sf::Vector2f(800, 800)), 
-	startButton(sf::String("Play"), FontType::REGULAR, 60u, sf::Vector2f(320.f, 320.f)),
-	settingsButton(sf::String("Settings"), FontType::REGULAR, 60u, sf::Vector2f(320.f, 400.f)),
-	exitButton(sf::String("Exit"), FontType::REGULAR, 60u, sf::Vector2f(320.f, 480.f)),
-	settingsBackButton(sf::String("Main Menu"), FontType::REGULAR, 60u, sf::Vector2f(320.f, 320.f))
+	background(sf::Vector2f(800, 800)),
+	gameOverBackground(sf::Vector2f(440, 250)),
+	startButton(sf::String("Play"), FontType::REGULAR, 60u, sf::Vector2f(320.f, 320.f), Style::REGULAR),
+	settingsButton(sf::String("Settings"), FontType::REGULAR, 60u, sf::Vector2f(320.f, 400.f), Style::REGULAR),
+	exitButton(sf::String("Exit"), FontType::REGULAR, 60u, sf::Vector2f(320.f, 480.f), Style::REGULAR),
+	settingsBackButton(sf::String("Main Menu"), FontType::REGULAR, 40u, sf::Vector2f(320.f, 360.f), Style::REGULAR),
+	playAgainButton(sf::String("Play Again"), FontType::REGULAR, 35u, sf::Vector2f(400.f, 400.f), Style::BOX),
+	mainMenuButton(sf::String("Main Menu"), FontType::REGULAR, 35u, sf::Vector2f(200.f, 400.f), Style::BOX)
 {
 	restartClock();
 	srand(time(NULL));
@@ -38,14 +41,14 @@ Window* Game::getWindow() { return &m_window; }
 void Game::changeGamestate(State p_newState)
 {
 	gameState = p_newState;
-	
+
 	switch (gameState)
 	{
 	case State::MENU:
-		
+
 		break;
 	case State::SETTINGS:
-		
+
 		break;
 	case State::CREATE_GAME:
 		createBackground();
@@ -96,7 +99,7 @@ void Game::handleInput()
 			}
 		}
 	}
-	
+
 	// Settings
 	if (gameState == State::SETTINGS)
 	{
@@ -190,12 +193,12 @@ void Game::handleInput()
 							}
 							else
 								m_field[mousePosArray.x][mousePosArray.y] = m_field[selectedPiecePos.x][selectedPiecePos.y];
-							
+
 							m_field[selectedPiecePos.x][selectedPiecePos.y] = nullptr;
-							
+
 							// Movement of rook for castling
 							if (m_field[mousePosArray.x][mousePosArray.y]->getPieceType() == PieceType::KING && m_field[mousePosArray.x][mousePosArray.y]->getFirstMove())
-							{ 
+							{
 								if (move == sf::Vector2f(160.f, 0.f))
 								{
 									m_field[3][0] = m_field[0][0];
@@ -317,11 +320,20 @@ void Game::handleInput()
 			}
 		}
 	}
-	
+
 	// Game ended
 	if (gameState == State::GAME_OVER)
 	{
+		playAgainButton.update(actualMousePos);
+		mainMenuButton.update(actualMousePos);
 
+		if (event.type == sf::Event::MouseButtonPressed)
+		{
+			if (event.mouseButton.button == sf::Mouse::Left && lock_click != true)
+			{
+				std::cout << actualMousePos.x << ", " << actualMousePos.y << "\n";
+			}
+		}
 	}
 
 	if (event.type == sf::Event::MouseButtonReleased)
@@ -339,6 +351,12 @@ void Game::createTexts()
 	sf::FloatRect textBounds;
 
 	background.setFillColor(lightBrown);
+
+	gameOverBackground.setFillColor(lightBrown);
+	gameOverBackground.setOutlineThickness(3);
+	gameOverBackground.setOutlineColor(sf::Color::Black);
+	gameOverBackground.setPosition(100.f, 200.f);
+
 	myriadBold.loadFromFile("assets/myriad_pro_bold.ttf");// = *(m_resourceManager.getInstance().getFont("boldMyriadFont")); //
 	myriadRegular.loadFromFile("assets/myriad_pro_regular.ttf"); // = *(m_resourceManager.getInstance().getFont("regularMyriadFont"));
 	myriadSemibold.loadFromFile("assets/myriad_pro_semibold.ttf"); // = *(m_resourceManager.getInstance().getFont("semiboldMyriadFont"));
@@ -353,11 +371,27 @@ void Game::createTexts()
 
 	settingsTitleText.setString(sf::String("Settings"));
 	settingsTitleText.setFont(myriadBold);
-	settingsTitleText.setCharacterSize(185);
+	settingsTitleText.setCharacterSize(135);
 	settingsTitleText.setFillColor(darkBrown);
-	textBounds = titleText.getLocalBounds();
+	textBounds = settingsTitleText.getLocalBounds();
 	settingsTitleText.setOrigin(textBounds.left + textBounds.width / 2.f, textBounds.top + textBounds.height / 2.f);
-	settingsTitleText.setPosition(sf::Vector2f(320.f, 160.f));
+	settingsTitleText.setPosition(sf::Vector2f(320.f, 120.f));
+
+	gameOverTitleText.setString(sf::String("Game Over"));
+	gameOverTitleText.setFont(myriadBold);
+	gameOverTitleText.setCharacterSize(80);
+	gameOverTitleText.setFillColor(darkBrown);
+	textBounds = gameOverTitleText.getLocalBounds();
+	gameOverTitleText.setOrigin(textBounds.left + textBounds.width / 2.f, textBounds.top + textBounds.height / 2.f);
+	gameOverTitleText.setPosition(sf::Vector2f(320.f, 245.f));
+
+	winnerText.setString(sf::String("White Wins"));// fix
+	winnerText.setFont(myriadSemibold);
+	winnerText.setCharacterSize(40);
+	winnerText.setFillColor(darkBrown);
+	textBounds = winnerText.getLocalBounds();
+	winnerText.setOrigin(textBounds.left + textBounds.width / 2.f, textBounds.top + textBounds.height / 2.f);
+	winnerText.setPosition(sf::Vector2f(320.f, 300.f));
 }
 
 void Game::startGame()
@@ -367,6 +401,11 @@ void Game::startGame()
 }
 
 void Game::createGameOverScreen()
+{
+
+}
+
+void Game::gameOver(GameOverState winner)
 {
 
 }
@@ -471,17 +510,29 @@ void Game::update()
 		if (getTotalMoveCount(Team::WHITE) == 0)
 		{
 			if (isInCheck(wkPos, Team::WHITE))
+			{
 				std::cout << "White Checkmate\n";
+				gameOver(GameOverState::BLACK_WINS);
+			}
 			else
+			{
 				std::cout << "Stalemate\n";
+				gameOver(GameOverState::DRAW);
+			}
 			changeGamestate(State::GAME_OVER);
 		}
 		if (getTotalMoveCount(Team::BLACK) == 0)
 		{
 			if (isInCheck(bkPos, Team::BLACK))
+			{
 				std::cout << "Black Checkmate\n";
+				gameOver(GameOverState::WHITE_WINS);
+			}
 			else
+			{
 				std::cout << "Stalemate\n";
+				gameOver(GameOverState::DRAW);
+			}
 			changeGamestate(State::GAME_OVER);
 		}
 		pieceMoved = false;
@@ -516,7 +567,7 @@ int Game::getTotalMoveCount(Team p_team)
 
 // Gets the position of the king given its team
 sf::Vector2i Game::getKing(Team p_kingTeam)
-{	
+{
 	for (auto& row : m_field)
 	{
 		for (auto& elem : row)
@@ -634,7 +685,7 @@ void Game::createPotentialBoard(sf::Vector2i p_oldPos, sf::Vector2i p_newPos, Te
 void Game::endTurn(sf::Vector2i p_mousepos)
 {
 	if (playerTurn == Team::WHITE)
-		playerTurn = Team::BLACK;	
+		playerTurn = Team::BLACK;
 	else
 		playerTurn = Team::WHITE;
 
@@ -679,13 +730,12 @@ void Game::render()
 			}
 		}
 	}
-	
+
 	// Menu display
 	if (gameState == State::MENU)
 	{
 		m_window.draw(background);
 		m_window.draw(titleText);
-		//m_window.draw(startText);
 		m_window.draw(startButton);
 		m_window.draw(settingsButton);
 		m_window.draw(exitButton);
@@ -694,6 +744,7 @@ void Game::render()
 	// Settings display
 	if (gameState == State::SETTINGS)
 	{
+		m_window.draw(background);
 		m_window.draw(settingsBackButton);
 		m_window.draw(settingsTitleText);
 	}
@@ -701,6 +752,11 @@ void Game::render()
 	// Game over screen display
 	if (gameState == State::GAME_OVER)
 	{
+		for (sf::RectangleShape i : backgroundArray)
+		{
+			m_window.draw(i);
+		}
+		
 		for (auto& rows : m_field)
 		{
 			for (auto& elem : rows)
@@ -712,7 +768,11 @@ void Game::render()
 			}
 		}
 
-
+		m_window.draw(gameOverBackground);
+		m_window.draw(gameOverTitleText);
+		m_window.draw(mainMenuButton);
+		m_window.draw(playAgainButton);
+		m_window.draw(winnerText);
 
 	}
 

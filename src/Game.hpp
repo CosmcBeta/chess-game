@@ -22,6 +22,13 @@ enum class State
 	GAME_OVER
 };
 
+enum class GameOverState
+{
+	WHITE_WINS,
+	BLACK_WINS,
+	DRAW
+};
+
 // Game class
 class Game {
 public:
@@ -69,6 +76,7 @@ public:
 	void openSettings();
 	void createGameOverScreen();
 	void createTexts();
+	void gameOver(GameOverState winner);
 
 private:
 	// Bools and consts
@@ -107,8 +115,8 @@ private:
 	sf::Color grayCircle;
 	sf::Color textHighlight;
 
-	sf::RectangleShape background;
+	sf::RectangleShape background, gameOverBackground;
 	sf::Font myriadBold, myriadRegular, myriadSemibold;
-	sf::Text titleText, settingsTitleText;
-	Button startButton, settingsButton, exitButton, settingsBackButton;
+	sf::Text titleText, settingsTitleText, gameOverTitleText, winnerText;
+	Button startButton, settingsButton, exitButton, settingsBackButton, playAgainButton, mainMenuButton;
 };
