@@ -1,9 +1,9 @@
 #include "Game.hpp"
 
+// add: in game menu, actual settings, en passant, highlight when moved and in check
+
 Game::Game()
 	:m_window("Chess", sf::Vector2u(640, 640)),
-	m_resourceManager(ResourceManager::getInstance()),
-	playerTurn(Team::WHITE),
 	pieceSelected(false),
 	redHighlight(243, 60, 66, 255),
 	yellowHighlight(246, 246, 129, 255),
@@ -12,23 +12,20 @@ Game::Game()
 	grayCircle(140, 140, 140, 160),
 	textHighlight(143, 107, 74, 255),
 	bkInCheck(false), wkInCheck(false),
-	pieceMoved(false),
-	background(sf::Vector2f(800, 800)),
-	gameOverBackground(sf::Vector2f(440, 250)),
-	startButton(sf::String("Play"), FontType::REGULAR, 60u, sf::Vector2f(320.f, 320.f), Style::REGULAR),
-	settingsButton(sf::String("Settings"), FontType::REGULAR, 60u, sf::Vector2f(320.f, 400.f), Style::REGULAR),
-	exitButton(sf::String("Exit"), FontType::REGULAR, 60u, sf::Vector2f(320.f, 480.f), Style::REGULAR),
-	settingsBackButton(sf::String("Main Menu"), FontType::REGULAR, 40u, sf::Vector2f(320.f, 360.f), Style::REGULAR),
-	playAgainButton(sf::String("Play Again"), FontType::REGULAR, 35u, sf::Vector2f(400.f, 400.f), Style::BOX),
-	mainMenuButton(sf::String("Main Menu"), FontType::REGULAR, 35u, sf::Vector2f(200.f, 400.f), Style::BOX)
+	pieceMoved(false), playAgain(false),
+	buttonPressed(false), lockClick(false),
+	startButton(sf::String("Play"), FontType::REGULAR, 60u, sf::Vector2f(320.f, 320.f)),
+	settingsButton(sf::String("Settings"), FontType::REGULAR, 60u, sf::Vector2f(320.f, 400.f)),
+	exitButton(sf::String("Exit"), FontType::REGULAR, 60u, sf::Vector2f(320.f, 480.f)),
+	settingsBackButton(sf::String("Main Menu"), FontType::REGULAR, 40u, sf::Vector2f(320.f, 600.f)),
+	playAgainButton(sf::String("Play Again"), FontType::REGULAR, 35u, sf::Vector2f(200.f, 400.f)),
+	mainMenuButton(sf::String("Main Menu"), FontType::REGULAR, 35u, sf::Vector2f(420.f, 400.f))
 {
 	restartClock();
-	srand(time(NULL));
+	srand(static_cast<unsigned int>(time(NULL)));
 
 	createTexts();
 	changeGamestate(State::MENU);
-
-	m_resourceManager.loadResources();
 }
 
 Game::~Game()
@@ -38,27 +35,38 @@ sf::Time Game::getElapsed() { return m_elapsed; }
 void Game::restartClock() { m_elapsed = m_clock.restart(); }
 Window* Game::getWindow() { return &m_window; }
 
+// Changes gamestates
 void Game::changeGamestate(State p_newState)
 {
 	gameState = p_newState;
 
 	switch (gameState)
 	{
-	case State::MENU:
-
-		break;
-	case State::SETTINGS:
-
-		break;
 	case State::CREATE_GAME:
-		createBackground();
+		if (!playAgain)
+		{
+			createTextures();
+			createBackground();
+		}
 		createPieces();
-		break;
-	case State::PLAYING_GAME:
-
+		playerTurn = Team::WHITE;
+		changeGamestate(State::PLAYING_GAME);
 		break;
 	case State::GAME_OVER:
-		createGameOverScreen();
+		switch (winState)
+		{
+		case WinnerState::WHITE_WINS:
+			winnerText.setString(sf::String("White Wins"));
+			break;
+		case WinnerState::BLACK_WINS:
+			winnerText.setString(sf::String("Black Wins"));
+			break;
+		case WinnerState::STALEMATE:
+			winnerText.setString(sf::String("Stalemate"));
+			break;
+		default:
+			break;
+		}
 		break;
 	default:
 		break;
@@ -68,15 +76,12 @@ void Game::changeGamestate(State p_newState)
 // Handles input from user
 void Game::handleInput()
 {
-	static bool lock_click;
 	static sf::Vector2i selectedPiecePos(0, 0); // Array scale
 	sf::Event event = m_window.getEvent();
 	sf::Vector2i mousePosArray(0, 0), mousePos(0, 0);
 	sf::Vector2i actualMousePos = m_window.getMousePos();
 	mousePosArray = sf::Vector2i(actualMousePos.x / 80, actualMousePos.y / 80);
 	mousePos = sf::Vector2i(mousePosArray.x * 80, mousePosArray.y * 80);
-
-	// add wait event so that it doesn't continuously check for events - might do
 
 	// Menu
 	if (gameState == State::MENU)
@@ -88,14 +93,23 @@ void Game::handleInput()
 		// Clicking buttons
 		if (event.type == sf::Event::MouseButtonPressed)
 		{
-			if (event.mouseButton.button == sf::Mouse::Left && lock_click != true)
+			if (event.mouseButton.button == sf::Mouse::Left && !lockClick)
 			{
-				if (startButton.getMouseInText())
-					startGame();
-				if (settingsButton.getMouseInText())
+				if (startButton.getMouseInText() && !buttonPressed)
+				{
+					changeGamestate(State::CREATE_GAME);
+					buttonPressed = true;
+				}
+				if (settingsButton.getMouseInText() && !buttonPressed)
+				{
 					changeGamestate(State::SETTINGS);
-				if (exitButton.getMouseInText())
+					buttonPressed = true;
+				}
+				if (exitButton.getMouseInText() && !buttonPressed)
+				{
 					m_window.setIsDone(true);
+					buttonPressed = true;
+				}
 			}
 		}
 	}
@@ -107,10 +121,13 @@ void Game::handleInput()
 
 		if (event.type == sf::Event::MouseButtonPressed)
 		{
-			if (event.mouseButton.button == sf::Mouse::Left && lock_click != true)
+			if (event.mouseButton.button == sf::Mouse::Left && !lockClick)
 			{
-				if (settingsBackButton.getMouseInText())
+				if (settingsBackButton.getMouseInText() && !buttonPressed)
+				{
 					changeGamestate(State::MENU);
+					buttonPressed = true;
+				}
 			}
 		}
 	}
@@ -118,10 +135,19 @@ void Game::handleInput()
 	// Playing the game
 	if (gameState == State::PLAYING_GAME)
 	{
+		//// Options
+		//if (event.type == sf::Event::KeyPressed)
+		//{
+		//	if (event.key.code == sf::Keyboard::Escape)
+		//	{
+		//		changeGamestate(State::MENU);
+		//	}
+		//}
+		
 		// Piece is not selected
-		if (event.type == sf::Event::MouseButtonPressed && pieceSelected == false)
+		if (event.type == sf::Event::MouseButtonPressed && !pieceSelected)
 		{
-			if (event.mouseButton.button == sf::Mouse::Left && lock_click != true)
+			if (event.mouseButton.button == sf::Mouse::Left && !lockClick)
 			{
 				if (m_field[mousePosArray.x][mousePosArray.y] == nullptr || m_field[mousePosArray.x][mousePosArray.y]->getTeam() != playerTurn)
 					return;
@@ -138,14 +164,14 @@ void Game::handleInput()
 					pieceSelected = true;
 					selectedPiecePos = mousePosArray;
 				}
-				lock_click = true;
+				lockClick = true;
 			}
 		}
 
 		// Piece is selected
-		if (event.type == sf::Event::MouseButtonPressed && pieceSelected == true)
+		if (event.type == sf::Event::MouseButtonPressed && pieceSelected)
 		{
-			if (event.mouseButton.button == sf::Mouse::Left && lock_click != true)
+			if (event.mouseButton.button == sf::Mouse::Left && !lockClick)
 			{
 				if (m_field[mousePosArray.x][mousePosArray.y] != nullptr && // Checks if the new tile selected is the same team as the piece that is trying to move
 					m_field[mousePosArray.x][mousePosArray.y]->getTeam() == m_field[selectedPiecePos.x][selectedPiecePos.y]->getTeam())
@@ -163,7 +189,7 @@ void Game::handleInput()
 
 					displayMoves();
 					pieceSelected = true;
-					lock_click = true;
+					lockClick = true;
 					selectedPiecePos = mousePosArray;
 					return;
 				}
@@ -184,12 +210,12 @@ void Game::handleInput()
 							if (m_field[selectedPiecePos.x][selectedPiecePos.y]->getPieceType() == PieceType::PAWN &&
 								m_field[selectedPiecePos.x][selectedPiecePos.y]->getTeam() == Team::WHITE && mousePosArray.y == 0)
 							{
-								m_field[mousePosArray.x][mousePosArray.y] = new Queen(Team::WHITE, sf::Vector2f(mousePosArray.x, mousePosArray.y), whiteQueenTex);
+								m_field[mousePosArray.x][mousePosArray.y] = new Queen(Team::WHITE, sf::Vector2f(static_cast<float>(mousePosArray.x), static_cast<float>(mousePosArray.y)), whiteQueenTex);
 							}
 							else if (m_field[selectedPiecePos.x][selectedPiecePos.y]->getPieceType() == PieceType::PAWN &&
 								m_field[selectedPiecePos.x][selectedPiecePos.y]->getTeam() == Team::BLACK && mousePosArray.y == 7)
 							{
-								m_field[mousePosArray.x][mousePosArray.y] = new Queen(Team::BLACK, sf::Vector2f(mousePosArray.x, mousePosArray.y), blackQueenTex);
+								m_field[mousePosArray.x][mousePosArray.y] = new Queen(Team::BLACK, sf::Vector2f(static_cast<float>(mousePosArray.x), static_cast<float>(mousePosArray.y)), blackQueenTex);
 							}
 							else
 								m_field[mousePosArray.x][mousePosArray.y] = m_field[selectedPiecePos.x][selectedPiecePos.y];
@@ -223,6 +249,7 @@ void Game::handleInput()
 
 							//// fix en passant
 
+							// can be en passanted
 							//if (m_field[mousePosArray.x][mousePosArray.y]->getPieceType() == PieceType::PAWN &&
 							//	m_field[mousePosArray.x][mousePosArray.y]->getTeam() == Team::BLACK &&
 							//	mousePosArray.y == selectedPiecePos.y + 2)
@@ -259,12 +286,12 @@ void Game::handleInput()
 								if (m_field[selectedPiecePos.x][selectedPiecePos.y]->getPieceType() == PieceType::PAWN &&
 									m_field[selectedPiecePos.x][selectedPiecePos.y]->getTeam() == Team::WHITE && mousePosArray.y == 0)
 								{
-									m_field[mousePosArray.x][mousePosArray.y] = new Queen(Team::WHITE, sf::Vector2f(mousePosArray.x, mousePosArray.y), whiteQueenTex);
+									m_field[mousePosArray.x][mousePosArray.y] = new Queen(Team::WHITE, sf::Vector2f(static_cast<float>(mousePosArray.x), static_cast<float>(mousePosArray.y)), whiteQueenTex);
 								}
 								else if (m_field[selectedPiecePos.x][selectedPiecePos.y]->getPieceType() == PieceType::PAWN &&
 									m_field[selectedPiecePos.x][selectedPiecePos.y]->getTeam() == Team::BLACK && mousePosArray.y == 7)
 								{
-									m_field[mousePosArray.x][mousePosArray.y] = new Queen(Team::BLACK, sf::Vector2f(mousePosArray.x, mousePosArray.y), blackQueenTex);
+									m_field[mousePosArray.x][mousePosArray.y] = new Queen(Team::BLACK, sf::Vector2f(static_cast<float>(mousePosArray.x), static_cast<float>(mousePosArray.y)), blackQueenTex);
 								}
 								else
 									m_field[mousePosArray.x][mousePosArray.y] = m_field[selectedPiecePos.x][selectedPiecePos.y];
@@ -295,12 +322,12 @@ void Game::handleInput()
 								if (m_field[selectedPiecePos.x][selectedPiecePos.y]->getPieceType() == PieceType::PAWN &&
 									m_field[selectedPiecePos.x][selectedPiecePos.y]->getTeam() == Team::WHITE && mousePosArray.y == 0)
 								{
-									m_field[mousePosArray.x][mousePosArray.y] = new Queen(Team::WHITE, sf::Vector2f(mousePosArray.x, mousePosArray.y), whiteQueenTex);
+									m_field[mousePosArray.x][mousePosArray.y] = new Queen(Team::WHITE, sf::Vector2f(static_cast<float>(mousePosArray.x), static_cast<float>(mousePosArray.y)), whiteQueenTex);
 								}
 								else if (m_field[selectedPiecePos.x][selectedPiecePos.y]->getPieceType() == PieceType::PAWN &&
 									m_field[selectedPiecePos.x][selectedPiecePos.y]->getTeam() == Team::BLACK && mousePosArray.y == 7)
 								{
-									m_field[mousePosArray.x][mousePosArray.y] = new Queen(Team::BLACK, sf::Vector2f(mousePosArray.x, mousePosArray.y), blackQueenTex);
+									m_field[mousePosArray.x][mousePosArray.y] = new Queen(Team::BLACK, sf::Vector2f(static_cast<float>(mousePosArray.x), static_cast<float>(mousePosArray.y)), blackQueenTex);
 								}
 								else
 									m_field[mousePosArray.x][mousePosArray.y] = m_field[selectedPiecePos.x][selectedPiecePos.y];
@@ -316,7 +343,7 @@ void Game::handleInput()
 				}
 
 				pieceMoved = true;
-				lock_click = true;
+				lockClick = true;
 			}
 		}
 	}
@@ -324,14 +351,23 @@ void Game::handleInput()
 	// Game ended
 	if (gameState == State::GAME_OVER)
 	{
-		playAgainButton.update(actualMousePos);
 		mainMenuButton.update(actualMousePos);
+		playAgainButton.update(actualMousePos);
 
 		if (event.type == sf::Event::MouseButtonPressed)
 		{
-			if (event.mouseButton.button == sf::Mouse::Left && lock_click != true)
+			if (event.mouseButton.button == sf::Mouse::Left)
 			{
-				std::cout << actualMousePos.x << ", " << actualMousePos.y << "\n";
+				if (mainMenuButton.getMouseInText() && !buttonPressed)
+				{
+					changeGamestate(State::MENU);
+					buttonPressed = true;
+				}
+				if (playAgainButton.getMouseInText() && !buttonPressed)
+				{
+					changeGamestate(State::CREATE_GAME);
+					buttonPressed = true;
+				}
 			}
 		}
 	}
@@ -340,26 +376,30 @@ void Game::handleInput()
 	{
 		if (event.mouseButton.button == sf::Mouse::Left)
 		{
-			lock_click = false;
+			lockClick = false;
+			buttonPressed = false;
 		}
 	}
 
 }
 
+// Creates the fonts and texts
 void Game::createTexts()
 {
 	sf::FloatRect textBounds;
 
 	background.setFillColor(lightBrown);
+	background.setSize(sf::Vector2f(800, 800));
 
 	gameOverBackground.setFillColor(lightBrown);
 	gameOverBackground.setOutlineThickness(3);
 	gameOverBackground.setOutlineColor(sf::Color::Black);
 	gameOverBackground.setPosition(100.f, 200.f);
+	gameOverBackground.setSize(sf::Vector2f(440.f, 240.f));
 
-	myriadBold.loadFromFile("assets/myriad_pro_bold.ttf");// = *(m_resourceManager.getInstance().getFont("boldMyriadFont")); //
-	myriadRegular.loadFromFile("assets/myriad_pro_regular.ttf"); // = *(m_resourceManager.getInstance().getFont("regularMyriadFont"));
-	myriadSemibold.loadFromFile("assets/myriad_pro_semibold.ttf"); // = *(m_resourceManager.getInstance().getFont("semiboldMyriadFont"));
+	myriadBold.loadFromFile("assets/myriad_pro_bold.ttf");
+	myriadRegular.loadFromFile("assets/myriad_pro_regular.ttf");
+	myriadSemibold.loadFromFile("assets/myriad_pro_semibold.ttf");
 
 	titleText.setString(sf::String("Chess"));
 	titleText.setFont(myriadBold);
@@ -383,45 +423,15 @@ void Game::createTexts()
 	gameOverTitleText.setFillColor(darkBrown);
 	textBounds = gameOverTitleText.getLocalBounds();
 	gameOverTitleText.setOrigin(textBounds.left + textBounds.width / 2.f, textBounds.top + textBounds.height / 2.f);
-	gameOverTitleText.setPosition(sf::Vector2f(320.f, 245.f));
+	gameOverTitleText.setPosition(sf::Vector2f(320.f, 235.f));
 
-	winnerText.setString(sf::String("White Wins"));// fix
+	winnerText.setString(sf::String("Stalemate"));
 	winnerText.setFont(myriadSemibold);
-	winnerText.setCharacterSize(40);
+	winnerText.setCharacterSize(45);
 	winnerText.setFillColor(darkBrown);
 	textBounds = winnerText.getLocalBounds();
 	winnerText.setOrigin(textBounds.left + textBounds.width / 2.f, textBounds.top + textBounds.height / 2.f);
-	winnerText.setPosition(sf::Vector2f(320.f, 300.f));
-}
-
-void Game::startGame()
-{
-	changeGamestate(State::CREATE_GAME);
-	changeGamestate(State::PLAYING_GAME);
-}
-
-void Game::createGameOverScreen()
-{
-
-}
-
-void Game::gameOver(GameOverState winner)
-{
-
-}
-
-void Game::cleanScreen()
-{
-	// Clean board
-	for (int i = 0; i < 8; i++)
-	{
-		for (int j = 0; j < 8; j++)
-		{
-			m_field[i][j] = nullptr;
-		}
-	}
-
-
+	winnerText.setPosition(sf::Vector2f(320.f, 290.f));
 }
 
 // Removes any moves that puts king in check
@@ -510,33 +520,44 @@ void Game::update()
 		if (getTotalMoveCount(Team::WHITE) == 0)
 		{
 			if (isInCheck(wkPos, Team::WHITE))
-			{
-				std::cout << "White Checkmate\n";
-				gameOver(GameOverState::BLACK_WINS);
-			}
+				winState = WinnerState::BLACK_WINS;
 			else
-			{
-				std::cout << "Stalemate\n";
-				gameOver(GameOverState::DRAW);
-			}
+				winState = WinnerState::STALEMATE;
+			playAgain = true;
 			changeGamestate(State::GAME_OVER);
 		}
 		if (getTotalMoveCount(Team::BLACK) == 0)
 		{
 			if (isInCheck(bkPos, Team::BLACK))
-			{
-				std::cout << "Black Checkmate\n";
-				gameOver(GameOverState::WHITE_WINS);
-			}
+				winState = WinnerState::WHITE_WINS;
 			else
-			{
-				std::cout << "Stalemate\n";
-				gameOver(GameOverState::DRAW);
-			}
+				winState = WinnerState::STALEMATE;
+			playAgain = true;
+			changeGamestate(State::GAME_OVER);
+		}
+		if (numberOfPieces() == 2)
+		{
+			winState = WinnerState::STALEMATE;
+			playAgain = true;
 			changeGamestate(State::GAME_OVER);
 		}
 		pieceMoved = false;
 	}
+}
+
+// Returns the total number of pieces on the board
+int Game::numberOfPieces()
+{
+	int count = 0;
+	for (auto& row : m_field)
+	{
+		for (auto& elem : row)
+		{
+			if (elem != nullptr)
+				count++;
+		}
+	}
+	return count;
 }
 
 // Gets the total number of moves given the team
@@ -756,7 +777,7 @@ void Game::render()
 		{
 			m_window.draw(i);
 		}
-		
+
 		for (auto& rows : m_field)
 		{
 			for (auto& elem : rows)
@@ -770,10 +791,9 @@ void Game::render()
 
 		m_window.draw(gameOverBackground);
 		m_window.draw(gameOverTitleText);
+		m_window.draw(winnerText);
 		m_window.draw(mainMenuButton);
 		m_window.draw(playAgainButton);
-		m_window.draw(winnerText);
-
 	}
 
 	m_window.endDraw(); // Display
@@ -802,23 +822,27 @@ void Game::createBackground()
 	}
 }
 
+// Initializes the textures used for the pieces
+void Game::createTextures()
+{
+	whitePawnTex.loadFromFile("assets/white_pawn.png");
+	whiteRookTex.loadFromFile("assets/white_rook.png");
+	whiteBishopTex.loadFromFile("assets/white_bishop.png");
+	whiteKnightTex.loadFromFile("assets/white_knight.png");
+	whiteQueenTex.loadFromFile("assets/white_queen.png");
+	whiteKingTex.loadFromFile("assets/white_king.png");
+
+	blackPawnTex.loadFromFile("assets/black_pawn.png");
+	blackRookTex.loadFromFile("assets/black_rook.png");
+	blackBishopTex.loadFromFile("assets/black_bishop.png");
+	blackKnightTex.loadFromFile("assets/black_knight.png");
+	blackQueenTex.loadFromFile("assets/black_queen.png");
+	blackKingTex.loadFromFile("assets/black_king.png");
+}
+
 // Creates all the pieces and adds them to 2d array m_field
 void Game::createPieces()
 {
-	whitePawnTex.loadFromFile("assets/white_pawn.png");// = *(m_resourceManager.getTexture("whitePawn"));
-	whiteRookTex.loadFromFile("assets/white_rook.png");// = *(m_resourceManager.getTexture("whiteRook"));
-	whiteBishopTex.loadFromFile("assets/white_bishop.png");// = *(m_resourceManager.getTexture("whiteBishop"));
-	whiteKnightTex.loadFromFile("assets/white_knight.png");// = *(m_resourceManager.getTexture("whiteKnight"));
-	whiteQueenTex.loadFromFile("assets/white_queen.png");// = *(m_resourceManager.getTexture("whiteQueen"));
-	whiteKingTex.loadFromFile("assets/white_king.png");// = *(m_resourceManager.getTexture("whiteKing"));
-
-	blackPawnTex.loadFromFile("assets/black_pawn.png");// = *(m_resourceManager.getTexture("blackPawn"));
-	blackRookTex.loadFromFile("assets/black_rook.png");// = *(m_resourceManager.getTexture("blackRook"));
-	blackBishopTex.loadFromFile("assets/black_bishop.png");// = *(m_resourceManager.getTexture("blackBishop"));
-	blackKnightTex.loadFromFile("assets/black_knight.png");// = *(m_resourceManager.getTexture("blackKnight"));
-	blackQueenTex.loadFromFile("assets/black_queen.png");// = *(m_resourceManager.getTexture("blackQueen"));
-	blackKingTex.loadFromFile("assets/black_king.png");// = *(m_resourceManager.getTexture("blackKing"));
-
 	m_field[4][7] = new King(Team::WHITE, sf::Vector2f(4, 7), whiteKingTex);
 	m_field[3][7] = new Queen(Team::WHITE, sf::Vector2f(3, 7), whiteQueenTex);
 	m_field[2][7] = new Bishop(Team::WHITE, sf::Vector2f(2, 7), whiteBishopTex);
