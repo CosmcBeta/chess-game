@@ -22,7 +22,7 @@ enum class State
 };
 
 // Win state enum
-enum class WinnerState
+enum class GameOutcome
 {
 	WHITE_WINS,
 	BLACK_WINS,
@@ -72,6 +72,12 @@ public:
 	// Returns the window
 	Window* getWindow();
 
+	void menuState(sf::Vector2i mousePos, bool leftButtonClicked);
+	void settingsState(sf::Vector2i mousePos, bool leftButtonClicked);
+	void gameOverState(sf::Vector2i mousePos, bool leftButtonClicked);
+
+	bool playingGameState(sf::Vector2i actualMousePos, sf::Event event, bool leftButtonClicked);
+
 private:
 	// Bools and consts
 	const float circleRadius = 20.f;
@@ -85,7 +91,7 @@ private:
 	sf::Time m_elapsed;
 
 	// Vectors and arrays
-	std::vector<sf::CircleShape> circles;
+	std::vector<sf::CircleShape> moveCircles;
 	std::vector<sf::Sprite> sprites;
 	std::vector<sf::Vector2f> possibleMoves;
 	Piece* m_field[8][8];
@@ -93,14 +99,14 @@ private:
 	sf::RectangleShape backgroundArray[64];
 
 	// King positions and states
-	sf::Vector2i bkPos, wkPos;
+	sf::Vector2i blackKingPos, whiteKingPos;
 	Team playerTurn;
 	State gameState;
-	WinnerState winState;
+	GameOutcome gameOutcome;
 
 	// Textures and shapes
-	sf::Texture whitePawnTex, whiteRookTex, whiteBishopTex, whiteKnightTex, whiteQueenTex, whiteKingTex,
-		blackPawnTex, blackRookTex, blackBishopTex, blackKnightTex, blackQueenTex, blackKingTex;
+	sf::Texture whitePawnTex, whiteRookTex, whiteBishopTex, whiteKnightTex, whiteQueenTex, whiteKingTex;
+	sf::Texture blackPawnTex, blackRookTex, blackBishopTex, blackKnightTex, blackQueenTex, blackKingTex;
 	sf::RectangleShape background, gameOverBackground;
 
 	// Texts, buttons, and fonts
@@ -109,10 +115,7 @@ private:
 	Button startButton, settingsButton, exitButton, settingsBackButton, playAgainButton, mainMenuButton;
 
 	// Colors
-	sf::Color redHighlight;
-	sf::Color yellowHighlight;
-	sf::Color lightBrown;
-	sf::Color darkBrown;
-	sf::Color grayCircle;
+	sf::Color redHighlight, yellowHighlight;
+	sf::Color lightBrown, darkBrown, grayCircle;
 	sf::Color textHighlight;
 };

@@ -9,3 +9,5 @@ All result states:
   Threefold Repetition
   50-Move Rule
 
+fix gamestate function
+finish fixing code
