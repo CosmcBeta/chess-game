@@ -178,7 +178,7 @@ bool Game::playingGameState(sf::Vector2i actualMousePos, sf::Event event, bool l
 		lockClick = true;
 	}
 
-	// Piece is selected
+
 	if (pieceSelected && leftButtonClicked)
 	{
 		if (m_field[mousePosArray.x][mousePosArray.y] != nullptr && // Checks if the new tile selected is the same team as the piece that is trying to move
@@ -202,154 +202,81 @@ bool Game::playingGameState(sf::Vector2i actualMousePos, sf::Event event, bool l
 			return false;
 		}
 
-		if (!wkInCheck && !bkInCheck) // No king in check
+		for (sf::Vector2f move : possibleMoves)
 		{
-			for (sf::Vector2f move : possibleMoves)
+			if (static_cast<sf::Vector2f>(mousePos) == move) // Checks if move is a possible move
 			{
-				if (static_cast<sf::Vector2f>(mousePos) == move) // Checks if move is a possible move
+				if (willBeInCheck(selectedPiecePos, mousePosArray, m_field[selectedPiecePos.x][selectedPiecePos.y]->getTeam()))// create a fake board where piece is here and check for check  //getKing(Team::BLACK))
+					continue;
+
+				// Changes pawn into queen if it reaches the end
+				if (m_field[selectedPiecePos.x][selectedPiecePos.y]->getPieceType() == PieceType::PAWN &&
+					m_field[selectedPiecePos.x][selectedPiecePos.y]->getTeam() == Team::WHITE && mousePosArray.y == 0)
 				{
-					if (willBeInCheck(selectedPiecePos, mousePosArray, m_field[selectedPiecePos.x][selectedPiecePos.y]->getTeam()))// create a fake board where piece is here and check for check  //getKing(Team::BLACK))
-					{
-						std::cout << "Not a valid move\n";
-						continue;
-					}
-
-					// Changes pawn into queen if it reaches the end
-					if (m_field[selectedPiecePos.x][selectedPiecePos.y]->getPieceType() == PieceType::PAWN &&
-						m_field[selectedPiecePos.x][selectedPiecePos.y]->getTeam() == Team::WHITE && mousePosArray.y == 0)
-					{
-						m_field[mousePosArray.x][mousePosArray.y] = new Queen(Team::WHITE, sf::Vector2f(static_cast<float>(mousePosArray.x), static_cast<float>(mousePosArray.y)), whiteQueenTex);
-					}
-					else if (m_field[selectedPiecePos.x][selectedPiecePos.y]->getPieceType() == PieceType::PAWN &&
-						m_field[selectedPiecePos.x][selectedPiecePos.y]->getTeam() == Team::BLACK && mousePosArray.y == 7)
-					{
-						m_field[mousePosArray.x][mousePosArray.y] = new Queen(Team::BLACK, sf::Vector2f(static_cast<float>(mousePosArray.x), static_cast<float>(mousePosArray.y)), blackQueenTex);
-					}
-					else
-						m_field[mousePosArray.x][mousePosArray.y] = m_field[selectedPiecePos.x][selectedPiecePos.y];
-
-					m_field[selectedPiecePos.x][selectedPiecePos.y] = nullptr;
-
-					// Movement of rook for castling
-					if (m_field[mousePosArray.x][mousePosArray.y]->getPieceType() == PieceType::KING && m_field[mousePosArray.x][mousePosArray.y]->getFirstMove())
-					{
-						if (move == sf::Vector2f(160.f, 0.f))
-						{
-							m_field[3][0] = m_field[0][0];
-							m_field[0][0] = nullptr;
-						}
-						if (move == sf::Vector2f(480.f, 0.f))
-						{
-							m_field[5][0] = m_field[7][0];
-							m_field[7][0] = nullptr;
-						}
-						if (move == sf::Vector2f(160.f, 560.f))
-						{
-							m_field[3][7] = m_field[0][7];
-							m_field[0][7] = nullptr;
-						}
-						if (move == sf::Vector2f(480.f, 560.f))
-						{
-							m_field[5][7] = m_field[7][7];
-							m_field[7][7] = nullptr;
-						}
-					}
-
-					//// fix en passant
-
-					// can be en passanted
-					//if (m_field[mousePosArray.x][mousePosArray.y]->getPieceType() == PieceType::PAWN &&
-					//	m_field[mousePosArray.x][mousePosArray.y]->getTeam() == Team::BLACK &&
-					//	mousePosArray.y == selectedPiecePos.y + 2)
-					//{
-					//	m_field[mousePosArray.x][mousePosArray.y]->toggleEnPassant();
-					//}
-					//if (m_field[mousePosArray.x][mousePosArray.y]->getPieceType() == PieceType::PAWN &&
-					//	m_field[mousePosArray.x][mousePosArray.y]->getTeam() == Team::WHITE &&
-					//	mousePosArray.y == selectedPiecePos.y - 2)
-					//{
-					//	m_field[mousePosArray.x][mousePosArray.y]->toggleEnPassant();
-					//}
-
-
-					endTurn(mousePosArray);
-					break;
+					m_field[mousePosArray.x][mousePosArray.y] = new Queen(Team::WHITE, sf::Vector2f(static_cast<float>(mousePosArray.x), static_cast<float>(mousePosArray.y)), whiteQueenTex);
 				}
-			}
-		}
-		else if (bkInCheck) // Black king is in check
-		{
-			for (sf::Vector2f move : possibleMoves)
-			{
-				if (static_cast<sf::Vector2f>(mousePos) == move) // Checks if move is a possible move
+				else if (m_field[selectedPiecePos.x][selectedPiecePos.y]->getPieceType() == PieceType::PAWN &&
+					m_field[selectedPiecePos.x][selectedPiecePos.y]->getTeam() == Team::BLACK && mousePosArray.y == 7)
 				{
-					if (willBeInCheck(selectedPiecePos, mousePosArray, Team::BLACK))
+					m_field[mousePosArray.x][mousePosArray.y] = new Queen(Team::BLACK, sf::Vector2f(static_cast<float>(mousePosArray.x), static_cast<float>(mousePosArray.y)), blackQueenTex);
+				}
+				else
+					m_field[mousePosArray.x][mousePosArray.y] = m_field[selectedPiecePos.x][selectedPiecePos.y];
+
+				m_field[selectedPiecePos.x][selectedPiecePos.y] = nullptr;
+
+				// Movement of rook for castling
+				if (m_field[mousePosArray.x][mousePosArray.y]->getPieceType() == PieceType::KING && m_field[mousePosArray.x][mousePosArray.y]->getFirstMove())
+				{
+					if (move == sf::Vector2f(160.f, 0.f))
 					{
-						std::cout << "Not a valid move\n";
-						continue;
+						m_field[3][0] = m_field[0][0];
+						m_field[0][0] = nullptr;
 					}
-					else
+					if (move == sf::Vector2f(480.f, 0.f))
 					{
-						// Changes pawn into queen if it reaches the end
-						if (m_field[selectedPiecePos.x][selectedPiecePos.y]->getPieceType() == PieceType::PAWN &&
-							m_field[selectedPiecePos.x][selectedPiecePos.y]->getTeam() == Team::WHITE && mousePosArray.y == 0)
-						{
-							m_field[mousePosArray.x][mousePosArray.y] = new Queen(Team::WHITE, sf::Vector2f(static_cast<float>(mousePosArray.x), static_cast<float>(mousePosArray.y)), whiteQueenTex);
-						}
-						else if (m_field[selectedPiecePos.x][selectedPiecePos.y]->getPieceType() == PieceType::PAWN &&
-							m_field[selectedPiecePos.x][selectedPiecePos.y]->getTeam() == Team::BLACK && mousePosArray.y == 7)
-						{
-							m_field[mousePosArray.x][mousePosArray.y] = new Queen(Team::BLACK, sf::Vector2f(static_cast<float>(mousePosArray.x), static_cast<float>(mousePosArray.y)), blackQueenTex);
-						}
-						else
-							m_field[mousePosArray.x][mousePosArray.y] = m_field[selectedPiecePos.x][selectedPiecePos.y];
-
-						m_field[selectedPiecePos.x][selectedPiecePos.y] = nullptr;
-
-						endTurn(mousePosArray);
-						bkInCheck = false;
-						break;
+						m_field[5][0] = m_field[7][0];
+						m_field[7][0] = nullptr;
+					}
+					if (move == sf::Vector2f(160.f, 560.f))
+					{
+						m_field[3][7] = m_field[0][7];
+						m_field[0][7] = nullptr;
+					}
+					if (move == sf::Vector2f(480.f, 560.f))
+					{
+						m_field[5][7] = m_field[7][7];
+						m_field[7][7] = nullptr;
 					}
 				}
+
+				//// fix en passant
+
+				// can be en passanted
+				//if (m_field[mousePosArray.x][mousePosArray.y]->getPieceType() == PieceType::PAWN &&
+				//	m_field[mousePosArray.x][mousePosArray.y]->getTeam() == Team::BLACK &&
+				//	mousePosArray.y == selectedPiecePos.y + 2)
+				//{
+				//	m_field[mousePosArray.x][mousePosArray.y]->toggleEnPassant();
+				//}
+				//if (m_field[mousePosArray.x][mousePosArray.y]->getPieceType() == PieceType::PAWN &&
+				//	m_field[mousePosArray.x][mousePosArray.y]->getTeam() == Team::WHITE &&
+				//	mousePosArray.y == selectedPiecePos.y - 2)
+				//{
+				//	m_field[mousePosArray.x][mousePosArray.y]->toggleEnPassant();
+				//}
+
+
+				endTurn(mousePosArray);
+
+				if (bkInCheck)
+					bkInCheck = false;
+				else if (wkInCheck)
+					wkInCheck = false;
+				
+				break;
 			}
 		}
-		else if (wkInCheck) // White king is in check
-		{
-			for (sf::Vector2f move : possibleMoves) // Moves if correct move
-			{
-				if (static_cast<sf::Vector2f>(mousePos) == move)
-				{
-					if (willBeInCheck(selectedPiecePos, mousePosArray, Team::WHITE))
-					{
-						std::cout << "Not a valid move\n";
-						continue;
-					}
-					else
-					{
-						// Changes pawn into queen if it reaches the end
-						if (m_field[selectedPiecePos.x][selectedPiecePos.y]->getPieceType() == PieceType::PAWN &&
-							m_field[selectedPiecePos.x][selectedPiecePos.y]->getTeam() == Team::WHITE && mousePosArray.y == 0)
-						{
-							m_field[mousePosArray.x][mousePosArray.y] = new Queen(Team::WHITE, sf::Vector2f(static_cast<float>(mousePosArray.x), static_cast<float>(mousePosArray.y)), whiteQueenTex);
-						}
-						else if (m_field[selectedPiecePos.x][selectedPiecePos.y]->getPieceType() == PieceType::PAWN &&
-							m_field[selectedPiecePos.x][selectedPiecePos.y]->getTeam() == Team::BLACK && mousePosArray.y == 7)
-						{
-							m_field[mousePosArray.x][mousePosArray.y] = new Queen(Team::BLACK, sf::Vector2f(static_cast<float>(mousePosArray.x), static_cast<float>(mousePosArray.y)), blackQueenTex);
-						}
-						else
-							m_field[mousePosArray.x][mousePosArray.y] = m_field[selectedPiecePos.x][selectedPiecePos.y];
-
-						m_field[selectedPiecePos.x][selectedPiecePos.y] = nullptr;
-
-						endTurn(mousePosArray);
-						wkInCheck = false;
-						break;
-					}
-				}
-			}
-		}
-
 		pieceMoved = true;
 		lockClick = true;
 	}
