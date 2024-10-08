@@ -11,7 +11,7 @@ Game::Game()
 	darkBrown(181, 136, 95, 255),
 	grayCircle(140, 140, 140, 160),
 	textHighlight(143, 107, 74, 255),
-	bkInCheck(false), wkInCheck(false),
+	blackKingInCheck(false), whiteKingInCheck(false),
 	pieceMoved(false), playAgain(false),
 	buttonPressed(false), lockClick(false),
 	startButton(sf::String("Play"), FontType::REGULAR, 60u, sf::Vector2f(320.f, 320.f)),
@@ -157,6 +157,7 @@ bool Game::playingGameState(sf::Vector2i actualMousePos, sf::Event event, bool l
 	//		changeGamestate(State::MENU);
 	//	}
 	//}
+
 	
 	// Piece is not selected
 	if (!pieceSelected && leftButtonClicked)
@@ -269,10 +270,10 @@ bool Game::playingGameState(sf::Vector2i actualMousePos, sf::Event event, bool l
 
 				endTurn(mousePosArray);
 
-				if (bkInCheck)
-					bkInCheck = false;
-				else if (wkInCheck)
-					wkInCheck = false;
+				if (blackKingInCheck)
+					blackKingInCheck = false;
+				else if (whiteKingInCheck)
+					whiteKingInCheck = false;
 				
 				break;
 			}
@@ -425,15 +426,15 @@ void Game::update()
 
 	if (isInCheck(whiteKingPos, Team::WHITE))
 	{
-		if (!wkInCheck)
+		if (!whiteKingInCheck)
 			std::cout << "White king is in check\n";
-		wkInCheck = true;
+		whiteKingInCheck = true;
 	}
 	if (isInCheck(blackKingPos, Team::BLACK))
 	{
-		if (!bkInCheck)
+		if (!blackKingInCheck)
 			std::cout << "Black king is in check\n";
-		bkInCheck = true;
+		blackKingInCheck = true;
 	}
 	if (pieceMoved)
 	{

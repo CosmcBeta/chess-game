@@ -81,7 +81,7 @@ public:
 private:
 	// Bools and consts
 	const float circleRadius = 20.f;
-	bool wkInCheck, bkInCheck;
+	bool whiteKingInCheck, blackKingInCheck;
 	bool pieceSelected, pieceMoved;
 	bool playAgain, lockClick, buttonPressed;
 
