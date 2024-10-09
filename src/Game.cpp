@@ -1,6 +1,7 @@
 #include "Game.hpp"
 
 // add: in game menu, actual settings, en passant, highlight when moved and in check
+// random comment
 
 Game::Game()
 	:m_window("Chess", sf::Vector2u(640, 640)),
