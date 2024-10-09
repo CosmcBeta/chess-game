@@ -40,6 +40,7 @@ public:
 	void handleInput();
 	void update();
 	void render();
+	void renderBoard();
 
 	// Clock and time
 	sf::Time getElapsed();

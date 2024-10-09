@@ -158,6 +158,11 @@ bool Game::playingGameState(sf::Vector2i actualMousePos, sf::Event event, bool l
 	//	}
 	//}
 
+	// Team selectedPieceTeam = m_field[selectedPiecePos.x][selectedPiecePos.y]->getTeam(); dont work error when selecting move
+	// PieceType selectedPieceType = m_field[selectedPiecePos.x][selectedPiecePos.y]->getPieceType(); also dont work error when selecting move
+
+	// Team currentPieceTeam = m_field[mousePosArray.x][mousePosArray.y]->getTeam(); dont work, error when selecting piece
+	// PieceType currentPieceType = m_field[mousePosArray.x][mousePosArray.y]->getPieceType(); same issue as above
 	
 	// Piece is not selected
 	if (!pieceSelected && leftButtonClicked)
@@ -646,78 +651,64 @@ void Game::render()
 	m_window.beginDraw(); // Clear
 
 	// Playing game display
-	if (gameState == State::PLAYING_GAME)
+	switch (gameState)
 	{
-		for (sf::RectangleShape i : backgroundArray)
-		{
-			m_window.draw(i);
-		}
+		case State::PLAYING_GAME:
+			renderBoard();
 
-		for (auto& rows : m_field)
-		{
-			for (auto& elem : rows)
-			{
-				if (elem == nullptr)
-					continue;
-				sf::Sprite temp = elem->getSprite();
-				m_window.draw(temp);
-			}
-		}
+			if (moveCircles.size() == 0)
+				break;
 
-		if (moveCircles.size() != 0)
-		{
 			for (sf::CircleShape i : moveCircles)
 			{
 				m_window.draw(i);
 			}
-		}
-	}
+			break;
+		case State::MENU:
+			m_window.draw(background);
+			m_window.draw(titleText);
+			m_window.draw(startButton);
+			m_window.draw(settingsButton);
+			m_window.draw(exitButton);
+			break;
+		case State::SETTINGS:
+			m_window.draw(background);
+			m_window.draw(settingsBackButton);
+			m_window.draw(settingsTitleText);
+			break;
+		case State::GAME_OVER:
+			renderBoard();
 
-	// Menu display
-	if (gameState == State::MENU)
-	{
-		m_window.draw(background);
-		m_window.draw(titleText);
-		m_window.draw(startButton);
-		m_window.draw(settingsButton);
-		m_window.draw(exitButton);
-	}
-
-	// Settings display
-	if (gameState == State::SETTINGS)
-	{
-		m_window.draw(background);
-		m_window.draw(settingsBackButton);
-		m_window.draw(settingsTitleText);
-	}
-
-	// Game over screen display
-	if (gameState == State::GAME_OVER)
-	{
-		for (sf::RectangleShape i : backgroundArray)
-		{
-			m_window.draw(i);
-		}
-
-		for (auto& rows : m_field)
-		{
-			for (auto& elem : rows)
-			{
-				if (elem == nullptr)
-					continue;
-				sf::Sprite temp = elem->getSprite();
-				m_window.draw(temp);
-			}
-		}
-
-		m_window.draw(gameOverBackground);
-		m_window.draw(gameOverTitleText);
-		m_window.draw(winnerText);
-		m_window.draw(mainMenuButton);
-		m_window.draw(playAgainButton);
+			m_window.draw(gameOverBackground);
+			m_window.draw(gameOverTitleText);
+			m_window.draw(winnerText);
+			m_window.draw(mainMenuButton);
+			m_window.draw(playAgainButton);
+			break;
+		default:
+			break;
 	}
 
 	m_window.endDraw(); // Display
+}
+
+void Game::renderBoard()
+{
+	for (sf::RectangleShape i : backgroundArray)
+	{
+		m_window.draw(i);
+	}
+
+	for (auto& rows : m_field)
+	{
+		for (auto& elem : rows)
+		{
+			if (elem == nullptr)
+				continue;
+			sf::Sprite temp = elem->getSprite();
+			m_window.draw(temp);
+		}
+	}
 }
 
 // Creates the background tile array
@@ -730,15 +721,15 @@ void Game::createBackground()
 	darkRect.setFillColor(darkBrown);
 
 	int j = 0;
-	for (int x = 0; x < 8; x++)
+	for (int r = 0; r < 8; r++)
 	{
-		for (int y = 0; y < 8; y++)
+		for (int c = 0; c < 8; c++)
 		{
-			if (x % 2 == 0 && j % 2 == 0 || x % 2 == 1 && j % 2 == 1)
+			if (r % 2 == 0 && j % 2 == 0 || r % 2 == 1 && j % 2 == 1)
 				backgroundArray[j] = lightRect;
 			else
 				backgroundArray[j] = darkRect;
-			backgroundArray[j++].setPosition(sf::Vector2f(x * 80.f, y * 80.f));
+			backgroundArray[j++].setPosition(sf::Vector2f(r * 80.f, c * 80.f));
 		}
 	}
 }
@@ -764,6 +755,7 @@ void Game::createTextures()
 // Creates all the pieces and adds them to 2d array m_field
 void Game::createPieces()
 {
+	// Add white pieces
 	m_field[4][7] = new King(Team::WHITE, sf::Vector2f(4, 7), whiteKingTex);
 	m_field[3][7] = new Queen(Team::WHITE, sf::Vector2f(3, 7), whiteQueenTex);
 	m_field[2][7] = new Bishop(Team::WHITE, sf::Vector2f(2, 7), whiteBishopTex);
@@ -777,6 +769,7 @@ void Game::createPieces()
 		m_field[i][6] = new Pawn(Team::WHITE, sf::Vector2f(i, 6), whitePawnTex);
 	}
 
+	// Add black pieces
 	m_field[4][0] = new King(Team::BLACK, sf::Vector2f(4, 0), blackKingTex);
 	m_field[3][0] = new Queen(Team::BLACK, sf::Vector2f(3, 0), blackQueenTex);
 	m_field[2][0] = new Bishop(Team::BLACK, sf::Vector2f(2, 0), blackBishopTex);
@@ -790,6 +783,7 @@ void Game::createPieces()
 		m_field[i][1] = new Pawn(Team::BLACK, sf::Vector2f(i, 1), blackPawnTex);
 	}
 
+	// Add black spaces
 	for (int i = 2; i < 6; i++)
 	{
 		for (int j = 0; j < 8; j++)
