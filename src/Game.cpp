@@ -20,11 +20,22 @@ Game::Game()
 	exitButton(sf::String("Exit"), FontType::REGULAR, 60u, sf::Vector2f(320.f, 480.f)),
 	settingsBackButton(sf::String("Main Menu"), FontType::REGULAR, 40u, sf::Vector2f(320.f, 600.f)),
 	playAgainButton(sf::String("Play Again"), FontType::REGULAR, 35u, sf::Vector2f(200.f, 400.f)),
-	mainMenuButton(sf::String("Main Menu"), FontType::REGULAR, 35u, sf::Vector2f(420.f, 400.f))
+	mainMenuButton(sf::String("Main Menu"), FontType::REGULAR, 35u, sf::Vector2f(420.f, 400.f)),
+	titleText(myriadBold), settingsTitleText(myriadBold), gameOverTitleText(myriadBold), winnerText(myriadSemibold)
 {
 	restartClock();
 	srand(static_cast<unsigned int>(time(NULL)));
 
+	myriadBold.openFromFile("assets/myriad_pro_bold.ttf");
+	myriadRegular.openFromFile("assets/myriad_pro_regular.ttf");
+	myriadSemibold.openFromFile("assets/myriad_pro_semibold.ttf");
+
+	titleText = sf::Text(myriadBold, "Chess", 185);
+	settingsTitleText = sf::Text(myriadBold, "Settings", 135);
+	gameOverTitleText = sf::Text(myriadBold, "Game Over", 80);
+	winnerText = sf::Text(myriadSemibold, "Stalemate", 45);
+
+	//loadFonts();
 	createTexts();
 	changeGamestate(State::MENU);
 }
@@ -46,7 +57,7 @@ void Game::changeGamestate(State p_newState)
 		if (!playAgain)
 		{
 			createTextures();
-			createBackground();
+				createBackground();
 		}
 		createPieces();
 		playerTurn = Team::WHITE;
@@ -74,9 +85,13 @@ void Game::changeGamestate(State p_newState)
 // Handles input from user
 void Game::handleInput()
 {
-	sf::Event event = m_window.getEvent();
+	std::optional event = m_window.getEvent();
 	sf::Vector2i mousePos = m_window.getMousePos();
-	bool leftButtonClicked = (event.type == sf::Event::MouseButtonPressed && event.mouseButton.button == sf::Mouse::Left && !lockClick);
+	bool leftButtonClicked = false;
+	if (auto mouse = event->getIf<sf::Event::MouseButtonPressed>())
+    	leftButtonClicked = (mouse->button == sf::Mouse::Button::Left && !lockClick);
+
+	//bool leftButtonClicked = (event.type == sf::Event::MouseButtonPressed && event.mouseButton.button == sf::Mouse::Left && !lockClick);
 	
 	switch (gameState)
 	{
@@ -96,11 +111,20 @@ void Game::handleInput()
 			break;
 	}
 
-	if (event.type == sf::Event::MouseButtonReleased && event.mouseButton.button == sf::Mouse::Left)
+	if (auto mouse = event->getIf<sf::Event::MouseButtonReleased>())
 	{
-		lockClick = false;
-		buttonPressed = false;
+		if (mouse->button == sf::Mouse::Button::Left) {
+			lockClick = false;
+			buttonPressed = false;
+		}
 	}
+
+
+	// if (event.type == sf::Event::MouseButtonReleased && event.mouseButton.button == sf::Mouse::Left)
+	// {
+	// 	lockClick = false;
+	// 	buttonPressed = false;
+	// }
 
 }
 
@@ -144,7 +168,7 @@ void Game::settingsState(sf::Vector2i mousePos, bool leftButtonClicked)
 	}
 }
 
-bool Game::playingGameState(sf::Vector2i actualMousePos, sf::Event event, bool leftButtonClicked)
+bool Game::playingGameState(sf::Vector2i actualMousePos, std::optional<sf::Event> event, bool leftButtonClicked)
 {
 	static sf::Vector2i selectedPiecePos(0, 0); // Array scale
 	sf::Vector2i mousePosArray = sf::Vector2i(actualMousePos.x / 80, actualMousePos.y / 80); // 8 by 8
@@ -310,6 +334,14 @@ void Game::gameOverState(sf::Vector2i mousePos, bool leftButtonClicked)
 	}
 }
 
+// // Loads fonts
+// void Game::loadFonts()
+// {
+// 	myriadBold.openFromFile("assets/myriad_pro_bold.ttf");
+// 	myriadRegular.openFromFile("assets/myriad_pro_regular.ttf");
+// 	myriadSemibold.openFromFile("assets/myriad_pro_semibold.ttf");
+// }
+
 // Creates the fonts and texts
 void Game::createTexts()
 {
@@ -321,43 +353,48 @@ void Game::createTexts()
 	gameOverBackground.setFillColor(lightBrown);
 	gameOverBackground.setOutlineThickness(3);
 	gameOverBackground.setOutlineColor(sf::Color::Black);
-	gameOverBackground.setPosition(100.f, 200.f);
+	gameOverBackground.setPosition({100.f, 200.f});
 	gameOverBackground.setSize(sf::Vector2f(440.f, 240.f));
 
-	myriadBold.loadFromFile("assets/myriad_pro_bold.ttf");
-	myriadRegular.loadFromFile("assets/myriad_pro_regular.ttf");
-	myriadSemibold.loadFromFile("assets/myriad_pro_semibold.ttf");
+	// myriadBold.openFromFile("assets/myriad_pro_bold.ttf");
+	// myriadRegular.openFromFile("assets/myriad_pro_regular.ttf");
+	// myriadSemibold.openFromFile("assets/myriad_pro_semibold.ttf");
 
-	titleText.setString(sf::String("Chess"));
-	titleText.setFont(myriadBold);
-	titleText.setCharacterSize(185);
+	// titleText = sf::Text(myriadBold, "Chess", 185);
+	// settingsTitleText = sf::Text(myriadBold, "Settings", 135);
+	// gameOverTitleText = sf::Text(myriadBold, "Game Over", 80);
+	// winnerText = sf::Text(myriadSemibold, "Stalemate", 45);
+
+	//titleText.setString(sf::String("Chess"));
+	//titleText.setFont(myriadBold);
+	//titleText.setCharacterSize(185);
 	titleText.setFillColor(darkBrown);
 	textBounds = titleText.getLocalBounds();
-	titleText.setOrigin(textBounds.left + textBounds.width / 2.f, textBounds.top + textBounds.height / 2.f);
+	titleText.setOrigin({textBounds.position.x + textBounds.size.x / 2.f, textBounds.position.y + textBounds.size.y / 2.f});
 	titleText.setPosition(sf::Vector2f(320.f, 160.f));
 
-	settingsTitleText.setString(sf::String("Settings"));
-	settingsTitleText.setFont(myriadBold);
-	settingsTitleText.setCharacterSize(135);
+	//settingsTitleText.setString(sf::String("Settings"));
+	//settingsTitleText.setFont(myriadBold);
+	//settingsTitleText.setCharacterSize(135);
 	settingsTitleText.setFillColor(darkBrown);
 	textBounds = settingsTitleText.getLocalBounds();
-	settingsTitleText.setOrigin(textBounds.left + textBounds.width / 2.f, textBounds.top + textBounds.height / 2.f);
+	settingsTitleText.setOrigin({textBounds.position.x + textBounds.size.x / 2.f, textBounds.position.y + textBounds.size.y / 2.f});
 	settingsTitleText.setPosition(sf::Vector2f(320.f, 120.f));
 
-	gameOverTitleText.setString(sf::String("Game Over"));
-	gameOverTitleText.setFont(myriadBold);
-	gameOverTitleText.setCharacterSize(80);
+	//gameOverTitleText.setString(sf::String("Game Over"));
+	//gameOverTitleText.setFont(myriadBold);
+	//gameOverTitleText.setCharacterSize(80);
 	gameOverTitleText.setFillColor(darkBrown);
 	textBounds = gameOverTitleText.getLocalBounds();
-	gameOverTitleText.setOrigin(textBounds.left + textBounds.width / 2.f, textBounds.top + textBounds.height / 2.f);
+	gameOverTitleText.setOrigin({textBounds.position.x + textBounds.size.x / 2.f, textBounds.position.y + textBounds.size.y / 2.f});
 	gameOverTitleText.setPosition(sf::Vector2f(320.f, 235.f));
 
-	winnerText.setString(sf::String("Stalemate"));
-	winnerText.setFont(myriadSemibold);
-	winnerText.setCharacterSize(45);
+	//winnerText.setString(sf::String("Stalemate"));
+	//winnerText.setFont(myriadSemibold);
+	//winnerText.setCharacterSize(45);
 	winnerText.setFillColor(darkBrown);
 	textBounds = winnerText.getLocalBounds();
-	winnerText.setOrigin(textBounds.left + textBounds.width / 2.f, textBounds.top + textBounds.height / 2.f);
+	winnerText.setOrigin({textBounds.position.x + textBounds.size.x / 2.f, textBounds.position.y + textBounds.size.y / 2.f});
 	winnerText.setPosition(sf::Vector2f(320.f, 290.f));
 }
 
@@ -738,7 +775,10 @@ void Game::createBackground()
 // Initializes the textures used for the pieces
 void Game::createTextures()
 {
-	whitePawnTex.loadFromFile("assets/white_pawn.png");
+	if (!whitePawnTex.loadFromFile("assets/white_pawn.png")) 
+	{
+		std::cout << "No Load";
+	}
 	whiteRookTex.loadFromFile("assets/white_rook.png");
 	whiteBishopTex.loadFromFile("assets/white_bishop.png");
 	whiteKnightTex.loadFromFile("assets/white_knight.png");

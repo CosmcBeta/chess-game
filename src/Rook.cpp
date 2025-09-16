@@ -1,6 +1,6 @@
 #include "Rook.hpp"
 
-Rook::Rook(Team t, sf::Vector2f p_pos, sf::Texture p_texture)
+Rook::Rook(Team t, sf::Vector2f p_pos, sf::Texture& p_texture)
 	:Piece(t, PieceType::ROOK, p_pos, p_texture)
 {}
 

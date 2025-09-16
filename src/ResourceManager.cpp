@@ -75,7 +75,7 @@ bool ResourceManager::addFont(const std::string& id, const std::string& fontPath
 
     std::unique_ptr<sf::Font> font = std::make_unique<sf::Font>();
 
-    if (!font->loadFromFile(fontPath))
+    if (!font->openFromFile(fontPath))
     {
         std::cout << "Unable to open font: " << fontPath << "\n";
         return false;

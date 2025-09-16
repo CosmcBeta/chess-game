@@ -1,6 +1,6 @@
 #include "Knight.hpp"
 
-Knight::Knight(Team t, sf::Vector2f p_pos, sf::Texture p_texture)
+Knight::Knight(Team t, sf::Vector2f p_pos, sf::Texture& p_texture)
 	:Piece(t, PieceType::KNIGHT, p_pos, p_texture)
 {}
 

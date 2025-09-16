@@ -1,6 +1,6 @@
 #include "Queen.hpp"
 
-Queen::Queen(Team t, sf::Vector2f p_pos, sf::Texture p_texture)
+Queen::Queen(Team t, sf::Vector2f p_pos, sf::Texture& p_texture)
 	:Piece(t, PieceType::QUEEN, p_pos, p_texture)
 {}
 

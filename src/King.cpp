@@ -1,6 +1,6 @@
 #include "King.hpp"
 
-King::King(Team t, sf::Vector2f p_pos, sf::Texture p_texture)
+King::King(Team t, sf::Vector2f p_pos, sf::Texture& p_texture)
 	:Piece(t, PieceType::KING, p_pos, p_texture)
 {}
 

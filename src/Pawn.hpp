@@ -9,7 +9,7 @@
 class Pawn : public Piece
 {
 public:
-	Pawn(Team t, sf::Vector2f p_pos, sf::Texture p_texture);
+	Pawn(Team t, sf::Vector2f p_pos, sf::Texture& p_texture);
 
 	virtual void calcMoves(Piece* p_field[8][8]);
 };

@@ -1,10 +1,11 @@
 #include "Piece.hpp"
 
-Piece::Piece(Team t, PieceType type, sf::Vector2f p_pos, sf::Texture p_texture)
-	:m_pieceType(type), m_team(t), m_texture(p_texture), m_firstMove(true), m_canEnPassant(false)
+Piece::Piece(Team t, PieceType type, sf::Vector2f p_pos, sf::Texture& p_texture)
+	:m_pieceType(type), m_team(t), m_texture(p_texture), m_firstMove(true), m_canEnPassant(false),
+	m_sprite(p_texture)
 {
-	m_sprite.setTexture(m_texture);
-	m_sprite.setPosition(p_pos.x * 80.f, p_pos.y * 80.f);
+	//m_sprite.setTexture(m_texture);
+	m_sprite.setPosition({p_pos.x * 80.f, p_pos.y * 80.f});
 	m_position.x = (int)p_pos.x;
 	m_position.y = (int)p_pos.y;
 	m_sprite.setScale(sf::Vector2f(scale, scale));
@@ -24,7 +25,7 @@ bool Piece::getEnPassant() { return m_canEnPassant; }
 
 void Piece::setPos(sf::Vector2f p_pos) 
 { 
-	m_sprite.setPosition(p_pos.x * 80.f, p_pos.y * 80.f); 
+	m_sprite.setPosition({p_pos.x * 80.f, p_pos.y * 80.f}); 
 	m_position.x = (int)p_pos.x;
 	m_position.y = (int)p_pos.y;
 }

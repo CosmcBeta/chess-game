@@ -9,6 +9,7 @@ int main()
 		game->update();
 		game->render();
 		game->restartClock();
+		//std::cout << game->getWindow()->isDone() << "\n";
 	}
 	delete game;
 	return 0;

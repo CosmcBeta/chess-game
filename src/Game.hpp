@@ -50,6 +50,7 @@ public:
 	void createBackground();
 	void createPieces();
 	void createTexts();
+	void loadFonts();
 	void createTextures();
 	void changeGamestate(State p_newState);
 	void endTurn(sf::Vector2i p_mousePos);
@@ -77,7 +78,7 @@ public:
 	void settingsState(sf::Vector2i mousePos, bool leftButtonClicked);
 	void gameOverState(sf::Vector2i mousePos, bool leftButtonClicked);
 
-	bool playingGameState(sf::Vector2i actualMousePos, sf::Event event, bool leftButtonClicked);
+	bool playingGameState(sf::Vector2i actualMousePos, std::optional<sf::Event> event, bool leftButtonClicked);
 
 private:
 	// Bools and consts

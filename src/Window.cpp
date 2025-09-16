@@ -15,7 +15,8 @@ void Window::setup(const std::string title, const sf::Vector2u& size)
 
 void Window::create() 
 {
-	m_window.create({ m_windowSize.x, m_windowSize.y, 32 }, m_windowTitle, sf::Style::Default);
+	sf::VideoMode videoMode({m_windowSize.x, m_windowSize.y});
+	m_window.create(sf::VideoMode({m_windowSize.x, m_windowSize.y}), m_windowTitle, sf::Style::Default);
 }
 
 void Window::destroy() 
@@ -43,15 +44,28 @@ sf::Vector2u Window::getWindowSize() { return m_windowSize; }
 
 void Window::update() 
 {
-	while (m_window.pollEvent(m_event))
+	while (const std::optional event = m_window.pollEvent())
 	{
-		if (m_event.type == sf::Event::Closed) { m_isDone = true; }
+		//const sf::Event& event = *optEvent;
+		if (event->is<sf::Event::Closed>())
+		{
+			m_isDone = true;
+		}
 	}
+	// while (m_window.pollEvent(m_event))
+	// {
+	// 	if (m_event.type == sf::Event::Closed) { m_isDone = true; }
+	// }
 }
+// while (auto event = window.pollEvent()) {
+//     if (event->type == sf::Event::Closed)
+//         window.close();
+// }
 
-sf::Event& Window::getEvent()
+
+std::optional<sf::Event> Window::getEvent()
 {
-	return m_event;
+	return m_window.pollEvent();
 }
 
 sf::Vector2i Window::getMousePos()

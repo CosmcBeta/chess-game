@@ -1,6 +1,6 @@
 #include "Bishop.hpp"
 
-Bishop::Bishop(Team t, sf::Vector2f p_pos, sf::Texture p_texture)
+Bishop::Bishop(Team t, sf::Vector2f p_pos, sf::Texture& p_texture)
 	:Piece(t, PieceType::BISHOP, p_pos, p_texture)
 {}
 

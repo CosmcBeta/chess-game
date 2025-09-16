@@ -1,6 +1,6 @@
 #include "Pawn.hpp"
 
-Pawn::Pawn(Team t, sf::Vector2f p_pos, sf::Texture p_texture)
+Pawn::Pawn(Team t, sf::Vector2f p_pos, sf::Texture& p_texture)
 	:Piece(t, PieceType::PAWN, p_pos, p_texture)
 {}
 

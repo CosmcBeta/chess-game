@@ -23,7 +23,7 @@ enum class PieceType
 class Piece
 {
 public:
-	Piece(Team t, PieceType type, sf::Vector2f p_pos, sf::Texture p_texture);
+	Piece(Team t, PieceType type, sf::Vector2f p_pos, sf::Texture& p_texture);
 
 	Team getTeam();
 	PieceType getPieceType();

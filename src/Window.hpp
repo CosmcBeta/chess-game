@@ -1,7 +1,7 @@
 #pragma once
 
-#include <SFML/Window.hpp>
 #include <SFML/Graphics.hpp>
+#include <SFML/Window/Event.hpp>
 #include <string>
 #include <iostream>
 
@@ -18,7 +18,7 @@ public:
 	void update();
 	sf::Vector2i getMousePos();
 
-	sf::Event& getEvent();
+	std::optional<sf::Event> getEvent();
 	sf::RenderWindow* getRenderWindow();
 
 	bool isDone();
@@ -26,7 +26,7 @@ public:
 	void setIsDone(bool p_isDone);
 
 	void draw(sf::Drawable& p_drawable);
-	sf::Event m_event;
+	// sf::Event m_event;
 private:
 	void setup(const std::string title, const sf::Vector2u& size);
 	void create();
