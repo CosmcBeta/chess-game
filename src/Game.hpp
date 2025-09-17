@@ -50,7 +50,6 @@ public:
 	void createBackground();
 	void createPieces();
 	void createTexts();
-	void loadFonts();
 	void createTextures();
 	void changeGamestate(State p_newState);
 	void endTurn(sf::Vector2i p_mousePos);

@@ -11,3 +11,6 @@ All result states:
 
 fix gamestate function
 finish fixing code
+
+// add: in game menu, actual settings, en passant, highlight when moved and in check
+// random comment

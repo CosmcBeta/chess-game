@@ -46,22 +46,10 @@ void Window::update()
 {
 	while (const std::optional event = m_window.pollEvent())
 	{
-		//const sf::Event& event = *optEvent;
 		if (event->is<sf::Event::Closed>())
-		{
 			m_isDone = true;
-		}
 	}
-	// while (m_window.pollEvent(m_event))
-	// {
-	// 	if (m_event.type == sf::Event::Closed) { m_isDone = true; }
-	// }
 }
-// while (auto event = window.pollEvent()) {
-//     if (event->type == sf::Event::Closed)
-//         window.close();
-// }
-
 
 std::optional<sf::Event> Window::getEvent()
 {

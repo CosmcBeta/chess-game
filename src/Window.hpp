@@ -26,7 +26,7 @@ public:
 	void setIsDone(bool p_isDone);
 
 	void draw(sf::Drawable& p_drawable);
-	// sf::Event m_event;
+
 private:
 	void setup(const std::string title, const sf::Vector2u& size);
 	void create();
