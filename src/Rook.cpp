@@ -4,7 +4,7 @@ Rook::Rook(Team t, sf::Vector2f p_pos, sf::Texture& p_texture)
 	:Piece(t, PieceType::ROOK, p_pos, p_texture)
 {}
 
-void Rook::calcMoves(Piece* p_field[8][8])
+void Rook::calcMoves(Board p_field)
 {
 	possibleMoves.clear();
 	sf::Vector2i deltaPos(0, 0);
@@ -15,11 +15,11 @@ void Rook::calcMoves(Piece* p_field[8][8])
 		{
 			if (p_field[deltaPos.x + m_position.x][m_position.y] == nullptr)
 			{
-				possibleMoves.push_back(sf::Vector2f(m_sprite.getPosition().x + (deltaPos.x * 80), m_sprite.getPosition().y));
+				possibleMoves.push_back({MoveType::NORMAL, sf::Vector2f(m_sprite.getPosition().x + (deltaPos.x * 80), m_sprite.getPosition().y)});
 			}
 			else if (p_field[deltaPos.x + m_position.x][m_position.y] != nullptr && p_field[deltaPos.x + m_position.x][m_position.y]->getTeam() != m_team)
 			{
-				possibleMoves.push_back(sf::Vector2f(m_sprite.getPosition().x + (deltaPos.x * 80), m_sprite.getPosition().y));
+				possibleMoves.push_back({MoveType::NORMAL, sf::Vector2f(m_sprite.getPosition().x + (deltaPos.x * 80), m_sprite.getPosition().y)});
 				break;
 			}
 			else
@@ -34,11 +34,11 @@ void Rook::calcMoves(Piece* p_field[8][8])
 		{
 			if (p_field[deltaPos.x + m_position.x][m_position.y] == nullptr)
 			{
-				possibleMoves.push_back(sf::Vector2f(m_sprite.getPosition().x + (deltaPos.x * 80), m_sprite.getPosition().y));
+				possibleMoves.push_back({MoveType::NORMAL, sf::Vector2f(m_sprite.getPosition().x + (deltaPos.x * 80), m_sprite.getPosition().y)});
 			}
 			else if (p_field[deltaPos.x + m_position.x][m_position.y] != nullptr && p_field[deltaPos.x + m_position.x][m_position.y]->getTeam() != m_team)
 			{
-				possibleMoves.push_back(sf::Vector2f(m_sprite.getPosition().x + (deltaPos.x * 80), m_sprite.getPosition().y));
+				possibleMoves.push_back({MoveType::NORMAL, sf::Vector2f(m_sprite.getPosition().x + (deltaPos.x * 80), m_sprite.getPosition().y)});
 				break;
 			}
 			else
@@ -52,11 +52,11 @@ void Rook::calcMoves(Piece* p_field[8][8])
 		{
 			if (p_field[m_position.x][deltaPos.y + m_position.y] == nullptr)
 			{
-				possibleMoves.push_back(sf::Vector2f(m_sprite.getPosition().x, m_sprite.getPosition().y + (deltaPos.y * 80)));
+				possibleMoves.push_back({MoveType::NORMAL, sf::Vector2f(m_sprite.getPosition().x, m_sprite.getPosition().y + (deltaPos.y * 80))});
 			}
 			else if (p_field[m_position.x][deltaPos.y + m_position.y] != nullptr && p_field[m_position.x][deltaPos.y + m_position.y]->getTeam() != m_team)
 			{
-				possibleMoves.push_back(sf::Vector2f(m_sprite.getPosition().x, m_sprite.getPosition().y + (deltaPos.y * 80)));
+				possibleMoves.push_back({MoveType::NORMAL, sf::Vector2f(m_sprite.getPosition().x, m_sprite.getPosition().y + (deltaPos.y * 80))});
 				break;
 			}
 			else
@@ -71,11 +71,11 @@ void Rook::calcMoves(Piece* p_field[8][8])
 		{
 			if (p_field[m_position.x][deltaPos.y + m_position.y] == nullptr)
 			{
-				possibleMoves.push_back(sf::Vector2f(m_sprite.getPosition().x, m_sprite.getPosition().y + (deltaPos.y * 80)));
+				possibleMoves.push_back({MoveType::NORMAL, sf::Vector2f(m_sprite.getPosition().x, m_sprite.getPosition().y + (deltaPos.y * 80))});
 			}
 			else if (p_field[m_position.x][deltaPos.y + m_position.y] != nullptr && p_field[m_position.x][deltaPos.y + m_position.y]->getTeam() != m_team)
 			{
-				possibleMoves.push_back(sf::Vector2f(m_sprite.getPosition().x, m_sprite.getPosition().y + (deltaPos.y * 80)));
+				possibleMoves.push_back({MoveType::NORMAL, sf::Vector2f(m_sprite.getPosition().x, m_sprite.getPosition().y + (deltaPos.y * 80))});
 				break;
 			}
 			else

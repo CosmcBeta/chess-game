@@ -4,7 +4,7 @@ Queen::Queen(Team t, sf::Vector2f p_pos, sf::Texture& p_texture)
 	:Piece(t, PieceType::QUEEN, p_pos, p_texture)
 {}
 
-void Queen::calcMoves(Piece* p_field[8][8])
+void Queen::calcMoves(Board p_field)
 {
 	possibleMoves.clear();
 
@@ -43,11 +43,11 @@ void Queen::calcMoves(Piece* p_field[8][8])
 		{
 			if (p_field[deltaPos.x + m_position.x][m_position.y] == nullptr)
 			{
-				possibleMoves.push_back(sf::Vector2f(m_sprite.getPosition().x + (deltaPos.x * 80), m_sprite.getPosition().y));
+				possibleMoves.push_back({MoveType::NORMAL, sf::Vector2f(m_sprite.getPosition().x + (deltaPos.x * 80), m_sprite.getPosition().y)});
 			}
 			else if (p_field[deltaPos.x + m_position.x][m_position.y] != nullptr && p_field[deltaPos.x + m_position.x][m_position.y]->getTeam() != m_team)
 			{
-				possibleMoves.push_back(sf::Vector2f(m_sprite.getPosition().x + (deltaPos.x * 80), m_sprite.getPosition().y));
+				possibleMoves.push_back({MoveType::NORMAL, sf::Vector2f(m_sprite.getPosition().x + (deltaPos.x * 80), m_sprite.getPosition().y)});
 				break;
 			}
 			else
@@ -62,11 +62,11 @@ void Queen::calcMoves(Piece* p_field[8][8])
 		{
 			if (p_field[deltaPos.x + m_position.x][m_position.y] == nullptr)
 			{
-				possibleMoves.push_back(sf::Vector2f(m_sprite.getPosition().x + (deltaPos.x * 80), m_sprite.getPosition().y));
+				possibleMoves.push_back({MoveType::NORMAL, sf::Vector2f(m_sprite.getPosition().x + (deltaPos.x * 80), m_sprite.getPosition().y)});
 			}
 			else if (p_field[deltaPos.x + m_position.x][m_position.y] != nullptr && p_field[deltaPos.x + m_position.x][m_position.y]->getTeam() != m_team)
 			{
-				possibleMoves.push_back(sf::Vector2f(m_sprite.getPosition().x + (deltaPos.x * 80), m_sprite.getPosition().y));
+				possibleMoves.push_back({MoveType::NORMAL, sf::Vector2f(m_sprite.getPosition().x + (deltaPos.x * 80), m_sprite.getPosition().y)});
 				break;
 			}
 			else
@@ -80,11 +80,11 @@ void Queen::calcMoves(Piece* p_field[8][8])
 		{
 			if (p_field[m_position.x][deltaPos.y + m_position.y] == nullptr)
 			{
-				possibleMoves.push_back(sf::Vector2f(m_sprite.getPosition().x, m_sprite.getPosition().y + (deltaPos.y * 80)));
+				possibleMoves.push_back({MoveType::NORMAL, sf::Vector2f(m_sprite.getPosition().x, m_sprite.getPosition().y + (deltaPos.y * 80))});
 			}
 			else if (p_field[m_position.x][deltaPos.y + m_position.y] != nullptr && p_field[m_position.x][deltaPos.y + m_position.y]->getTeam() != m_team)
 			{
-				possibleMoves.push_back(sf::Vector2f(m_sprite.getPosition().x, m_sprite.getPosition().y + (deltaPos.y * 80)));
+				possibleMoves.push_back({MoveType::NORMAL, sf::Vector2f(m_sprite.getPosition().x, m_sprite.getPosition().y + (deltaPos.y * 80))});
 				break;
 			}
 			else
@@ -99,11 +99,11 @@ void Queen::calcMoves(Piece* p_field[8][8])
 		{
 			if (p_field[m_position.x][deltaPos.y + m_position.y] == nullptr)
 			{
-				possibleMoves.push_back(sf::Vector2f(m_sprite.getPosition().x, m_sprite.getPosition().y + (deltaPos.y * 80)));
+				possibleMoves.push_back({MoveType::NORMAL, sf::Vector2f(m_sprite.getPosition().x, m_sprite.getPosition().y + (deltaPos.y * 80))});
 			}
 			else if (p_field[m_position.x][deltaPos.y + m_position.y] != nullptr && p_field[m_position.x][deltaPos.y + m_position.y]->getTeam() != m_team)
 			{
-				possibleMoves.push_back(sf::Vector2f(m_sprite.getPosition().x, m_sprite.getPosition().y + (deltaPos.y * 80)));
+				possibleMoves.push_back({MoveType::NORMAL, sf::Vector2f(m_sprite.getPosition().x, m_sprite.getPosition().y + (deltaPos.y * 80))});
 				break;
 			}
 			else
@@ -113,17 +113,17 @@ void Queen::calcMoves(Piece* p_field[8][8])
 	}
 }
 
-bool Queen::addToVector(sf::Vector2i p_pos, Piece* p_field[8][8]) // Returns true if loop should end
+bool Queen::addToVector(sf::Vector2i p_pos, Board p_field) // Returns true if loop should end
 {
 	if (p_field[p_pos.x + m_position.x][p_pos.y + m_position.y] == nullptr)
 	{
-		possibleMoves.push_back(sf::Vector2f(m_sprite.getPosition().x + (p_pos.x * 80), m_sprite.getPosition().y + (p_pos.y * 80)));
+		possibleMoves.push_back({MoveType::NORMAL, sf::Vector2f(m_sprite.getPosition().x + (p_pos.x * 80), m_sprite.getPosition().y + (p_pos.y * 80))});
 		return false;
 	}
 	else if (p_field[p_pos.x + m_position.x][p_pos.y + m_position.y] != nullptr &&
 		p_field[p_pos.x + m_position.x][p_pos.y + m_position.y]->getTeam() != m_team)
 	{
-		possibleMoves.push_back(sf::Vector2f(m_sprite.getPosition().x + (p_pos.x * 80), m_sprite.getPosition().y + (p_pos.y * 80)));
+		possibleMoves.push_back({MoveType::NORMAL, sf::Vector2f(m_sprite.getPosition().x + (p_pos.x * 80), m_sprite.getPosition().y + (p_pos.y * 80))});
 		return true;
 	}
 	else

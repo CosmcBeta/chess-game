@@ -8,9 +8,6 @@ Button::Button()
 	m_text = sf::Text(myriadRegular);
 }
 
-Button::~Button()
-{}
-
 Button::Button(sf::String p_string, FontType p_font, unsigned int p_characterSize, sf::Vector2f p_position)
 	:m_string(p_string), m_position(p_position), mouseInText(false),
 	m_normalColor(181, 136, 95, 255), m_hoveredColor(143, 107, 74, 255), m_text(myriadRegular)
@@ -21,8 +18,6 @@ Button::Button(sf::String p_string, FontType p_font, unsigned int p_characterSiz
 		std::cerr << "Failed to open font\n";
 	if (!myriadSemibold.openFromFile("assets/myriad_pro_semibold.ttf"))
 		std::cerr << "Failed to open font\n";
-
-	m_text = sf::Text(myriadRegular);
 
 	m_text.setString(m_string);
 	switch (p_font)

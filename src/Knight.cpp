@@ -4,7 +4,7 @@ Knight::Knight(Team t, sf::Vector2f p_pos, sf::Texture& p_texture)
 	:Piece(t, PieceType::KNIGHT, p_pos, p_texture)
 {}
 
-void Knight::calcMoves(Piece* p_field[8][8])
+void Knight::calcMoves(Board p_field)
 {
 	possibleMoves.clear();
 	
@@ -28,10 +28,10 @@ void Knight::calcMoves(Piece* p_field[8][8])
 			continue;
 
 		if (p_field[tempPosition.x][tempPosition.y] == nullptr)
-			possibleMoves.push_back(sf::Vector2f(tempPosition.x * 80.f, tempPosition.y * 80.f));
+			possibleMoves.push_back({MoveType::NORMAL, sf::Vector2f(tempPosition.x * 80.f, tempPosition.y * 80.f)});
 
 		if (p_field[tempPosition.x][tempPosition.y] != nullptr && p_field[tempPosition.x][tempPosition.y]->getTeam() != m_team)
-			possibleMoves.push_back(sf::Vector2f(tempPosition.x * 80.f, tempPosition.y * 80.f));
+			possibleMoves.push_back({MoveType::NORMAL, sf::Vector2f(tempPosition.x * 80.f, tempPosition.y * 80.f)});
 	}
 
 

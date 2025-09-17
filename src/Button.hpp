@@ -22,8 +22,6 @@ public:
 	Button();
 	Button(sf::String p_string, FontType p_font, unsigned int p_characterSize, sf::Vector2f p_position);
 
-	~Button();
-
 	void update(sf::Vector2i p_mousePosition);
 	bool getMouseInText();
 

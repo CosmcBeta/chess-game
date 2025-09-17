@@ -11,6 +11,9 @@
 #include "Pawn.hpp"
 #include "Button.hpp"
 
+using Board = std::array<std::array<Piece*, 8>, 8>;
+
+
 // Game state enum
 enum class State
 {
@@ -29,12 +32,13 @@ enum class GameOutcome
 	STALEMATE
 };
 
+const int SQUARE_SIZE = 80;
+
 // Game class
 class Game {
 public:
 	// Constructor and deconstructor
 	Game();
-	~Game();
 
 	// Input, Updates, Rendering - order called in main function
 	void handleInput();
@@ -67,7 +71,7 @@ public:
 	// Functions for piece moves
 	void displayMoves();
 	void removeInvalidMoves(Team p_kingTeam, sf::Vector2i p_oldPos);
-	void removeInvalidMoves(Team p_kingTeam, sf::Vector2i p_oldPos, std::vector<sf::Vector2f>& p_moves);
+	void removeInvalidMoves(Team p_kingTeam, sf::Vector2i p_oldPos, std::vector<Move>& p_moves);
 	int getTotalMoveCount(Team p_team);
 
 	// Returns the window
@@ -94,9 +98,10 @@ private:
 	// Vectors and arrays
 	std::vector<sf::CircleShape> moveCircles;
 	std::vector<sf::Sprite> sprites;
-	std::vector<sf::Vector2f> possibleMoves;
-	Piece* m_field[8][8];
-	Piece* m_potentialField[8][8];
+	std::vector<Move> possibleMoves;
+	Board m_field;
+	Board m_potentialField;
+	std::vector<Board> m_boardHistory;
 	sf::RectangleShape backgroundArray[64];
 
 	// King positions and states

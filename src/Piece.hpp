@@ -4,6 +4,10 @@
 #include <iostream>
 #include <memory>
 
+class Piece;
+
+using Board = std::array<std::array<Piece*, 8>, 8>;
+
 enum class Team
 {
 	WHITE,
@@ -20,6 +24,23 @@ enum class PieceType
 	KING
 };
 
+enum class MoveType
+{
+	NORMAL,
+	CASTLE,
+	EN_PASSANT,
+	PAWN_DOUBLE
+};
+
+class Move
+{
+public:
+	Move(MoveType p_moveType, sf::Vector2f p_pos);
+
+	MoveType moveType;
+	sf::Vector2f pos;
+};
+
 class Piece
 {
 public:
@@ -32,8 +53,8 @@ public:
 	sf::Sprite getSprite();
 
 	void setPos(sf::Vector2f p_pos);
-	virtual void calcMoves(Piece* p_field[8][8]);
-	std::vector<sf::Vector2f> getMoves();
+	virtual void calcMoves(Board p_field);
+	std::vector<Move> getMoves();
 	void toggleFirstMove();
 	bool getFirstMove();
 	void toggleEnPassant();
@@ -46,7 +67,7 @@ protected:
 	Team m_team;
 	PieceType m_pieceType;
 	const float scale = 0.24024024f;
-	std::vector<sf::Vector2f> possibleMoves;
+	std::vector<Move> possibleMoves;
 	bool m_firstMove;
 	bool m_canEnPassant;
 };

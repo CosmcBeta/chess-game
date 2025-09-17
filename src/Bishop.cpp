@@ -4,7 +4,7 @@ Bishop::Bishop(Team t, sf::Vector2f p_pos, sf::Texture& p_texture)
 	:Piece(t, PieceType::BISHOP, p_pos, p_texture)
 {}
 
-void Bishop::calcMoves(Piece* p_field[8][8])
+void Bishop::calcMoves(Board p_field)
 {
 	possibleMoves.clear();
 
@@ -32,17 +32,17 @@ void Bishop::calcMoves(Piece* p_field[8][8])
 	}
 }
 
-bool Bishop::addToVector(sf::Vector2i p_pos, Piece* p_field[8][8]) // Returns true if loop should end
+bool Bishop::addToVector(sf::Vector2i p_pos, Board p_field) // Returns true if loop should end
 {
 	if (p_field[p_pos.x + m_position.x][p_pos.y + m_position.y] == nullptr)
 	{
-		possibleMoves.push_back(sf::Vector2f(m_sprite.getPosition().x + (p_pos.x * 80), m_sprite.getPosition().y + (p_pos.y * 80)));
+		possibleMoves.push_back({MoveType::NORMAL, sf::Vector2f(m_sprite.getPosition().x + (p_pos.x * 80), m_sprite.getPosition().y + (p_pos.y * 80))});
 		return false;
 	}
 	else if (p_field[p_pos.x + m_position.x][p_pos.y + m_position.y] != nullptr &&
 		p_field[p_pos.x + m_position.x][p_pos.y + m_position.y]->getTeam() != m_team)
 	{
-		possibleMoves.push_back(sf::Vector2f(m_sprite.getPosition().x + (p_pos.x * 80), m_sprite.getPosition().y + (p_pos.y * 80)));
+		possibleMoves.push_back({MoveType::NORMAL, sf::Vector2f(m_sprite.getPosition().x + (p_pos.x * 80), m_sprite.getPosition().y + (p_pos.y * 80))});
 		return true;
 	}
 	else

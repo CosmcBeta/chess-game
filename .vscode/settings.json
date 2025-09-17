@@ -4,6 +4,8 @@
         "string": "cpp",
         "iostream": "cpp",
         "ios": "cpp",
-        "optional": "cpp"
+        "optional": "cpp",
+        "vector": "cpp",
+        "array": "cpp"
     }
 }

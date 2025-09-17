@@ -12,5 +12,5 @@ class King : public Piece
 public:
 	King(Team t, sf::Vector2f p_pos, sf::Texture& p_texture);
 
-	virtual void calcMoves(Piece* p_field[8][8]);
+	virtual void calcMoves(Board p_field);
 };

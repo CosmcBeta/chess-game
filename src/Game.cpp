@@ -39,9 +39,6 @@ Game::Game()
 	changeGamestate(State::MENU);
 }
 
-Game::~Game()
-{}
-
 sf::Time Game::getElapsed() { return m_elapsed; }
 void Game::restartClock() { m_elapsed = m_clock.restart(); }
 Window* Game::getWindow() { return &m_window; }
@@ -161,8 +158,8 @@ void Game::settingsState(sf::Vector2i mousePos, bool leftButtonClicked)
 bool Game::playingGameState(sf::Vector2i actualMousePos, std::optional<sf::Event> event, bool leftButtonClicked)
 {
 	static sf::Vector2i selectedPiecePos(0, 0); // Array scale
-	sf::Vector2i mousePosArray = sf::Vector2i(actualMousePos.x / 80, actualMousePos.y / 80); // 8 by 8
-	sf::Vector2i mousePos = sf::Vector2i(mousePosArray.x * 80, mousePosArray.y * 80); // 640 by 640, where to put the piece basically
+	sf::Vector2i mousePosArray = sf::Vector2i(actualMousePos.x / SQUARE_SIZE, actualMousePos.y / SQUARE_SIZE); // 8 by 8
+	sf::Vector2i mousePos = sf::Vector2i(mousePosArray.x * SQUARE_SIZE, mousePosArray.y * SQUARE_SIZE); // 640 by 640, where to put the piece basically
 	
 	// Will remove/add later
 	/*
@@ -226,12 +223,14 @@ bool Game::playingGameState(sf::Vector2i actualMousePos, std::optional<sf::Event
 			return false;
 		}
 
-		for (sf::Vector2f move : possibleMoves)
+		for (Move move : possibleMoves)
 		{
-			if (static_cast<sf::Vector2f>(mousePos) == move) // Checks if move is a possible move
+			if (static_cast<sf::Vector2f>(mousePos) == move.pos) // Checks if move is a possible move
 			{
 				if (willBeInCheck(selectedPiecePos, mousePosArray, m_field[selectedPiecePos.x][selectedPiecePos.y]->getTeam()))// create a fake board where piece is here and check for check  //getKing(Team::BLACK))
 					continue;
+
+				m_boardHistory.push_back(m_field);
 
 				// Changes pawn into queen if it reaches the end
 				if (m_field[selectedPiecePos.x][selectedPiecePos.y]->getPieceType() == PieceType::PAWN &&
@@ -252,26 +251,39 @@ bool Game::playingGameState(sf::Vector2i actualMousePos, std::optional<sf::Event
 				// Movement of rook for castling
 				if (m_field[mousePosArray.x][mousePosArray.y]->getPieceType() == PieceType::KING && m_field[mousePosArray.x][mousePosArray.y]->getFirstMove())
 				{
-					if (move == sf::Vector2f(160.f, 0.f))
+					if (move.pos == sf::Vector2f(160.f, 0.f))
 					{
 						m_field[3][0] = m_field[0][0];
 						m_field[0][0] = nullptr;
 					}
-					if (move == sf::Vector2f(480.f, 0.f))
+					if (move.pos == sf::Vector2f(480.f, 0.f))
 					{
 						m_field[5][0] = m_field[7][0];
 						m_field[7][0] = nullptr;
 					}
-					if (move == sf::Vector2f(160.f, 560.f))
+					if (move.pos == sf::Vector2f(160.f, 560.f))
 					{
 						m_field[3][7] = m_field[0][7];
 						m_field[0][7] = nullptr;
 					}
-					if (move == sf::Vector2f(480.f, 560.f))
+					if (move.pos == sf::Vector2f(480.f, 560.f))
 					{
 						m_field[5][7] = m_field[7][7];
 						m_field[7][7] = nullptr;
 					}
+				}
+
+				if (m_field[mousePosArray.x][mousePosArray.y]->getPieceType() == PieceType::PAWN &&
+					m_field[mousePosArray.x][mousePosArray.y]->getTeam() == Team::BLACK &&
+					mousePosArray.y == selectedPiecePos.y + 2)
+				{
+					m_field[mousePosArray.x][mousePosArray.y]->toggleEnPassant();
+				}
+				if (m_field[mousePosArray.x][mousePosArray.y]->getPieceType() == PieceType::PAWN &&
+					m_field[mousePosArray.x][mousePosArray.y]->getTeam() == Team::WHITE &&
+					mousePosArray.y == selectedPiecePos.y - 2)
+				{
+					m_field[mousePosArray.x][mousePosArray.y]->toggleEnPassant();
 				}
 
 				//// fix en passant
@@ -372,7 +384,7 @@ void Game::removeInvalidMoves(Team p_kingTeam, sf::Vector2i p_oldPos)
 	int i = 0;
 	while (iter != possibleMoves.end())
 	{
-		sf::Vector2i temp((int)possibleMoves.at(i).x / 80, (int)possibleMoves.at(i).y / 80);
+		sf::Vector2i temp((int)possibleMoves.at(i).pos.x / SQUARE_SIZE, (int)possibleMoves.at(i).pos.y / SQUARE_SIZE);
 		if (willBeInCheck(p_oldPos, temp, p_kingTeam))
 			iter = possibleMoves.erase(iter);
 		else
@@ -384,13 +396,13 @@ void Game::removeInvalidMoves(Team p_kingTeam, sf::Vector2i p_oldPos)
 }
 
 // Removes any moves that put king in check given the moves vector
-void Game::removeInvalidMoves(Team p_kingTeam, sf::Vector2i p_oldPos, std::vector<sf::Vector2f>& p_moves)
+void Game::removeInvalidMoves(Team p_kingTeam, sf::Vector2i p_oldPos, std::vector<Move>& p_moves)
 {
 	auto iter = p_moves.begin();
 	int i = 0;
 	while (iter != p_moves.end())
 	{
-		sf::Vector2i temp((int)p_moves.at(i).x / 80, (int)p_moves.at(i).y / 80);
+		sf::Vector2i temp((int)p_moves.at(i).pos.x / SQUARE_SIZE, (int)p_moves.at(i).pos.y / SQUARE_SIZE);
 		if (willBeInCheck(p_oldPos, temp, p_kingTeam))
 			iter = p_moves.erase(iter);
 		else
@@ -411,7 +423,7 @@ void Game::displayMoves()
 		// Create circle for each point and adds them to an array
 		sf::CircleShape tempCircle(circleRadius);
 		tempCircle.setFillColor(grayCircle);
-		tempCircle.setPosition(sf::Vector2f(i.x + circleRadius, i.y + circleRadius));
+		tempCircle.setPosition(sf::Vector2f(i.pos.x + circleRadius, i.pos.y + circleRadius));
 		moveCircles.push_back(tempCircle);
 	}
 }
@@ -503,13 +515,13 @@ int Game::getTotalMoveCount(Team p_team)
 				continue;
 
 			elem->calcMoves(m_field);
-			std::vector<sf::Vector2f> elemMoves = elem->getMoves();
+			std::vector<Move> elemMoves = elem->getMoves();
 
 			removeInvalidMoves(p_team, elem->getArrayPos(), elemMoves);
 
 			for (auto& move : elemMoves)
 			{
-				sf::Vector2i temp((int)move.x / 80, (int)move.y / 80);
+				sf::Vector2i temp((int)move.pos.x / SQUARE_SIZE, (int)move.pos.y / SQUARE_SIZE);
 				allMoves.push_back(temp);
 			}
 		}
@@ -563,11 +575,11 @@ bool Game::isInCheck(sf::Vector2i p_kingPos, Team p_kingTeam)
 				continue;
 
 			elem->calcMoves(m_field);
-			std::vector<sf::Vector2f> elemMoves = elem->getMoves();
+			std::vector<Move> elemMoves = elem->getMoves();
 
 			for (auto& move : elemMoves)
 			{
-				sf::Vector2i temp((int)move.x / 80, (int)move.y / 80);
+				sf::Vector2i temp((int)move.pos.x / SQUARE_SIZE, (int)move.pos.y / SQUARE_SIZE);
 				allMoves.push_back(temp);
 			}
 		}
@@ -595,11 +607,11 @@ bool Game::willBeInCheck(sf::Vector2i p_oldPos, sf::Vector2i p_newPos, Team p_te
 				continue;
 
 			elem->calcMoves(m_potentialField);
-			std::vector<sf::Vector2f> elemMoves = elem->getMoves();
+			std::vector<Move> elemMoves = elem->getMoves();
 
 			for (auto& move : elemMoves)
 			{
-				sf::Vector2i temp((int)move.x / 80, (int)move.y / 80);
+				sf::Vector2i temp((int)move.pos.x / SQUARE_SIZE, (int)move.pos.y / SQUARE_SIZE);
 				allMoves.push_back(temp);
 			}
 		}
@@ -719,10 +731,10 @@ void Game::renderBoard()
 // Creates the background tile array
 void Game::createBackground()
 {
-	sf::RectangleShape lightRect(sf::Vector2f(80, 80));
+	sf::RectangleShape lightRect(sf::Vector2f(SQUARE_SIZE, SQUARE_SIZE));
 	lightRect.setFillColor(lightBrown);
 
-	sf::RectangleShape darkRect(sf::Vector2f(80, 80));
+	sf::RectangleShape darkRect(sf::Vector2f(SQUARE_SIZE, SQUARE_SIZE));
 	darkRect.setFillColor(darkBrown);
 
 	int j = 0;
@@ -734,7 +746,7 @@ void Game::createBackground()
 				backgroundArray[j] = lightRect;
 			else
 				backgroundArray[j] = darkRect;
-			backgroundArray[j++].setPosition(sf::Vector2f(r * 80.f, c * 80.f));
+			backgroundArray[j++].setPosition(sf::Vector2f(r * static_cast<float>(SQUARE_SIZE), c * static_cast<float>(SQUARE_SIZE)));
 		}
 	}
 }
