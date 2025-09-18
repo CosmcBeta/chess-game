@@ -36,13 +36,13 @@ bool Bishop::addToVector(sf::Vector2i p_pos, Board p_field) // Returns true if l
 {
 	if (p_field[p_pos.x + m_position.x][p_pos.y + m_position.y] == nullptr)
 	{
-		possibleMoves.push_back({MoveType::NORMAL, sf::Vector2f(m_sprite.getPosition().x + (p_pos.x * 80), m_sprite.getPosition().y + (p_pos.y * 80))});
+		possibleMoves.push_back({MoveType::NORMAL, sf::Vector2f(m_sprite.getPosition().x + (p_pos.x * SQUARE_SIZE), m_sprite.getPosition().y + (p_pos.y * SQUARE_SIZE))});
 		return false;
 	}
 	else if (p_field[p_pos.x + m_position.x][p_pos.y + m_position.y] != nullptr &&
 		p_field[p_pos.x + m_position.x][p_pos.y + m_position.y]->getTeam() != m_team)
 	{
-		possibleMoves.push_back({MoveType::NORMAL, sf::Vector2f(m_sprite.getPosition().x + (p_pos.x * 80), m_sprite.getPosition().y + (p_pos.y * 80))});
+		possibleMoves.push_back({MoveType::NORMAL, sf::Vector2f(m_sprite.getPosition().x + (p_pos.x * SQUARE_SIZE), m_sprite.getPosition().y + (p_pos.y * SQUARE_SIZE))});
 		return true;
 	}
 	else

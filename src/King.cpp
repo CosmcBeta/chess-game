@@ -28,10 +28,10 @@ void King::calcMoves(Board p_field, Move p_previousMove)
 			continue;
 
 		if (p_field[tempPosition.x][tempPosition.y] == nullptr)
-			possibleMoves.push_back({MoveType::NORMAL, sf::Vector2f(tempPosition.x * 80.f, tempPosition.y * 80.f)});
+			possibleMoves.push_back({MoveType::NORMAL, sf::Vector2f(tempPosition.x * SQUARE_SIZE, tempPosition.y * SQUARE_SIZE)});
 
 		if (p_field[tempPosition.x][tempPosition.y] != nullptr && p_field[tempPosition.x][tempPosition.y]->getTeam() != m_team)
-			possibleMoves.push_back({MoveType::NORMAL, sf::Vector2f(tempPosition.x * 80.f, tempPosition.y * 80.f)});
+			possibleMoves.push_back({MoveType::NORMAL, sf::Vector2f(tempPosition.x * SQUARE_SIZE, tempPosition.y * SQUARE_SIZE)});
 	}
 
 	if (m_firstMove && m_team == Team::BLACK) // Checks if king has moved
@@ -40,14 +40,14 @@ void King::calcMoves(Board p_field, Move p_previousMove)
 		{
 			if (p_field[1][0] == nullptr && p_field[2][0] == nullptr && p_field[3][0] == nullptr)
 			{
-				possibleMoves.push_back({MoveType::CASTLE, sf::Vector2f(160.f, 0.f)});
+				possibleMoves.push_back({MoveType::CASTLE, sf::Vector2f(2 * SQUARE_SIZE, 0)});
 			}
 		}
 		if (p_field[7][0] != nullptr && p_field[7][0]->getPieceType() == PieceType::ROOK && p_field[7][0]->getTeam() == m_team && p_field[7][0]->getFirstMove())
 		{
 			if (p_field[6][0] == nullptr && p_field[5][0] == nullptr)
 			{
-				possibleMoves.push_back({MoveType::CASTLE, sf::Vector2f(480.f, 0.f)});
+				possibleMoves.push_back({MoveType::CASTLE, sf::Vector2f(6 * SQUARE_SIZE, 0)});
 			}
 		}
 	}
@@ -58,14 +58,14 @@ void King::calcMoves(Board p_field, Move p_previousMove)
 		{
 			if (p_field[1][7] == nullptr && p_field[2][7] == nullptr && p_field[3][7] == nullptr)
 			{
-				possibleMoves.push_back({MoveType::CASTLE, sf::Vector2f(160.f, 560.f)});
+				possibleMoves.push_back({MoveType::CASTLE, sf::Vector2f(2 * SQUARE_SIZE, 7 * SQUARE_SIZE)});
 			}
 		}
 		if (p_field[7][7] != nullptr && p_field[7][7]->getPieceType() == PieceType::ROOK && p_field[7][7]->getTeam() == m_team && p_field[7][7]->getFirstMove())
 		{
 			if (p_field[6][7] == nullptr && p_field[5][7] == nullptr)
 			{
-				possibleMoves.push_back({MoveType::CASTLE, sf::Vector2f(480.f, 560.f)});
+				possibleMoves.push_back({MoveType::CASTLE, sf::Vector2f(6 * SQUARE_SIZE, 7 * SQUARE_SIZE)});
 			}
 		}
 	}

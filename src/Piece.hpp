@@ -7,6 +7,7 @@
 class Piece;
 
 using Board = std::array<std::array<Piece*, 8>, 8>;
+const int SQUARE_SIZE = 80;
 
 enum class Team
 {

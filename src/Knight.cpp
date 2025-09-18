@@ -28,10 +28,10 @@ void Knight::calcMoves(Board p_field, Move p_previousMove)
 			continue;
 
 		if (p_field[tempPosition.x][tempPosition.y] == nullptr)
-			possibleMoves.push_back({MoveType::NORMAL, sf::Vector2f(tempPosition.x * 80.f, tempPosition.y * 80.f)});
+			possibleMoves.push_back({MoveType::NORMAL, sf::Vector2f(tempPosition.x * SQUARE_SIZE, tempPosition.y * SQUARE_SIZE)});
 
 		if (p_field[tempPosition.x][tempPosition.y] != nullptr && p_field[tempPosition.x][tempPosition.y]->getTeam() != m_team)
-			possibleMoves.push_back({MoveType::NORMAL, sf::Vector2f(tempPosition.x * 80.f, tempPosition.y * 80.f)});
+			possibleMoves.push_back({MoveType::NORMAL, sf::Vector2f(tempPosition.x * SQUARE_SIZE, tempPosition.y * SQUARE_SIZE)});
 	}
 
 

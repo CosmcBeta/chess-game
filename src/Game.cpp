@@ -281,7 +281,7 @@ bool Game::playingGameState(sf::Vector2i actualMousePos, std::optional<sf::Event
 				}
 
 
-				// remove the piece that en passant is taking, WORKS
+				// Removes the piece that en passant takes from the baord
 				if (move.moveType == MoveType::EN_PASSANT)
 				{
 					int x = move.pos.x / 80;
@@ -292,39 +292,6 @@ bool Game::playingGameState(sf::Vector2i actualMousePos, std::optional<sf::Event
 					if (y == 5)
 						m_field[x][4] = nullptr;
 				}
-
-				// if (m_field[mousePosArray.x][mousePosArray.y]->getPieceType() == PieceType::PAWN &&
-				// 	m_field[mousePosArray.x][mousePosArray.y]->getTeam() == Team::BLACK &&
-				// 	mousePosArray.y == selectedPiecePos.y + 2)
-				// {
-				// 	m_field[mousePosArray.x][mousePosArray.y]->toggleEnPassant();
-				// }
-				// if (m_field[mousePosArray.x][mousePosArray.y]->getPieceType() == PieceType::PAWN &&
-				// 	m_field[mousePosArray.x][mousePosArray.y]->getTeam() == Team::WHITE &&
-				// 	mousePosArray.y == selectedPiecePos.y - 2)
-				// {
-				// 	m_field[mousePosArray.x][mousePosArray.y]->toggleEnPassant();
-				// }
-
-				//// fix en passant
-				/*
-
-				// can be en passanted
-				if (m_field[mousePosArray.x][mousePosArray.y]->getPieceType() == PieceType::PAWN &&
-					m_field[mousePosArray.x][mousePosArray.y]->getTeam() == Team::BLACK &&
-					mousePosArray.y == selectedPiecePos.y + 2)
-				{
-					m_field[mousePosArray.x][mousePosArray.y]->toggleEnPassant();
-				}
-				if (m_field[mousePosArray.x][mousePosArray.y]->getPieceType() == PieceType::PAWN &&
-					m_field[mousePosArray.x][mousePosArray.y]->getTeam() == Team::WHITE &&
-					mousePosArray.y == selectedPiecePos.y - 2)
-				{
-					m_field[mousePosArray.x][mousePosArray.y]->toggleEnPassant();
-				}
-
-				*/
-
 
 				endTurn(mousePosArray);
 

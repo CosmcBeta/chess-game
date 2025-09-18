@@ -30,8 +30,6 @@ enum class GameOutcome
 	STALEMATE
 };
 
-const int SQUARE_SIZE = 80;
-
 // Game class
 class Game {
 public:
