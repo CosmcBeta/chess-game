@@ -171,25 +171,13 @@ bool Game::playingGameState(sf::Vector2i actualMousePos, std::optional<sf::Event
 			changeGamestate(State::MENU);
 		}
 	}
-
-	Team selectedPieceTeam = m_field[selectedPiecePos.x][selectedPiecePos.y]->getTeam(); dont work error when selecting move
-	PieceType selectedPieceType = m_field[selectedPiecePos.x][selectedPiecePos.y]->getPieceType(); also dont work error when selecting move
-
-	Team currentPieceTeam = m_field[mousePosArray.x][mousePosArray.y]->getTeam(); dont work, error when selecting piece
-	PieceType currentPieceType = m_field[mousePosArray.x][mousePosArray.y]->getPieceType(); same issue as above
-	*/
-	
+	*/	
 	// Piece is not selected
 	if (!pieceSelected && leftButtonClicked)
 	{
 		// Clicks a spot where your teams piece isn't
 		if (m_field[mousePosArray.x][mousePosArray.y] == nullptr || m_field[mousePosArray.x][mousePosArray.y]->getTeam() != playerTurn)
 			return false;
-		
-		// if (!m_moveHistory.empty())
-		// 	Move previousMove = m_moveHistory.back();
-		// else 
-		// 	Move previousMove = {MoveType::NONE, sf::Vector2f(0.f,0.f)};
 		
 		// Gets moves for piece
 		m_field[mousePosArray.x][mousePosArray.y]->calcMoves(m_field, m_previousMove);
@@ -235,7 +223,6 @@ bool Game::playingGameState(sf::Vector2i actualMousePos, std::optional<sf::Event
 				if (willBeInCheck(selectedPiecePos, mousePosArray, m_field[selectedPiecePos.x][selectedPiecePos.y]->getTeam()))// create a fake board where piece is here and check for check  //getKing(Team::BLACK))
 					continue;
 
-				m_boardHistory.push_back(m_field);
 				m_moveHistory.push_back(move);
 				m_previousMove = move;
 
@@ -258,39 +245,35 @@ bool Game::playingGameState(sf::Vector2i actualMousePos, std::optional<sf::Event
 				// Movement of rook for castling
 				if (move.moveType == MoveType::CASTLE)
 				{
-					if (move.pos == sf::Vector2f(160.f, 0.f))
+					if (move.pos == sf::Vector2f(2 * SQUARE_SIZE, 0))
 					{
 						m_field[3][0] = m_field[0][0];
 						m_field[0][0] = nullptr;
 					}
-					if (move.pos == sf::Vector2f(480.f, 0.f))
+					if (move.pos == sf::Vector2f(6 * SQUARE_SIZE, 0))
 					{
 						m_field[5][0] = m_field[7][0];
 						m_field[7][0] = nullptr;
 					}
-					if (move.pos == sf::Vector2f(160.f, 560.f))
+					if (move.pos == sf::Vector2f(2 * SQUARE_SIZE, 7 * SQUARE_SIZE))
 					{
 						m_field[3][7] = m_field[0][7];
 						m_field[0][7] = nullptr;
 					}
-					if (move.pos == sf::Vector2f(480.f, 560.f))
+					if (move.pos == sf::Vector2f(6 * SQUARE_SIZE, 7 * SQUARE_SIZE))
 					{
 						m_field[5][7] = m_field[7][7];
 						m_field[7][7] = nullptr;
 					}
 				}
 
-
 				// Removes the piece that en passant takes from the baord
 				if (move.moveType == MoveType::EN_PASSANT)
 				{
-					int x = move.pos.x / 80;
-					int y = move.pos.y / 80;
-					std::cout << x << ", " << y << "\n";
-					if (y == 2)
-						m_field[x][3] = nullptr;
-					if (y == 5)
-						m_field[x][4] = nullptr;
+					if (move.pos.y / SQUARE_SIZE == 2)
+						m_field[move.pos.x / SQUARE_SIZE][3] = nullptr;
+					if (move.pos.y / SQUARE_SIZE == 5)
+						m_field[move.pos.x / SQUARE_SIZE][4] = nullptr;
 				}
 
 				endTurn(mousePosArray);
@@ -382,7 +365,7 @@ void Game::removeInvalidMoves(Team p_kingTeam, sf::Vector2i p_oldPos)
 	}
 }
 
-// Removes any moves that put king in check given the moves vector
+// Removes any moves that put king in check given a specific set of possible moves
 void Game::removeInvalidMoves(Team p_kingTeam, sf::Vector2i p_oldPos, std::vector<Move>& p_moves)
 {
 	auto iter = p_moves.begin();

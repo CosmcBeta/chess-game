@@ -97,7 +97,6 @@ private:
 	std::vector<Move> possibleMoves;
 	Board m_field;
 	Board m_potentialField;
-	std::vector<Board> m_boardHistory;
 	std::vector<Move> m_moveHistory;
 	sf::RectangleShape backgroundArray[64];
 
