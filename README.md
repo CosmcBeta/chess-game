@@ -9,7 +9,8 @@ This is a simple two player chess game written in c++ and using SFML 3.0 for the
 - insuficient material stalemate
 
 ### Current roadmap: 
-- add en passant
+~~- add en passant~~
+- see if doing en passant or castling would put king in check, currently doesn't check the second piece that is moved/taken away, only the current piece that is moved. aka the king or the attacking pawn, not the rook or the defending pawn
 - add different stalemates
 - add settings menu
 - improve code for readibility

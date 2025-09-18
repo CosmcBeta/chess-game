@@ -29,7 +29,8 @@ enum class MoveType
 	NORMAL,
 	CASTLE,
 	EN_PASSANT,
-	PAWN_DOUBLE
+	PAWN_DOUBLE,
+	NONE
 };
 
 class Move
@@ -53,7 +54,7 @@ public:
 	sf::Sprite getSprite();
 
 	void setPos(sf::Vector2f p_pos);
-	virtual void calcMoves(Board p_field);
+	virtual void calcMoves(Board p_field, Move p_previousMove);
 	std::vector<Move> getMoves();
 	void toggleFirstMove();
 	bool getFirstMove();

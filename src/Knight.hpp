@@ -12,5 +12,5 @@ class Knight : public Piece
 public:
 	Knight(Team t, sf::Vector2f p_pos, sf::Texture& p_texture);
 
-	virtual void calcMoves(Board p_field);
+	virtual void calcMoves(Board p_field, Move p_previousMove);
 };

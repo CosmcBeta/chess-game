@@ -11,8 +11,6 @@
 #include "Pawn.hpp"
 #include "Button.hpp"
 
-using Board = std::array<std::array<Piece*, 8>, 8>;
-
 
 // Game state enum
 enum class State
@@ -102,6 +100,7 @@ private:
 	Board m_field;
 	Board m_potentialField;
 	std::vector<Board> m_boardHistory;
+	std::vector<Move> m_moveHistory;
 	sf::RectangleShape backgroundArray[64];
 
 	// King positions and states
@@ -124,4 +123,6 @@ private:
 	sf::Color redHighlight, yellowHighlight;
 	sf::Color lightBrown, darkBrown, grayCircle;
 	sf::Color textHighlight;
+
+	Move m_previousMove;
 };

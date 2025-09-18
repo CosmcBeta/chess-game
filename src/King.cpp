@@ -4,7 +4,7 @@ King::King(Team t, sf::Vector2f p_pos, sf::Texture& p_texture)
 	:Piece(t, PieceType::KING, p_pos, p_texture)
 {}
 
-void King::calcMoves(Board p_field)
+void King::calcMoves(Board p_field, Move p_previousMove)
 {
 	possibleMoves.clear();
 

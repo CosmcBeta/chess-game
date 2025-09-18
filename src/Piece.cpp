@@ -20,7 +20,7 @@ PieceType Piece::getPieceType() { return m_pieceType; }
 sf::Vector2f Piece::getPos() { return m_sprite.getPosition(); }
 sf::Vector2i Piece::getArrayPos() { return m_position; }
 sf::Sprite Piece::getSprite() { return m_sprite; }
-void Piece::calcMoves(Board p_field) {}
+void Piece::calcMoves(Board p_field, Move p_previousMove) {}
 std::vector<Move> Piece::getMoves() { return possibleMoves; }
 void Piece::toggleFirstMove() { m_firstMove = !m_firstMove; }
 bool Piece::getFirstMove() { return m_firstMove; }

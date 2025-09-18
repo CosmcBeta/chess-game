@@ -2,7 +2,7 @@
 
 Game::Game()
 	:m_window("Chess", sf::Vector2u(640, 640)),
-	pieceSelected(false),
+	pieceSelected(false), m_previousMove(MoveType::NONE, {0,0}),
 	redHighlight(243, 60, 66, 255),
 	yellowHighlight(246, 246, 129, 255),
 	lightBrown(236, 236, 208, 255),
@@ -186,8 +186,13 @@ bool Game::playingGameState(sf::Vector2i actualMousePos, std::optional<sf::Event
 		if (m_field[mousePosArray.x][mousePosArray.y] == nullptr || m_field[mousePosArray.x][mousePosArray.y]->getTeam() != playerTurn)
 			return false;
 		
+		// if (!m_moveHistory.empty())
+		// 	Move previousMove = m_moveHistory.back();
+		// else 
+		// 	Move previousMove = {MoveType::NONE, sf::Vector2f(0.f,0.f)};
+		
 		// Gets moves for piece
-		m_field[mousePosArray.x][mousePosArray.y]->calcMoves(m_field);
+		m_field[mousePosArray.x][mousePosArray.y]->calcMoves(m_field, m_previousMove);
 		possibleMoves = m_field[mousePosArray.x][mousePosArray.y]->getMoves();
 
 		// Remove moves if piece's king is in check
@@ -210,7 +215,7 @@ bool Game::playingGameState(sf::Vector2i actualMousePos, std::optional<sf::Event
 			possibleMoves.clear();
 
 			// Gets moves for piece
-			m_field[mousePosArray.x][mousePosArray.y]->calcMoves(m_field);
+			m_field[mousePosArray.x][mousePosArray.y]->calcMoves(m_field, m_previousMove);
 			possibleMoves = m_field[mousePosArray.x][mousePosArray.y]->getMoves();
 
 			// Remove moves if piece's king is in check
@@ -231,6 +236,8 @@ bool Game::playingGameState(sf::Vector2i actualMousePos, std::optional<sf::Event
 					continue;
 
 				m_boardHistory.push_back(m_field);
+				m_moveHistory.push_back(move);
+				m_previousMove = move;
 
 				// Changes pawn into queen if it reaches the end
 				if (m_field[selectedPiecePos.x][selectedPiecePos.y]->getPieceType() == PieceType::PAWN &&
@@ -249,7 +256,7 @@ bool Game::playingGameState(sf::Vector2i actualMousePos, std::optional<sf::Event
 				m_field[selectedPiecePos.x][selectedPiecePos.y] = nullptr;
 
 				// Movement of rook for castling
-				if (m_field[mousePosArray.x][mousePosArray.y]->getPieceType() == PieceType::KING && m_field[mousePosArray.x][mousePosArray.y]->getFirstMove())
+				if (move.moveType == MoveType::CASTLE)
 				{
 					if (move.pos == sf::Vector2f(160.f, 0.f))
 					{
@@ -273,18 +280,31 @@ bool Game::playingGameState(sf::Vector2i actualMousePos, std::optional<sf::Event
 					}
 				}
 
-				if (m_field[mousePosArray.x][mousePosArray.y]->getPieceType() == PieceType::PAWN &&
-					m_field[mousePosArray.x][mousePosArray.y]->getTeam() == Team::BLACK &&
-					mousePosArray.y == selectedPiecePos.y + 2)
+
+				// remove the piece that en passant is taking, WORKS
+				if (move.moveType == MoveType::EN_PASSANT)
 				{
-					m_field[mousePosArray.x][mousePosArray.y]->toggleEnPassant();
+					int x = move.pos.x / 80;
+					int y = move.pos.y / 80;
+					std::cout << x << ", " << y << "\n";
+					if (y == 2)
+						m_field[x][3] = nullptr;
+					if (y == 5)
+						m_field[x][4] = nullptr;
 				}
-				if (m_field[mousePosArray.x][mousePosArray.y]->getPieceType() == PieceType::PAWN &&
-					m_field[mousePosArray.x][mousePosArray.y]->getTeam() == Team::WHITE &&
-					mousePosArray.y == selectedPiecePos.y - 2)
-				{
-					m_field[mousePosArray.x][mousePosArray.y]->toggleEnPassant();
-				}
+
+				// if (m_field[mousePosArray.x][mousePosArray.y]->getPieceType() == PieceType::PAWN &&
+				// 	m_field[mousePosArray.x][mousePosArray.y]->getTeam() == Team::BLACK &&
+				// 	mousePosArray.y == selectedPiecePos.y + 2)
+				// {
+				// 	m_field[mousePosArray.x][mousePosArray.y]->toggleEnPassant();
+				// }
+				// if (m_field[mousePosArray.x][mousePosArray.y]->getPieceType() == PieceType::PAWN &&
+				// 	m_field[mousePosArray.x][mousePosArray.y]->getTeam() == Team::WHITE &&
+				// 	mousePosArray.y == selectedPiecePos.y - 2)
+				// {
+				// 	m_field[mousePosArray.x][mousePosArray.y]->toggleEnPassant();
+				// }
 
 				//// fix en passant
 				/*
@@ -514,7 +534,7 @@ int Game::getTotalMoveCount(Team p_team)
 			if (elem == nullptr || elem->getTeam() != p_team)
 				continue;
 
-			elem->calcMoves(m_field);
+			elem->calcMoves(m_field, m_previousMove);
 			std::vector<Move> elemMoves = elem->getMoves();
 
 			removeInvalidMoves(p_team, elem->getArrayPos(), elemMoves);
@@ -574,7 +594,7 @@ bool Game::isInCheck(sf::Vector2i p_kingPos, Team p_kingTeam)
 			if (elem == nullptr || elem->getTeam() == p_kingTeam)
 				continue;
 
-			elem->calcMoves(m_field);
+			elem->calcMoves(m_field, m_previousMove);
 			std::vector<Move> elemMoves = elem->getMoves();
 
 			for (auto& move : elemMoves)
@@ -606,7 +626,7 @@ bool Game::willBeInCheck(sf::Vector2i p_oldPos, sf::Vector2i p_newPos, Team p_te
 			if (elem == nullptr || elem->getTeam() == p_team)
 				continue;
 
-			elem->calcMoves(m_potentialField);
+			elem->calcMoves(m_potentialField, m_previousMove);
 			std::vector<Move> elemMoves = elem->getMoves();
 
 			for (auto& move : elemMoves)

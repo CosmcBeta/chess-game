@@ -4,7 +4,7 @@ Rook::Rook(Team t, sf::Vector2f p_pos, sf::Texture& p_texture)
 	:Piece(t, PieceType::ROOK, p_pos, p_texture)
 {}
 
-void Rook::calcMoves(Board p_field)
+void Rook::calcMoves(Board p_field, Move p_previousMove)
 {
 	possibleMoves.clear();
 	sf::Vector2i deltaPos(0, 0);

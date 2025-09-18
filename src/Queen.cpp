@@ -4,7 +4,7 @@ Queen::Queen(Team t, sf::Vector2f p_pos, sf::Texture& p_texture)
 	:Piece(t, PieceType::QUEEN, p_pos, p_texture)
 {}
 
-void Queen::calcMoves(Board p_field)
+void Queen::calcMoves(Board p_field, Move p_previousMove)
 {
 	possibleMoves.clear();
 

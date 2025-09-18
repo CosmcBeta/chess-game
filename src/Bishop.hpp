@@ -11,6 +11,6 @@ class Bishop : public Piece
 public:
 	Bishop(Team t, sf::Vector2f p_pos, sf::Texture& p_texture);
 
-	virtual void calcMoves(Board p_field);
+	virtual void calcMoves(Board p_field, Move p_previousMove);
 	bool addToVector(sf::Vector2i p_pos, Board p_field);
 };
