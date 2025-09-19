@@ -10,6 +10,7 @@
 #include "Rook.hpp"
 #include "Pawn.hpp"
 #include "Button.hpp"
+#include "Theme.hpp"
 
 
 // Game state enum
@@ -31,7 +32,8 @@ enum class GameOutcome
 };
 
 // Game class
-class Game {
+class Game 
+{
 public:
 	// Constructor and deconstructor
 	Game();
@@ -79,6 +81,9 @@ public:
 
 	bool playingGameState(sf::Vector2i actualMousePos, std::optional<sf::Event> event, bool leftButtonClicked);
 
+	void updateTheme();
+	void setAudio(bool p_audioOn);
+
 private:
 	// Bools and consts
 	const float circleRadius = 20.f;
@@ -117,9 +122,12 @@ private:
 	Button startButton, settingsButton, exitButton, settingsBackButton, playAgainButton, mainMenuButton;
 
 	// Colors
-	sf::Color redHighlight, yellowHighlight;
-	sf::Color lightBrown, darkBrown, grayCircle;
-	sf::Color textHighlight;
+	sf::Color grayCircle;
+	Theme theme;
 
 	Move m_previousMove;
+
+	sf::Text settingsColorText, settingsAudioText;
+	Button settingsColorChoiceBrown, settingsColorChoiceGreen, settingsAudioChoiceYes, settingsAudioChoiceNo;
+	Button settingsColorChoiceBlue;
 };

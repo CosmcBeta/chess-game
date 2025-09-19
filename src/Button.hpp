@@ -24,6 +24,7 @@ public:
 
 	void update(sf::Vector2i p_mousePosition);
 	bool getMouseInText();
+	void setColor(sf::Color p_darkColor, sf::Color p_lightColor);
 
 private:
 
@@ -35,8 +36,7 @@ private:
 	sf::FloatRect m_rect;
 	bool mouseInText;
 
-	sf::Color m_normalColor;
-	sf::Color m_hoveredColor;
+	sf::Color darkColor, lightColor;
 
 	sf::Font myriadBold, myriadRegular, myriadSemibold;
 };

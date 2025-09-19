@@ -3,12 +3,7 @@
 Game::Game()
 	:m_window("Chess", sf::Vector2u(640, 640)),
 	pieceSelected(false), m_previousMove(MoveType::NONE, {0,0}),
-	redHighlight(243, 60, 66, 255),
-	yellowHighlight(246, 246, 129, 255),
-	lightBrown(236, 236, 208, 255),
-	darkBrown(181, 136, 95, 255),
 	grayCircle(140, 140, 140, 160),
-	textHighlight(143, 107, 74, 255),
 	blackKingInCheck(false), whiteKingInCheck(false),
 	pieceMoved(false), playAgain(false),
 	buttonPressed(false), lockClick(false),
@@ -18,7 +13,13 @@ Game::Game()
 	settingsBackButton(sf::String("Main Menu"), FontType::REGULAR, 40u, sf::Vector2f(320.f, 600.f)),
 	playAgainButton(sf::String("Play Again"), FontType::REGULAR, 35u, sf::Vector2f(200.f, 400.f)),
 	mainMenuButton(sf::String("Main Menu"), FontType::REGULAR, 35u, sf::Vector2f(420.f, 400.f)),
-	titleText(myriadBold), settingsTitleText(myriadBold), gameOverTitleText(myriadBold), winnerText(myriadSemibold)
+	settingsColorChoiceBrown(sf::String("Brown"), FontType::REGULAR, 35u, sf::Vector2f(280.f, 290.f)),
+	settingsColorChoiceBlue(sf::String("Blue"), FontType::REGULAR, 35u, sf::Vector2f(500.f, 290.f)),
+	settingsColorChoiceGreen(sf::String("Green"), FontType::REGULAR, 35u, sf::Vector2f(400.f, 290.f)),
+	settingsAudioChoiceYes(sf::String("Yes"), FontType::REGULAR, 35u, sf::Vector2f(280.f, 420.f)),
+	settingsAudioChoiceNo(sf::String("No"), FontType::REGULAR, 35u, sf::Vector2f(420.f, 420.f)),
+	titleText(myriadBold), settingsTitleText(myriadBold), gameOverTitleText(myriadBold), winnerText(myriadSemibold),
+	settingsAudioText(myriadRegular), settingsColorText(myriadRegular)
 {
 	restartClock();
 	srand(static_cast<unsigned int>(time(NULL)));
@@ -27,15 +28,18 @@ Game::Game()
 		std::cerr << "Failed to open font\n";
 	if (!myriadRegular.openFromFile("assets/myriad_pro_regular.ttf"))
 		std::cerr << "Failed to open font\n";
-	if (!myriadSemibold.openFromFile("assets/myriad_pro_semibold.ttf"))
+		if (!myriadSemibold.openFromFile("assets/myriad_pro_semibold.ttf"))
 		std::cerr << "Failed to open font\n";
-
+		
 	titleText = sf::Text(myriadBold, "Chess", 185);
 	settingsTitleText = sf::Text(myriadBold, "Settings", 135);
 	gameOverTitleText = sf::Text(myriadBold, "Game Over", 80);
 	winnerText = sf::Text(myriadSemibold, "Stalemate", 45);
-
+	settingsColorText = sf::Text(myriadRegular, "Color:", 50);
+	settingsAudioText = sf::Text(myriadRegular, "Audio:", 50);
+	
 	createTexts();
+	updateTheme();
 	changeGamestate(State::MENU);
 }
 
@@ -51,10 +55,8 @@ void Game::changeGamestate(State p_newState)
 	if (gameState == State::CREATE_GAME)
 	{
 		if (!playAgain)
-		{
 			createTextures();
-				createBackground();
-		}
+
 		createPieces();
 		playerTurn = Team::WHITE;
 		changeGamestate(State::PLAYING_GAME);
@@ -144,6 +146,11 @@ void Game::menuState(sf::Vector2i mousePos, bool leftButtonClicked)
 void Game::settingsState(sf::Vector2i mousePos, bool leftButtonClicked)
 {
 	settingsBackButton.update(mousePos);
+	settingsAudioChoiceNo.update(mousePos);
+	settingsAudioChoiceYes.update(mousePos);
+	settingsColorChoiceBrown.update(mousePos);
+	settingsColorChoiceBlue.update(mousePos);
+	settingsColorChoiceGreen.update(mousePos);
 
 	if (leftButtonClicked)
 	{
@@ -152,7 +159,69 @@ void Game::settingsState(sf::Vector2i mousePos, bool leftButtonClicked)
 			changeGamestate(State::MENU);
 			buttonPressed = true;
 		}
+		if (settingsAudioChoiceNo.getMouseInText() && !buttonPressed)
+		{
+			setAudio(false);
+			buttonPressed = true;
+		}
+		if (settingsAudioChoiceYes.getMouseInText() && !buttonPressed)
+		{
+			setAudio(true);
+			buttonPressed = true;
+		}
+		if (settingsColorChoiceBrown.getMouseInText() && !buttonPressed)
+		{
+			theme.setTheme(ThemeSet::BROWN);
+			updateTheme();
+			buttonPressed = true;
+		}
+		if (settingsColorChoiceBlue.getMouseInText() && !buttonPressed)
+		{
+			theme.setTheme(ThemeSet::BLUE);
+			updateTheme();
+			buttonPressed = true;
+		}
+		if (settingsColorChoiceGreen.getMouseInText() && !buttonPressed)
+		{
+			theme.setTheme(ThemeSet::GREEN);
+			updateTheme();
+			buttonPressed = true;
+		}
 	}
+}
+
+void Game::updateTheme()
+{
+	// Board & background
+	createBackground();
+	background.setFillColor(theme.alternate);
+
+	// Texts
+	gameOverBackground.setFillColor(theme.alternate);
+	titleText.setFillColor(theme.darkMain);
+	settingsTitleText.setFillColor(theme.darkMain);
+	gameOverTitleText.setFillColor(theme.darkMain);
+	winnerText.setFillColor(theme.darkMain);
+	settingsColorText.setFillColor(theme.darkMain);
+	settingsAudioText.setFillColor(theme.darkMain);
+
+	// Buttons
+	startButton.setColor(theme.darkMain, theme.lightMain);
+	settingsButton.setColor(theme.darkMain, theme.lightMain);
+	exitButton.setColor(theme.darkMain, theme.lightMain);
+	settingsBackButton.setColor(theme.darkMain, theme.lightMain);
+	playAgainButton.setColor(theme.darkMain, theme.lightMain);
+	mainMenuButton.setColor(theme.darkMain, theme.lightMain);
+	settingsColorChoiceBrown.setColor(theme.darkMain, theme.lightMain);
+	settingsColorChoiceBlue.setColor(theme.darkMain, theme.lightMain);
+	settingsColorChoiceGreen.setColor(theme.darkMain, theme.lightMain);
+	settingsAudioChoiceYes.setColor(theme.darkMain, theme.lightMain);
+	settingsAudioChoiceNo.setColor(theme.darkMain, theme.lightMain);
+}
+
+void Game::setAudio(bool p_audioOn)
+{
+
 }
 
 bool Game::playingGameState(sf::Vector2i actualMousePos, std::optional<sf::Event> event, bool leftButtonClicked)
@@ -317,34 +386,44 @@ void Game::createTexts()
 {
 	sf::FloatRect textBounds;
 
-	background.setFillColor(lightBrown);
+	background.setFillColor(theme.alternate);
 	background.setSize(sf::Vector2f(800, 800));
 
-	gameOverBackground.setFillColor(lightBrown);
+	gameOverBackground.setFillColor(theme.alternate);
 	gameOverBackground.setOutlineThickness(3);
 	gameOverBackground.setOutlineColor(sf::Color::Black);
 	gameOverBackground.setPosition({100.f, 200.f});
 	gameOverBackground.setSize(sf::Vector2f(440.f, 240.f));
 
-	titleText.setFillColor(darkBrown);
+	titleText.setFillColor(theme.darkMain);
 	textBounds = titleText.getLocalBounds();
 	titleText.setOrigin({textBounds.position.x + textBounds.size.x / 2.f, textBounds.position.y + textBounds.size.y / 2.f});
 	titleText.setPosition(sf::Vector2f(320.f, 160.f));
 
-	settingsTitleText.setFillColor(darkBrown);
+	settingsTitleText.setFillColor(theme.darkMain);
 	textBounds = settingsTitleText.getLocalBounds();
 	settingsTitleText.setOrigin({textBounds.position.x + textBounds.size.x / 2.f, textBounds.position.y + textBounds.size.y / 2.f});
 	settingsTitleText.setPosition(sf::Vector2f(320.f, 120.f));
 
-	gameOverTitleText.setFillColor(darkBrown);
+	gameOverTitleText.setFillColor(theme.darkMain);
 	textBounds = gameOverTitleText.getLocalBounds();
 	gameOverTitleText.setOrigin({textBounds.position.x + textBounds.size.x / 2.f, textBounds.position.y + textBounds.size.y / 2.f});
 	gameOverTitleText.setPosition(sf::Vector2f(320.f, 235.f));
 
-	winnerText.setFillColor(darkBrown);
+	winnerText.setFillColor(theme.darkMain);
 	textBounds = winnerText.getLocalBounds();
 	winnerText.setOrigin({textBounds.position.x + textBounds.size.x / 2.f, textBounds.position.y + textBounds.size.y / 2.f});
 	winnerText.setPosition(sf::Vector2f(320.f, 290.f));
+
+	settingsColorText.setFillColor(theme.darkMain);
+	textBounds = settingsColorText.getLocalBounds();
+	settingsColorText.setOrigin({textBounds.position.x + textBounds.size.x / 2.f, textBounds.position.y + textBounds.size.y / 2.f});
+	settingsColorText.setPosition(sf::Vector2f(120.f, 290.f));
+	
+	settingsAudioText.setFillColor(theme.darkMain);
+	textBounds = settingsAudioText.getLocalBounds();
+	settingsAudioText.setOrigin({textBounds.position.x + textBounds.size.x / 2.f, textBounds.position.y + textBounds.size.y / 2.f});
+	settingsAudioText.setPosition(sf::Vector2f(120.f, 420.f));
 }
 
 // Removes any moves that puts king in check
@@ -662,6 +741,13 @@ void Game::render()
 			m_window.draw(background);
 			m_window.draw(settingsBackButton);
 			m_window.draw(settingsTitleText);
+			m_window.draw(settingsAudioText);
+			m_window.draw(settingsColorText);
+			m_window.draw(settingsAudioChoiceNo);
+			m_window.draw(settingsAudioChoiceYes);
+			m_window.draw(settingsColorChoiceBrown);
+			m_window.draw(settingsColorChoiceGreen);
+			m_window.draw(settingsColorChoiceBlue);
 			break;
 		case State::GAME_OVER:
 			renderBoard();
@@ -702,10 +788,10 @@ void Game::renderBoard()
 void Game::createBackground()
 {
 	sf::RectangleShape lightRect(sf::Vector2f(SQUARE_SIZE, SQUARE_SIZE));
-	lightRect.setFillColor(lightBrown);
+	lightRect.setFillColor(theme.alternate);
 
 	sf::RectangleShape darkRect(sf::Vector2f(SQUARE_SIZE, SQUARE_SIZE));
-	darkRect.setFillColor(darkBrown);
+	darkRect.setFillColor(theme.darkMain);
 
 	int j = 0;
 	for (int r = 0; r < 8; r++)
