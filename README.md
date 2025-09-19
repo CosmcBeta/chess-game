@@ -2,11 +2,10 @@
 
 This is a simple two player chess game written in c++ and using SFML 3.0 for the graphics library.
 
-### Current roadmap (not in order): 
+## Current roadmap (not in order): 
 - add proper pawn promotion menu
 - add pause menu with forfiet, draw, and quit buttons
 - add audio
-- add cmake to compile and build code
 - improve code for readibility
 - improve the look of the menus
 - rewrite some code for more efficient approach
@@ -38,4 +37,10 @@ clang++ src/*.cpp -I/opt/homebrew/include -L/opt/homebrew/lib -lsfml-graphics -l
 - Then you would execute the file with this command:
 ```bash
 ./chess
+```
+
+
+- If a change is made to the code rebuild and run with this command:
+```bash
+cmake --build build && ./build/main
 ```
