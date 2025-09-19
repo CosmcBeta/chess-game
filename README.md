@@ -11,11 +11,31 @@ This is a simple two player chess game written in c++ and using SFML 3.0 for the
 - improve the look of the menus
 - rewrite some code for more efficient approach
 
-To compile and run, first make sure SFML is installed, on mac compile/build with:
+## Build and run
+
+#### CMake
+This is the prefered way of building
+- Create and enter the build directory
 ```bash
-clang++ src/*.cpp -I/opt/homebrew/include -L/opt/homebrew/lib -lsfml-graphics -lsfml-window -lsfml-system -std=c++17 -o main
+mkdir build
+cd build
 ```
-Then to run it:
+- Generate build files and build the project with CMake
 ```bash
-./main
+cmake ..
+cmake --build .
+```
+- Run the program from the project root
+```bash
+cd ..
+./build/bin/chess
+```
+
+If you would like to use g++/clang++ you would run this command:
+```bash
+clang++ src/*.cpp -I/opt/homebrew/include -L/opt/homebrew/lib -lsfml-graphics -lsfml-window -lsfml-system -std=c++17 -o chess
+```
+- Then you would execute the file with this command:
+```bash
+./chess
 ```
