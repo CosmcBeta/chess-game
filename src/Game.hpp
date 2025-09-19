@@ -123,6 +123,7 @@ private:
 
 	// Colors
 	sf::Color grayCircle;
+	
 	Theme theme;
 
 	Move m_previousMove;
