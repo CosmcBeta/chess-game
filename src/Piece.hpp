@@ -31,6 +31,7 @@ enum class MoveType
 	CASTLE,
 	EN_PASSANT,
 	PAWN_DOUBLE,
+	CAPTURE,
 	NONE
 };
 

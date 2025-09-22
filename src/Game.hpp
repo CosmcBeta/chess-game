@@ -1,6 +1,7 @@
 #pragma once
 
 #include <vector>
+#include <SFML/Audio.hpp>
 
 #include "Window.hpp"
 #include "King.hpp"
@@ -102,7 +103,6 @@ private:
 	std::vector<Move> possibleMoves;
 	Board m_field;
 	Board m_potentialField;
-	std::vector<Move> m_moveHistory;
 	sf::RectangleShape backgroundArray[64];
 
 	// King positions and states
@@ -130,4 +130,7 @@ private:
 	sf::Text settingsColorText, settingsAudioText;
 	Button settingsColorChoiceBrown, settingsColorChoiceGreen, settingsAudioChoiceYes, settingsAudioChoiceNo;
 	Button settingsColorChoiceBlue;
+
+	sf::SoundBuffer pieceMoveBuffer, captureBuffer, gameStartBuffer, gameEndBuffer, castleBuffer, buttonClickBuffer;
+	sf::Sound pieceMoveSound, captureSound, gameStartSound, gameEndSound, castleSound, buttonClickSound;
 };

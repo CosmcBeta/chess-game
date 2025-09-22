@@ -19,18 +19,33 @@ Game::Game()
 	settingsAudioChoiceYes(sf::String("Yes"), FontType::REGULAR, 35u, sf::Vector2f(280.f, 420.f)),
 	settingsAudioChoiceNo(sf::String("No"), FontType::REGULAR, 35u, sf::Vector2f(420.f, 420.f)),
 	titleText(myriadBold), settingsTitleText(myriadBold), gameOverTitleText(myriadBold), winnerText(myriadSemibold),
-	settingsAudioText(myriadRegular), settingsColorText(myriadRegular)
+	settingsAudioText(myriadRegular), settingsColorText(myriadRegular), pieceMoveSound(pieceMoveBuffer), captureSound(captureBuffer),
+	gameStartSound(gameStartBuffer), gameEndSound(gameEndBuffer), castleSound(castleBuffer), buttonClickSound(buttonClickBuffer)
 {
 	restartClock();
 	srand(static_cast<unsigned int>(time(NULL)));
 
-	if (!myriadBold.openFromFile("assets/myriad_pro_bold.ttf"))
+	if (!myriadBold.openFromFile("assets/fonts/myriad_pro_bold.ttf"))
 		std::cerr << "Failed to open font\n";
-	if (!myriadRegular.openFromFile("assets/myriad_pro_regular.ttf"))
+	if (!myriadRegular.openFromFile("assets/fonts/myriad_pro_regular.ttf"))
 		std::cerr << "Failed to open font\n";
-		if (!myriadSemibold.openFromFile("assets/myriad_pro_semibold.ttf"))
+	if (!myriadSemibold.openFromFile("assets/fonts/myriad_pro_semibold.ttf"))
 		std::cerr << "Failed to open font\n";
-		
+
+	if (!pieceMoveBuffer.loadFromFile("assets/audio/move.mp3"))
+		std::cerr << "Failed to open audio\n";
+	if (!captureBuffer.loadFromFile("assets/audio/capture.mp3"))
+		std::cerr << "Failed to open audio\n";
+	if (!gameStartBuffer.loadFromFile("assets/audio/game-start.mp3"))
+		std::cerr << "Failed to open audio\n";
+	if (!gameEndBuffer.loadFromFile("assets/audio/game-end.mp3"))
+		std::cerr << "Failed to open audio\n";
+	if (!castleBuffer.loadFromFile("assets/audio/castle.mp3"))
+		std::cerr << "Failed to open audio\n";
+	if (!buttonClickBuffer.loadFromFile("assets/audio/button-click.mp3"))
+		std::cerr << "Failed to open audio\n";
+
+
 	titleText = sf::Text(myriadBold, "Chess", 185);
 	settingsTitleText = sf::Text(myriadBold, "Settings", 135);
 	gameOverTitleText = sf::Text(myriadBold, "Game Over", 80);
@@ -59,10 +74,12 @@ void Game::changeGamestate(State p_newState)
 
 		createPieces();
 		playerTurn = Team::WHITE;
+		gameStartSound.play();
 		changeGamestate(State::PLAYING_GAME);
 	}
 	else if (gameState == State::GAME_OVER)
 	{
+		gameEndSound.play();
 		switch (gameOutcome)
 		{
 		case GameOutcome::WHITE_WINS:
@@ -127,16 +144,19 @@ void Game::menuState(sf::Vector2i mousePos, bool leftButtonClicked)
 	{
 		if (startButton.getMouseInText() && !buttonPressed)
 		{
+			buttonClickSound.play();
 			changeGamestate(State::CREATE_GAME);
 			buttonPressed = true;
 		}
 		if (settingsButton.getMouseInText() && !buttonPressed)
 		{
+			buttonClickSound.play();
 			changeGamestate(State::SETTINGS);
 			buttonPressed = true;
 		}
 		if (exitButton.getMouseInText() && !buttonPressed)
 		{
+			buttonClickSound.play();
 			m_window.setIsDone(true);
 			buttonPressed = true;
 		}
@@ -156,33 +176,39 @@ void Game::settingsState(sf::Vector2i mousePos, bool leftButtonClicked)
 	{
 		if (settingsBackButton.getMouseInText() && !buttonPressed)
 		{
+			buttonClickSound.play();
 			changeGamestate(State::MENU);
 			buttonPressed = true;
 		}
 		if (settingsAudioChoiceNo.getMouseInText() && !buttonPressed)
 		{
+			buttonClickSound.play();
 			setAudio(false);
 			buttonPressed = true;
 		}
 		if (settingsAudioChoiceYes.getMouseInText() && !buttonPressed)
 		{
+			buttonClickSound.play();
 			setAudio(true);
 			buttonPressed = true;
 		}
 		if (settingsColorChoiceBrown.getMouseInText() && !buttonPressed)
 		{
+			buttonClickSound.play();
 			theme.setTheme(ThemeSet::BROWN);
 			updateTheme();
 			buttonPressed = true;
 		}
 		if (settingsColorChoiceBlue.getMouseInText() && !buttonPressed)
 		{
+			buttonClickSound.play();
 			theme.setTheme(ThemeSet::BLUE);
 			updateTheme();
 			buttonPressed = true;
 		}
 		if (settingsColorChoiceGreen.getMouseInText() && !buttonPressed)
 		{
+			buttonClickSound.play();
 			theme.setTheme(ThemeSet::GREEN);
 			updateTheme();
 			buttonPressed = true;
@@ -221,7 +247,14 @@ void Game::updateTheme()
 
 void Game::setAudio(bool p_audioOn)
 {
-
+	if (p_audioOn)
+	{
+		sf::Listener::setGlobalVolume(100);
+	}
+	else
+	{
+		sf::Listener::setGlobalVolume(0);
+	}
 }
 
 bool Game::playingGameState(sf::Vector2i actualMousePos, std::optional<sf::Event> event, bool leftButtonClicked)
@@ -291,9 +324,21 @@ bool Game::playingGameState(sf::Vector2i actualMousePos, std::optional<sf::Event
 			{
 				if (willBeInCheck(selectedPiecePos, mousePosArray, m_field[selectedPiecePos.x][selectedPiecePos.y]->getTeam()))// create a fake board where piece is here and check for check  //getKing(Team::BLACK))
 					continue;
+				
+				// Sets the current move type to capture if the place the piece is moving to has a piece already there
+				if (m_field[mousePosArray.x][mousePosArray.y] != nullptr)
+					move.moveType = MoveType::CAPTURE;
 
-				m_moveHistory.push_back(move);
+				// adds moves to the history
 				m_previousMove = move;
+				
+				// Plays sounds for the moves
+				if (move.moveType == MoveType::CASTLE)
+					castleSound.play();
+				else if (move.moveType == MoveType::CAPTURE || move.moveType == MoveType::EN_PASSANT)
+					captureSound.play();
+				else
+					pieceMoveSound.play();
 
 				// Changes pawn into queen if it reaches the end
 				if (m_field[selectedPiecePos.x][selectedPiecePos.y]->getPieceType() == PieceType::PAWN &&
@@ -370,11 +415,13 @@ void Game::gameOverState(sf::Vector2i mousePos, bool leftButtonClicked)
 	{
 		if (mainMenuButton.getMouseInText() && !buttonPressed)
 		{
+			buttonClickSound.play();
 			changeGamestate(State::MENU);
 			buttonPressed = true;
 		}
 		if (playAgainButton.getMouseInText() && !buttonPressed)
 		{
+			buttonClickSound.play();
 			changeGamestate(State::CREATE_GAME);
 			buttonPressed = true;
 		}
@@ -497,14 +544,10 @@ void Game::update()
 
 	if (isInCheck(whiteKingPos, Team::WHITE))
 	{
-		if (!whiteKingInCheck)
-			std::cout << "White king is in check\n";
 		whiteKingInCheck = true;
 	}
 	if (isInCheck(blackKingPos, Team::BLACK))
 	{
-		if (!blackKingInCheck)
-			std::cout << "Black king is in check\n";
 		blackKingInCheck = true;
 	}
 	if (pieceMoved)
@@ -810,30 +853,30 @@ void Game::createBackground()
 // Initializes the textures used for the pieces
 void Game::createTextures()
 {
-	if (!whitePawnTex.loadFromFile("assets/white_pawn.png"))
+	if (!whitePawnTex.loadFromFile("assets/images/white_pawn.png"))
 		std::cerr << "Failed to load texture\n";
-	if (!whiteRookTex.loadFromFile("assets/white_rook.png"))
+	if (!whiteRookTex.loadFromFile("assets/images/white_rook.png"))
 		std::cerr << "Failed to load texture\n";
-	if (!whiteBishopTex.loadFromFile("assets/white_bishop.png"))
+	if (!whiteBishopTex.loadFromFile("assets/images/white_bishop.png"))
 		std::cerr << "Failed to load texture\n";
-	if (!whiteKnightTex.loadFromFile("assets/white_knight.png"))
+	if (!whiteKnightTex.loadFromFile("assets/images/white_knight.png"))
 		std::cerr << "Failed to load texture\n";
-	if (!whiteQueenTex.loadFromFile("assets/white_queen.png"))
+	if (!whiteQueenTex.loadFromFile("assets/images/white_queen.png"))
 		std::cerr << "Failed to load texture\n";
-	if (!whiteKingTex.loadFromFile("assets/white_king.png"))
+	if (!whiteKingTex.loadFromFile("assets/images/white_king.png"))
 		std::cerr << "Failed to load texture\n";
 
-	if (!blackPawnTex.loadFromFile("assets/black_pawn.png"))
+	if (!blackPawnTex.loadFromFile("assets/images/black_pawn.png"))
 		std::cerr << "Failed to load texture\n";
-	if (!blackRookTex.loadFromFile("assets/black_rook.png"))
+	if (!blackRookTex.loadFromFile("assets/images/black_rook.png"))
 		std::cerr << "Failed to load texture\n";
-	if (!blackBishopTex.loadFromFile("assets/black_bishop.png"))
+	if (!blackBishopTex.loadFromFile("assets/images/black_bishop.png"))
 		std::cerr << "Failed to load texture\n";
-	if (!blackKnightTex.loadFromFile("assets/black_knight.png"))
+	if (!blackKnightTex.loadFromFile("assets/images/black_knight.png"))
 		std::cerr << "Failed to load texture\n";
-	if (!blackQueenTex.loadFromFile("assets/black_queen.png"))
+	if (!blackQueenTex.loadFromFile("assets/images/black_queen.png"))
 		std::cerr << "Failed to load texture\n";
-	if (!blackKingTex.loadFromFile("assets/black_king.png"))
+	if (!blackKingTex.loadFromFile("assets/images/black_king.png"))
 		std::cerr << "Failed to load texture\n";
 }
 

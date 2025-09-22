@@ -4,7 +4,7 @@ project(ChessGame LANGUAGES CXX)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
 # Try system-installed SFML first
-find_package(SFML 3 COMPONENTS Graphics QUIET)
+find_package(SFML 3 COMPONENTS Graphics Audio QUIET)
 
 if (NOT SFML_FOUND)
     message(STATUS "SFML not found on system. Fetching with FetchContent...")
@@ -30,4 +30,4 @@ target_compile_features(chess PRIVATE cxx_std_17)
 target_include_directories(chess PRIVATE src)
 
 # Link SFML
-target_link_libraries(chess PRIVATE SFML::Graphics)
+target_link_libraries(chess PRIVATE SFML::Graphics SFML::Audio)
