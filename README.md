@@ -1,10 +1,9 @@
 # Chess
 
-This is a simple two player chess game written in c++ and using SFML 3.0 for the graphics library.
+This is a simple two player chess game written in c++ and using SFML 3.0 for the graphics library. While in game you can access the pause menu by pressing ESC.
 
 ## Current roadmap (not in order): 
 - add proper pawn promotion menu
-- add pause menu with forfiet, draw, and quit buttons
 - improve code for readibility
 - improve the look of the menus
 - rewrite some code for more efficient approach
