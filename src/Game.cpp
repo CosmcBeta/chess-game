@@ -20,9 +20,16 @@ Game::Game()
 	settingsAudioChoiceNo(sf::String("No"), FontType::REGULAR, 35u, sf::Vector2f(420.f, 420.f)),
 	titleText(myriadBold), settingsTitleText(myriadBold), gameOverTitleText(myriadBold), winnerText(myriadSemibold),
 	settingsAudioText(myriadRegular), settingsColorText(myriadRegular), pieceMoveSound(pieceMoveBuffer), captureSound(captureBuffer),
-	gameStartSound(gameStartBuffer), gameEndSound(gameEndBuffer), castleSound(castleBuffer), buttonClickSound(buttonClickBuffer)
+	gameStartSound(gameStartBuffer), gameEndSound(gameEndBuffer), castleSound(castleBuffer), buttonClickSound(buttonClickBuffer),
+	pauseTitle(myriadBold), 
+	pauseDrawButton(sf::String("Draw Game"), FontType::REGULAR, 35u, sf::Vector2f(210.f, 360.f)),
+	pauseWhiteForfeitButton(sf::String("White Forfeit"), FontType::REGULAR, 35u, sf::Vector2f(440.f, 290.f)),
+	pauseBlackForfeitButton(sf::String("Black Forfeit"), FontType::REGULAR, 35u, sf::Vector2f(210.f, 290.f)),
+	pauseMenuButton(sf::String("Main Menu"), FontType::REGULAR, 35u, sf::Vector2f(440.f, 360.f)),
+	pauseQuitButton(sf::String("Quit Game"), FontType::REGULAR, 35u, sf::Vector2f(440.f, 420.f)),
+	returnToGame(sf::String("Resume"), FontType::REGULAR, 35u, sf::Vector2f(210.f, 420.f))
 {
-	restartClock();
+	restartClock(); // 320 235
 	srand(static_cast<unsigned int>(time(NULL)));
 
 	if (!myriadBold.openFromFile("assets/fonts/myriad_pro_bold.ttf"))
@@ -52,6 +59,7 @@ Game::Game()
 	winnerText = sf::Text(myriadSemibold, "Stalemate", 45);
 	settingsColorText = sf::Text(myriadRegular, "Color:", 50);
 	settingsAudioText = sf::Text(myriadRegular, "Audio:", 50);
+	pauseTitle = sf::Text(myriadBold, "Pause Menu", 80);
 	
 	createTexts();
 	updateTheme();
@@ -106,6 +114,13 @@ void Game::handleInput()
 	if (auto mouse = event->getIf<sf::Event::MouseButtonPressed>())
     	leftButtonClicked = (mouse->button == sf::Mouse::Button::Left && !lockClick);
 	
+
+	// if (event->is<sf::Event::Closed>())
+	// {
+	// 	std::cout << "ran this";
+	// 	m_window.setIsDone(true);
+	// }
+	
 	switch (gameState)
 	{
 		case State::MENU:
@@ -119,6 +134,9 @@ void Game::handleInput()
 			break;
 		case State::GAME_OVER:
 			gameOverState(mousePos, leftButtonClicked);
+			break;
+		case State::PAUSE:
+			pauseState(mousePos, leftButtonClicked, event);
 			break;
 		default:
 			break;
@@ -230,6 +248,8 @@ void Game::updateTheme()
 	winnerText.setFillColor(theme.darkMain);
 	settingsColorText.setFillColor(theme.darkMain);
 	settingsAudioText.setFillColor(theme.darkMain);
+	pauseBackground.setFillColor(theme.alternate);
+	pauseTitle.setFillColor(theme.darkMain);
 
 	// Buttons
 	startButton.setColor(theme.darkMain, theme.lightMain);
@@ -243,6 +263,12 @@ void Game::updateTheme()
 	settingsColorChoiceGreen.setColor(theme.darkMain, theme.lightMain);
 	settingsAudioChoiceYes.setColor(theme.darkMain, theme.lightMain);
 	settingsAudioChoiceNo.setColor(theme.darkMain, theme.lightMain);
+	pauseDrawButton.setColor(theme.darkMain, theme.lightMain);
+	pauseWhiteForfeitButton.setColor(theme.darkMain, theme.lightMain);
+	pauseBlackForfeitButton.setColor(theme.darkMain, theme.lightMain);
+	pauseMenuButton.setColor(theme.darkMain, theme.lightMain);
+	pauseQuitButton.setColor(theme.darkMain, theme.lightMain);
+	returnToGame.setColor(theme.darkMain, theme.lightMain);
 }
 
 void Game::setAudio(bool p_audioOn)
@@ -257,23 +283,87 @@ void Game::setAudio(bool p_audioOn)
 	}
 }
 
+// pauseDrawButton, pauseWhiteForfeitButton, pauseBlackForfeitButton, pauseMenuButton, pauseQuitButton
+void Game::pauseState(sf::Vector2i mousePos, bool leftButtonClicked, std::optional<sf::Event> event)
+{
+	pauseDrawButton.update(mousePos);
+	pauseWhiteForfeitButton.update(mousePos);
+	pauseBlackForfeitButton.update(mousePos);
+	pauseMenuButton.update(mousePos);
+	pauseQuitButton.update(mousePos);
+	returnToGame.update(mousePos);
+
+	if (const auto* keyPressed = event->getIf<sf::Event::KeyPressed>())
+	{
+		if (keyPressed->scancode == sf::Keyboard::Scancode::Escape)
+		{
+			changeGamestate(State::PLAYING_GAME);
+		}
+	}
+
+	if (leftButtonClicked)
+	{
+		if (pauseDrawButton.getMouseInText() && !buttonPressed)
+		{
+			buttonClickSound.play();
+			gameOutcome = GameOutcome::STALEMATE;
+			playAgain = true;
+			changeGamestate(State::GAME_OVER);
+			buttonPressed = true;
+		}
+		if (pauseWhiteForfeitButton.getMouseInText() && !buttonPressed)
+		{
+			buttonClickSound.play();
+			gameOutcome = GameOutcome::BLACK_WINS;
+			playAgain = true;
+			changeGamestate(State::GAME_OVER);
+			buttonPressed = true;
+		}
+		if (pauseBlackForfeitButton.getMouseInText() && !buttonPressed)
+		{
+			buttonClickSound.play();
+			gameOutcome = GameOutcome::WHITE_WINS;
+			playAgain = true;
+			changeGamestate(State::GAME_OVER);
+			buttonPressed = true;
+		}
+		if (pauseMenuButton.getMouseInText() && !buttonPressed)
+		{
+			buttonClickSound.play();
+			changeGamestate(State::MENU);
+			buttonPressed = true;
+		}
+		if (pauseQuitButton.getMouseInText() && !buttonPressed)
+		{
+			buttonClickSound.play();
+			m_window.setIsDone(true);
+			buttonPressed = true;
+		}
+		if (returnToGame.getMouseInText() && !buttonPressed)
+		{
+			buttonClickSound.play();
+			changeGamestate(State::PLAYING_GAME);
+			buttonPressed = true;
+		}
+	}
+}
+
+
 bool Game::playingGameState(sf::Vector2i actualMousePos, std::optional<sf::Event> event, bool leftButtonClicked)
 {
 	static sf::Vector2i selectedPiecePos(0, 0); // Array scale
 	sf::Vector2i mousePosArray = sf::Vector2i(actualMousePos.x / SQUARE_SIZE, actualMousePos.y / SQUARE_SIZE); // 8 by 8
 	sf::Vector2i mousePos = sf::Vector2i(mousePosArray.x * SQUARE_SIZE, mousePosArray.y * SQUARE_SIZE); // 640 by 640, where to put the piece basically
 	
-	// Will remove/add later
-	/*
 	// Options
-	if (event.type == sf::Event::KeyPressed)
+	if (const auto* keyPressed = event->getIf<sf::Event::KeyPressed>())
 	{
-		if (event.key.code == sf::Keyboard::Escape)
+		if (keyPressed->scancode == sf::Keyboard::Scancode::Escape)
 		{
-			changeGamestate(State::MENU);
+			changeGamestate(State::PAUSE);
 		}
 	}
-	*/	
+		
 	// Piece is not selected
 	if (!pieceSelected && leftButtonClicked)
 	{
@@ -442,6 +532,12 @@ void Game::createTexts()
 	gameOverBackground.setPosition({100.f, 200.f});
 	gameOverBackground.setSize(sf::Vector2f(440.f, 240.f));
 
+	pauseBackground.setFillColor(theme.alternate);
+	pauseBackground.setOutlineThickness(3);
+	pauseBackground.setOutlineColor(sf::Color::Black);
+	pauseBackground.setPosition({70.f, 170.f});
+	pauseBackground.setSize(sf::Vector2f(500.f, 300.f));
+
 	titleText.setFillColor(theme.darkMain);
 	textBounds = titleText.getLocalBounds();
 	titleText.setOrigin({textBounds.position.x + textBounds.size.x / 2.f, textBounds.position.y + textBounds.size.y / 2.f});
@@ -471,6 +567,11 @@ void Game::createTexts()
 	textBounds = settingsAudioText.getLocalBounds();
 	settingsAudioText.setOrigin({textBounds.position.x + textBounds.size.x / 2.f, textBounds.position.y + textBounds.size.y / 2.f});
 	settingsAudioText.setPosition(sf::Vector2f(120.f, 420.f));
+
+	pauseTitle.setFillColor(theme.darkMain);
+	textBounds = pauseTitle.getLocalBounds();
+	pauseTitle.setOrigin({textBounds.position.x + textBounds.size.x / 2.f, textBounds.position.y + textBounds.size.y / 2.f});
+	pauseTitle.setPosition(sf::Vector2f(320.f, 210.f));
 }
 
 // Removes any moves that puts king in check
@@ -801,6 +902,16 @@ void Game::render()
 			m_window.draw(mainMenuButton);
 			m_window.draw(playAgainButton);
 			break;
+		case State::PAUSE:
+			renderBoard();
+			m_window.draw(pauseBackground);
+			m_window.draw(pauseTitle);
+			m_window.draw(pauseDrawButton);
+			m_window.draw(pauseWhiteForfeitButton);
+			m_window.draw(pauseBlackForfeitButton);
+			m_window.draw(pauseMenuButton);
+			m_window.draw(pauseQuitButton);
+			m_window.draw(returnToGame);
 		default:
 			break;
 	}
