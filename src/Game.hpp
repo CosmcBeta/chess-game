@@ -21,7 +21,8 @@ enum class State
 	SETTINGS,
 	CREATE_GAME,
 	PLAYING_GAME,
-	GAME_OVER
+	GAME_OVER,
+	PAUSE
 };
 
 // Win state enum
@@ -84,6 +85,7 @@ public:
 
 	void updateTheme();
 	void setAudio(bool p_audioOn);
+	void pauseState(sf::Vector2i mousePos, bool leftButtonClicked, std::optional<sf::Event> event);
 
 private:
 	// Bools and consts
@@ -133,4 +135,8 @@ private:
 
 	sf::SoundBuffer pieceMoveBuffer, captureBuffer, gameStartBuffer, gameEndBuffer, castleBuffer, buttonClickBuffer;
 	sf::Sound pieceMoveSound, captureSound, gameStartSound, gameEndSound, castleSound, buttonClickSound;
+
+	sf::Text pauseTitle;
+	Button pauseDrawButton, pauseWhiteForfeitButton, pauseBlackForfeitButton, pauseMenuButton, pauseQuitButton, returnToGame;
+	sf::RectangleShape pauseBackground;
 };
