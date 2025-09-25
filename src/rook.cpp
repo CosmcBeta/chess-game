@@ -1,25 +1,25 @@
-#include "Rook.hpp"
+#include "rook.hpp"
 
-Rook::Rook(Team t, sf::Vector2f p_pos, sf::Texture& p_texture)
-	:Piece(t, PieceType::ROOK, p_pos, p_texture)
+Rook::Rook(Team team, sf::Vector2i position, sf::Texture& texture)
+	:Piece(team, PieceType::Rook, position, texture)
 {}
 
-void Rook::calcMoves(Board p_field, Move p_previousMove)
+void Rook::calculateMoves(Board board, Move previousMove)
 {
-	possibleMoves.clear();
+	possibleMoves_.clear();
 	sf::Vector2i deltaPos(0, 0);
 
-	while (deltaPos.x + m_position.x <= 7)
+	while (deltaPos.x + position_.x <= 7)
 	{
 		if (deltaPos.x != 0)
 		{
-			if (p_field[deltaPos.x + m_position.x][m_position.y] == nullptr)
+			if (board[deltaPos.x + position_.x][position_.y] == nullptr)
 			{
-				possibleMoves.push_back({MoveType::NORMAL, sf::Vector2f(m_sprite.getPosition().x + (deltaPos.x * SQUARE_SIZE), m_sprite.getPosition().y)});
+				possibleMoves_.push_back({MoveType::Normal, sf::Vector2f(sprite_.getPosition().x + (deltaPos.x * SQUARE_SIZE), sprite_.getPosition().y)});
 			}
-			else if (p_field[deltaPos.x + m_position.x][m_position.y] != nullptr && p_field[deltaPos.x + m_position.x][m_position.y]->getTeam() != m_team)
+			else if (board[deltaPos.x + position_.x][position_.y] != nullptr && board[deltaPos.x + position_.x][position_.y]->getTeam() != team_)
 			{
-				possibleMoves.push_back({MoveType::NORMAL, sf::Vector2f(m_sprite.getPosition().x + (deltaPos.x * SQUARE_SIZE), m_sprite.getPosition().y)});
+				possibleMoves_.push_back({MoveType::Normal, sf::Vector2f(sprite_.getPosition().x + (deltaPos.x * SQUARE_SIZE), sprite_.getPosition().y)});
 				break;
 			}
 			else
@@ -28,17 +28,17 @@ void Rook::calcMoves(Board p_field, Move p_previousMove)
 		deltaPos.x++;
 	}
 	deltaPos.x = 0;
-	while (deltaPos.x + m_position.x >= 0)
+	while (deltaPos.x + position_.x >= 0)
 	{
 		if (deltaPos.x != 0)
 		{
-			if (p_field[deltaPos.x + m_position.x][m_position.y] == nullptr)
+			if (board[deltaPos.x + position_.x][position_.y] == nullptr)
 			{
-				possibleMoves.push_back({MoveType::NORMAL, sf::Vector2f(m_sprite.getPosition().x + (deltaPos.x * SQUARE_SIZE), m_sprite.getPosition().y)});
+				possibleMoves_.push_back({MoveType::Normal, sf::Vector2f(sprite_.getPosition().x + (deltaPos.x * SQUARE_SIZE), sprite_.getPosition().y)});
 			}
-			else if (p_field[deltaPos.x + m_position.x][m_position.y] != nullptr && p_field[deltaPos.x + m_position.x][m_position.y]->getTeam() != m_team)
+			else if (board[deltaPos.x + position_.x][position_.y] != nullptr && board[deltaPos.x + position_.x][position_.y]->getTeam() != team_)
 			{
-				possibleMoves.push_back({MoveType::NORMAL, sf::Vector2f(m_sprite.getPosition().x + (deltaPos.x * SQUARE_SIZE), m_sprite.getPosition().y)});
+				possibleMoves_.push_back({MoveType::Normal, sf::Vector2f(sprite_.getPosition().x + (deltaPos.x * SQUARE_SIZE), sprite_.getPosition().y)});
 				break;
 			}
 			else
@@ -46,17 +46,17 @@ void Rook::calcMoves(Board p_field, Move p_previousMove)
 		}
 		deltaPos.x--;
 	}
-	while (deltaPos.y + m_position.y <= 7)
+	while (deltaPos.y + position_.y <= 7)
 	{
 		if (deltaPos.y != 0)
 		{
-			if (p_field[m_position.x][deltaPos.y + m_position.y] == nullptr)
+			if (board[position_.x][deltaPos.y + position_.y] == nullptr)
 			{
-				possibleMoves.push_back({MoveType::NORMAL, sf::Vector2f(m_sprite.getPosition().x, m_sprite.getPosition().y + (deltaPos.y * SQUARE_SIZE))});
+				possibleMoves_.push_back({MoveType::Normal, sf::Vector2f(sprite_.getPosition().x, sprite_.getPosition().y + (deltaPos.y * SQUARE_SIZE))});
 			}
-			else if (p_field[m_position.x][deltaPos.y + m_position.y] != nullptr && p_field[m_position.x][deltaPos.y + m_position.y]->getTeam() != m_team)
+			else if (board[position_.x][deltaPos.y + position_.y] != nullptr && board[position_.x][deltaPos.y + position_.y]->getTeam() != team_)
 			{
-				possibleMoves.push_back({MoveType::NORMAL, sf::Vector2f(m_sprite.getPosition().x, m_sprite.getPosition().y + (deltaPos.y * SQUARE_SIZE))});
+				possibleMoves_.push_back({MoveType::Normal, sf::Vector2f(sprite_.getPosition().x, sprite_.getPosition().y + (deltaPos.y * SQUARE_SIZE))});
 				break;
 			}
 			else
@@ -65,17 +65,17 @@ void Rook::calcMoves(Board p_field, Move p_previousMove)
 		deltaPos.y++;
 	}
 	deltaPos.y = 0;
-	while (deltaPos.y + m_position.y >= 0)
+	while (deltaPos.y + position_.y >= 0)
 	{
 		if (deltaPos.y != 0)
 		{
-			if (p_field[m_position.x][deltaPos.y + m_position.y] == nullptr)
+			if (board[position_.x][deltaPos.y + position_.y] == nullptr)
 			{
-				possibleMoves.push_back({MoveType::NORMAL, sf::Vector2f(m_sprite.getPosition().x, m_sprite.getPosition().y + (deltaPos.y * SQUARE_SIZE))});
+				possibleMoves_.push_back({MoveType::Normal, sf::Vector2f(sprite_.getPosition().x, sprite_.getPosition().y + (deltaPos.y * SQUARE_SIZE))});
 			}
-			else if (p_field[m_position.x][deltaPos.y + m_position.y] != nullptr && p_field[m_position.x][deltaPos.y + m_position.y]->getTeam() != m_team)
+			else if (board[position_.x][deltaPos.y + position_.y] != nullptr && board[position_.x][deltaPos.y + position_.y]->getTeam() != team_)
 			{
-				possibleMoves.push_back({MoveType::NORMAL, sf::Vector2f(m_sprite.getPosition().x, m_sprite.getPosition().y + (deltaPos.y * SQUARE_SIZE))});
+				possibleMoves_.push_back({MoveType::Normal, sf::Vector2f(sprite_.getPosition().x, sprite_.getPosition().y + (deltaPos.y * SQUARE_SIZE))});
 				break;
 			}
 			else

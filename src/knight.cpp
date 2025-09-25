@@ -1,12 +1,12 @@
-#include "Knight.hpp"
+#include "knight.hpp"
 
-Knight::Knight(Team t, sf::Vector2f p_pos, sf::Texture& p_texture)
-	:Piece(t, PieceType::KNIGHT, p_pos, p_texture)
+Knight::Knight(Team team, sf::Vector2i position, sf::Texture& texture)
+	:Piece(team, PieceType::Knight, position, texture)
 {}
 
-void Knight::calcMoves(Board p_field, Move p_previousMove)
+void Knight::calculateMoves(Board board, Move previousMove)
 {
-	possibleMoves.clear();
+	possibleMoves_.clear();
 	
 	std::array<sf::Vector2i, 8> possibleSquares =
 	{
@@ -22,16 +22,16 @@ void Knight::calcMoves(Board p_field, Move p_previousMove)
 
 	for (auto& move : possibleSquares)
 	{
-		sf::Vector2i tempPosition(m_position.x + move.x, m_position.y + move.y);
+		sf::Vector2i tempPosition(position_.x + move.x, position_.y + move.y);
 		
 		if (tempPosition.x < 0 || tempPosition.x > 7 || tempPosition.y < 0 || tempPosition.y > 7)
 			continue;
 
-		if (p_field[tempPosition.x][tempPosition.y] == nullptr)
-			possibleMoves.push_back({MoveType::NORMAL, sf::Vector2f(tempPosition.x * SQUARE_SIZE, tempPosition.y * SQUARE_SIZE)});
+		if (board[tempPosition.x][tempPosition.y] == nullptr)
+			possibleMoves_.push_back({MoveType::Normal, sf::Vector2f(tempPosition.x * SQUARE_SIZE, tempPosition.y * SQUARE_SIZE)});
 
-		if (p_field[tempPosition.x][tempPosition.y] != nullptr && p_field[tempPosition.x][tempPosition.y]->getTeam() != m_team)
-			possibleMoves.push_back({MoveType::NORMAL, sf::Vector2f(tempPosition.x * SQUARE_SIZE, tempPosition.y * SQUARE_SIZE)});
+		if (board[tempPosition.x][tempPosition.y] != nullptr && board[tempPosition.x][tempPosition.y]->getTeam() != team_)
+			possibleMoves_.push_back({MoveType::Normal, sf::Vector2f(tempPosition.x * SQUARE_SIZE, tempPosition.y * SQUARE_SIZE)});
 	}
 
 

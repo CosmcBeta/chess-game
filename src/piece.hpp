@@ -1,8 +1,6 @@
 #pragma once 
 
 #include <SFML/Graphics.hpp>
-#include <iostream>
-#include <memory>
 
 class Piece;
 
@@ -11,67 +9,65 @@ const int SQUARE_SIZE = 80;
 
 enum class Team
 {
-	WHITE,
-	BLACK
+	White,
+	Black
 };
 
 enum class PieceType
 {
-	PAWN,
-	BISHOP,
-	KNIGHT,
-	ROOK,
-	QUEEN,
-	KING
+	Pawn,
+	Bishop,
+	Knight,
+	Rook,
+	Queen,
+	King
 };
 
 enum class MoveType
 {
-	NORMAL,
-	CASTLE,
-	EN_PASSANT,
-	PAWN_DOUBLE,
-	CAPTURE,
-	NONE
+	Normal,
+	Castle,
+	EnPassant,
+	PawnDouble,
+	Capture,
+	None
 };
 
-class Move
+struct Move
 {
-public:
-	Move(MoveType p_moveType, sf::Vector2f p_pos);
-
 	MoveType moveType;
-	sf::Vector2f pos;
+	sf::Vector2f position;
 };
 
 class Piece
 {
 public:
-	Piece(Team t, PieceType type, sf::Vector2f p_pos, sf::Texture& p_texture);
+	Piece(Team team, PieceType type, sf::Vector2i position, sf::Texture& texture);
 
 	Team getTeam();
 	PieceType getPieceType();
-	sf::Vector2f getPos();
-	sf::Vector2i getArrayPos();
+	sf::Vector2f getPosition();
+	sf::Vector2i getArrayPosition();
 	sf::Sprite getSprite();
 
-	void setPos(sf::Vector2f p_pos);
-	virtual void calcMoves(Board p_field, Move p_previousMove);
+	void setPosition(sf::Vector2f position);
+	virtual void calculateMoves(Board board, Move previousMove);
 	std::vector<Move> getMoves();
-	void toggleFirstMove();
+	void setFirstMove(bool firstMove);
 	bool getFirstMove();
-	void toggleEnPassant();
+	void setEnPassant(bool enPassant);
 	bool getEnPassant();
-
+	
 protected:
-	sf::Sprite m_sprite;
-	sf::Texture m_texture;
-	sf::Vector2i m_position; // Position on an 8x8 scale;ex. if actual pos is 180, then this is 2; used for array
-	Team m_team;
-	PieceType m_pieceType;
-	const float scale = 0.24024024f;
-	std::vector<Move> possibleMoves;
-	bool m_firstMove;
-	bool m_canEnPassant;
+	static constexpr float SCALE = 0.24024024f;
+	
+	sf::Sprite sprite_;
+	sf::Texture texture_;
+	sf::Vector2i position_; // Position on an 8x8 scale;ex. if actual pos is 180, then this is 2; used for array
+	Team team_;
+	PieceType pieceType_;
+	std::vector<Move> possibleMoves_;
+	bool firstMove_;
+	bool canEnPassant_;
 };
 

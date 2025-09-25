@@ -4,9 +4,9 @@
 
 enum class ThemeSet
 {
-	BROWN,
-	GREEN,
-    BLUE
+	Brown,
+	Green,
+    Blue
 };
 
 class Theme
@@ -19,6 +19,7 @@ public:
 	sf::Color darkMain;
 	sf::Color lightMain;
 	sf::Color alternate;
+    sf::Color moveCircle;
 
 private:
 	sf::Color darkBrown, lightBrown, altBrown;

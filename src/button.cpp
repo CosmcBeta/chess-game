@@ -1,4 +1,6 @@
-#include "Button.hpp"
+#include "button.hpp"
+
+#include <iostream>
 
 Button::Button()
 	:mouseInText(false), m_text(myriadRegular)
@@ -8,8 +10,8 @@ Button::Button()
 	m_text = sf::Text(myriadRegular);
 }
 
-Button::Button(sf::String p_string, FontType p_font, unsigned int p_characterSize, sf::Vector2f p_position)
-	:m_string(p_string), m_position(p_position), mouseInText(false), m_text(myriadRegular),
+Button::Button(const sf::String& p_string, FontType p_font, unsigned int p_characterSize, sf::Vector2f p_position)
+	:m_position(p_position), mouseInText(false), m_text(myriadRegular),
 	darkColor(0,0,0,255), lightColor(0,0,0,255)
 {
 	if (!myriadBold.openFromFile("assets/fonts/myriad_pro_bold.ttf"))
@@ -19,16 +21,16 @@ Button::Button(sf::String p_string, FontType p_font, unsigned int p_characterSiz
 	if (!myriadSemibold.openFromFile("assets/fonts/myriad_pro_semibold.ttf"))
 		std::cerr << "Failed to open font\n";
 
-	m_text.setString(m_string);
+	m_text.setString(p_string);
 	switch (p_font)
 	{
-	case FontType::REGULAR:
+	case FontType::Regular:
 		m_text.setFont(myriadRegular);
 		break;
-	case FontType::BOLD:
+	case FontType::Bold:
 		m_text.setFont(myriadBold);
 		break;
-	case FontType::SEMIBOLD:
+	case FontType::Semibold:
 		m_text.setFont(myriadSemibold);
 		break;
 	default:

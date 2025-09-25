@@ -4,12 +4,12 @@
 #include <iostream>
 #include <memory>
 
-#include "Piece.hpp"
+#include "piece.hpp"
 
 class Pawn : public Piece
 {
 public:
-	Pawn(Team t, sf::Vector2f p_pos, sf::Texture& p_texture);
+	Pawn(Team team, sf::Vector2i position, sf::Texture& texture);
 
-	virtual void calcMoves(Board p_field, Move p_previousMove);
+	virtual void calculateMoves(Board board, Move previousMove);
 };

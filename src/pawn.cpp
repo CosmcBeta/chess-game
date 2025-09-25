@@ -1,82 +1,82 @@
-#include "Pawn.hpp"
+#include "pawn.hpp"
 
-Pawn::Pawn(Team t, sf::Vector2f p_pos, sf::Texture& p_texture)
-	:Piece(t, PieceType::PAWN, p_pos, p_texture)
+Pawn::Pawn(Team team, sf::Vector2i position, sf::Texture& texture)
+	:Piece(team, PieceType::Pawn, position, texture)
 {}
 
-void Pawn::calcMoves(Board p_field, Move p_previousMove)
+void Pawn::calculateMoves(Board board, Move previousMove)
 {
-	possibleMoves.clear();
+	possibleMoves_.clear();
 	bool moveAdded = false; // Makes sure no dublicate moves are added to vector
 	
-	if (m_team == Team::BLACK) // going down
+	if (team_ == Team::Black) // going down
 	{
-		if (m_firstMove)
+		if (firstMove_)
 		{
-			if (p_field[m_position.x][m_position.y + 1] == nullptr)
+			if (board[position_.x][position_.y + 1] == nullptr)
 			{
-				possibleMoves.push_back({MoveType::NORMAL, sf::Vector2f(m_sprite.getPosition().x, m_sprite.getPosition().y + SQUARE_SIZE)});
+				possibleMoves_.push_back({MoveType::Normal, sf::Vector2f(sprite_.getPosition().x, sprite_.getPosition().y + SQUARE_SIZE)});
 				moveAdded = true;
-				if (p_field[m_position.x][m_position.y + 2] == nullptr)
-					possibleMoves.push_back({MoveType::PAWN_DOUBLE, sf::Vector2f(m_sprite.getPosition().x, m_sprite.getPosition().y + (2 * SQUARE_SIZE))});
+				if (board[position_.x][position_.y + 2] == nullptr)
+					possibleMoves_.push_back({MoveType::PawnDouble, sf::Vector2f(sprite_.getPosition().x, sprite_.getPosition().y + (2 * SQUARE_SIZE))});
 			}
 		}
 		
-		if (m_position.y == 7)
+		if (position_.y == 7)
 			return;
-		else if (p_field[m_position.x][m_position.y + 1] == nullptr && !moveAdded)
-			possibleMoves.push_back({MoveType::NORMAL, sf::Vector2f(m_sprite.getPosition().x, m_sprite.getPosition().y + SQUARE_SIZE)});
+		else if (board[position_.x][position_.y + 1] == nullptr && !moveAdded)
+			possibleMoves_.push_back({MoveType::Normal, sf::Vector2f(sprite_.getPosition().x, sprite_.getPosition().y + SQUARE_SIZE)});
 
-		if (m_position.x < 7 && p_field[m_position.x + 1][m_position.y + 1] != nullptr && p_field[m_position.x + 1][m_position.y + 1]->getTeam() != m_team)
-			possibleMoves.push_back({MoveType::NORMAL, sf::Vector2f(m_sprite.getPosition().x + SQUARE_SIZE, m_sprite.getPosition().y + SQUARE_SIZE)});
-		if (m_position.x > 0 && p_field[m_position.x - 1][m_position.y + 1] != nullptr && p_field[m_position.x - 1][m_position.y + 1]->getTeam() != m_team)
-			possibleMoves.push_back({MoveType::NORMAL, sf::Vector2f(m_sprite.getPosition().x - SQUARE_SIZE, m_sprite.getPosition().y + SQUARE_SIZE)});
+		if (position_.x < 7 && board[position_.x + 1][position_.y + 1] != nullptr && board[position_.x + 1][position_.y + 1]->getTeam() != team_)
+			possibleMoves_.push_back({MoveType::Normal, sf::Vector2f(sprite_.getPosition().x + SQUARE_SIZE, sprite_.getPosition().y + SQUARE_SIZE)});
+		if (position_.x > 0 && board[position_.x - 1][position_.y + 1] != nullptr && board[position_.x - 1][position_.y + 1]->getTeam() != team_)
+			possibleMoves_.push_back({MoveType::Normal, sf::Vector2f(sprite_.getPosition().x - SQUARE_SIZE, sprite_.getPosition().y + SQUARE_SIZE)});
 
 	}
 	else // going up
 	{
-		if (m_firstMove)
+		if (firstMove_)
 		{
-			if (p_field[m_position.x][m_position.y - 1] == nullptr)
+			if (board[position_.x][position_.y - 1] == nullptr)
 			{
-				possibleMoves.push_back({MoveType::NORMAL, sf::Vector2f(m_sprite.getPosition().x, m_sprite.getPosition().y - SQUARE_SIZE)});
+				possibleMoves_.push_back({MoveType::Normal, sf::Vector2f(sprite_.getPosition().x, sprite_.getPosition().y - SQUARE_SIZE)});
 				moveAdded = true;
-				if (p_field[m_position.x][m_position.y - 2] == nullptr)
-					possibleMoves.push_back({MoveType::PAWN_DOUBLE, sf::Vector2f(m_sprite.getPosition().x, m_sprite.getPosition().y - (2 * SQUARE_SIZE))});
+				if (board[position_.x][position_.y - 2] == nullptr)
+					possibleMoves_.push_back({MoveType::PawnDouble, sf::Vector2f(sprite_.getPosition().x, sprite_.getPosition().y - (2 * SQUARE_SIZE))});
 			}
 		}
 		
-		if (m_position.y == 0)
+		if (position_.y == 0)
 			return;
-		else if (p_field[m_position.x][m_position.y - 1] == nullptr && !moveAdded)
-			possibleMoves.push_back({MoveType::NORMAL, sf::Vector2f(m_sprite.getPosition().x, m_sprite.getPosition().y - SQUARE_SIZE)});
+		else if (board[position_.x][position_.y - 1] == nullptr && !moveAdded)
+			possibleMoves_.push_back({MoveType::Normal, sf::Vector2f(sprite_.getPosition().x, sprite_.getPosition().y - SQUARE_SIZE)});
 
-		if (m_position.x < 7 && p_field[m_position.x + 1][m_position.y - 1] != nullptr && p_field[m_position.x + 1][m_position.y - 1]->getTeam() != m_team)
-			possibleMoves.push_back({MoveType::NORMAL, sf::Vector2f(m_sprite.getPosition().x + SQUARE_SIZE, m_sprite.getPosition().y - SQUARE_SIZE)});
-		if (m_position.x > 0 && p_field[m_position.x - 1][m_position.y - 1] != nullptr && p_field[m_position.x - 1][m_position.y - 1]->getTeam() != m_team)
-			possibleMoves.push_back({MoveType::NORMAL, sf::Vector2f(m_sprite.getPosition().x - SQUARE_SIZE, m_sprite.getPosition().y - SQUARE_SIZE)});
+		if (position_.x < 7 && board[position_.x + 1][position_.y - 1] != nullptr && board[position_.x + 1][position_.y - 1]->getTeam() != team_)
+			possibleMoves_.push_back({MoveType::Normal, sf::Vector2f(sprite_.getPosition().x + SQUARE_SIZE, sprite_.getPosition().y - SQUARE_SIZE)});
+		if (position_.x > 0 && board[position_.x - 1][position_.y - 1] != nullptr && board[position_.x - 1][position_.y - 1]->getTeam() != team_)
+			possibleMoves_.push_back({MoveType::Normal, sf::Vector2f(sprite_.getPosition().x - SQUARE_SIZE, sprite_.getPosition().y - SQUARE_SIZE)});
 
 	}
 
 	// En Passant WORKDS
-	if (p_previousMove.moveType == MoveType::PAWN_DOUBLE)
+	if (previousMove.moveType == MoveType::PawnDouble)
 	{
-		if (m_team == Team::WHITE && m_position.y == 3) // in forth from top row and playing white aka going up
+		if (team_ == Team::White && position_.y == 3) // in forth from top row and playing white aka going up
 		{
-			if (p_previousMove.pos.x / SQUARE_SIZE == m_position.x - 1 && p_previousMove.pos.y / SQUARE_SIZE == m_position.y)
-				possibleMoves.push_back({MoveType::EN_PASSANT, sf::Vector2f(m_sprite.getPosition().x - SQUARE_SIZE, m_sprite.getPosition().y - SQUARE_SIZE)});
+			if (previousMove.position.x / SQUARE_SIZE == position_.x - 1 && previousMove.position.y / SQUARE_SIZE == position_.y)
+				possibleMoves_.push_back({MoveType::EnPassant, sf::Vector2f(sprite_.getPosition().x - SQUARE_SIZE, sprite_.getPosition().y - SQUARE_SIZE)});
 
-			if (p_previousMove.pos.x / SQUARE_SIZE == m_position.x + 1 && p_previousMove.pos.y / SQUARE_SIZE == m_position.y)
-				possibleMoves.push_back({MoveType::EN_PASSANT, sf::Vector2f(m_sprite.getPosition().x + SQUARE_SIZE, m_sprite.getPosition().y - SQUARE_SIZE)});
+			if (previousMove.position.x / SQUARE_SIZE == position_.x + 1 && previousMove.position.y / SQUARE_SIZE == position_.y)
+				possibleMoves_.push_back({MoveType::EnPassant, sf::Vector2f(sprite_.getPosition().x + SQUARE_SIZE, sprite_.getPosition().y - SQUARE_SIZE)});
 		}
 
-		if (m_team == Team::BLACK && m_position.y == 4) // in forth from top row and playing white aka going up
+		if (team_ == Team::Black && position_.y == 4) // in forth from top row and playing white aka going up
 		{
-			if (p_previousMove.pos.x / SQUARE_SIZE == m_position.x - 1 && p_previousMove.pos.y / SQUARE_SIZE == m_position.y)
-				possibleMoves.push_back({MoveType::EN_PASSANT, sf::Vector2f(m_sprite.getPosition().x - SQUARE_SIZE, m_sprite.getPosition().y + SQUARE_SIZE)});
+			if (previousMove.position.x / SQUARE_SIZE == position_.x - 1 && previousMove.position.y / SQUARE_SIZE == position_.y)
+				possibleMoves_.push_back({MoveType::EnPassant, sf::Vector2f(sprite_.getPosition().x - SQUARE_SIZE, sprite_.getPosition().y + SQUARE_SIZE)});
 
-			if (p_previousMove.pos.x / SQUARE_SIZE == m_position.x + 1 && p_previousMove.pos.y / SQUARE_SIZE == m_position.y)
-				possibleMoves.push_back({MoveType::EN_PASSANT, sf::Vector2f(m_sprite.getPosition().x + SQUARE_SIZE, m_sprite.getPosition().y + SQUARE_SIZE)});
+			if (previousMove.position.x / SQUARE_SIZE == position_.x + 1 && previousMove.position.y / SQUARE_SIZE == position_.y)
+				possibleMoves_.push_back({MoveType::EnPassant, sf::Vector2f(sprite_.getPosition().x + SQUARE_SIZE, sprite_.getPosition().y + SQUARE_SIZE)});
 		}
 	}
 }

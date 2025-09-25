@@ -1,12 +1,12 @@
-#include "Bishop.hpp"
+#include "bishop.hpp"
 
-Bishop::Bishop(Team t, sf::Vector2f p_pos, sf::Texture& p_texture)
-	:Piece(t, PieceType::BISHOP, p_pos, p_texture)
+Bishop::Bishop(Team team, sf::Vector2i position, sf::Texture& texture)
+	:Piece(team, PieceType::Bishop, position, texture)
 {}
 
-void Bishop::calcMoves(Board p_field, Move p_previousMove)
+void Bishop::calculateMoves(Board board, Move previousMove)
 {
-	possibleMoves.clear();
+	possibleMoves_.clear();
 
 	sf::Vector2i deltaPos(0, 0);
 
@@ -14,9 +14,9 @@ void Bishop::calcMoves(Board p_field, Move p_previousMove)
 	{
 		for (int j = 0; j < 2; j++)
 		{
-			while (deltaPos.x + m_position.x >= 0 && deltaPos.y + m_position.y >= 0 && deltaPos.x + m_position.x <= 7 && deltaPos.y + m_position.y <= 7)
+			while (deltaPos.x + position_.x >= 0 && deltaPos.y + position_.y >= 0 && deltaPos.x + position_.x <= 7 && deltaPos.y + position_.y <= 7)
 			{
-				if (deltaPos.x != 0 && deltaPos.y != 0 && addToVector(sf::Vector2i(deltaPos.x, deltaPos.y), p_field))
+				if (deltaPos.x != 0 && deltaPos.y != 0 && addToVector(sf::Vector2i(deltaPos.x, deltaPos.y), board))
 					break;
 				if (i == 0)
 					deltaPos.x--;
@@ -34,15 +34,15 @@ void Bishop::calcMoves(Board p_field, Move p_previousMove)
 
 bool Bishop::addToVector(sf::Vector2i p_pos, Board p_field) // Returns true if loop should end
 {
-	if (p_field[p_pos.x + m_position.x][p_pos.y + m_position.y] == nullptr)
+	if (p_field[p_pos.x + position_.x][p_pos.y + position_.y] == nullptr)
 	{
-		possibleMoves.push_back({MoveType::NORMAL, sf::Vector2f(m_sprite.getPosition().x + (p_pos.x * SQUARE_SIZE), m_sprite.getPosition().y + (p_pos.y * SQUARE_SIZE))});
+		possibleMoves_.push_back({MoveType::Normal, sf::Vector2f(sprite_.getPosition().x + (p_pos.x * SQUARE_SIZE), sprite_.getPosition().y + (p_pos.y * SQUARE_SIZE))});
 		return false;
 	}
-	else if (p_field[p_pos.x + m_position.x][p_pos.y + m_position.y] != nullptr &&
-		p_field[p_pos.x + m_position.x][p_pos.y + m_position.y]->getTeam() != m_team)
+	else if (p_field[p_pos.x + position_.x][p_pos.y + position_.y] != nullptr &&
+		p_field[p_pos.x + position_.x][p_pos.y + position_.y]->getTeam() != team_)
 	{
-		possibleMoves.push_back({MoveType::NORMAL, sf::Vector2f(m_sprite.getPosition().x + (p_pos.x * SQUARE_SIZE), m_sprite.getPosition().y + (p_pos.y * SQUARE_SIZE))});
+		possibleMoves_.push_back({MoveType::Normal, sf::Vector2f(sprite_.getPosition().x + (p_pos.x * SQUARE_SIZE), sprite_.getPosition().y + (p_pos.y * SQUARE_SIZE))});
 		return true;
 	}
 	else

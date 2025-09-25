@@ -1,4 +1,4 @@
-#include "Window.hpp"
+#include "window.hpp"
 
 Window::Window() { setup("Window", sf::Vector2u(640, 480)); }
 Window::Window(const std::string& title, const sf::Vector2u& size) { setup(title, size); }

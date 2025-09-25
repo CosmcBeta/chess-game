@@ -4,14 +4,14 @@
 #include <iostream>
 #include <memory>
 
-#include "Piece.hpp"
+#include "piece.hpp"
 
 class Queen : public Piece
 {
 public:
-	Queen(Team t, sf::Vector2f p_pos, sf::Texture& p_texture);
+	Queen(Team team, sf::Vector2i position, sf::Texture& texture);
 
-	virtual void calcMoves(Board p_field, Move p_previousMove);
+	virtual void calculateMoves(Board board, Move previousMove);
 	bool addToVector(sf::Vector2i p_pos, Board p_field);
 
 };

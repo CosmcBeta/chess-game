@@ -3,34 +3,34 @@
 #include <vector>
 #include <SFML/Audio.hpp>
 
-#include "Window.hpp"
-#include "King.hpp"
-#include "Queen.hpp"
-#include "Bishop.hpp"
-#include "Knight.hpp"
-#include "Rook.hpp"
-#include "Pawn.hpp"
-#include "Button.hpp"
-#include "Theme.hpp"
+#include "window.hpp"
+#include "king.hpp"
+#include "queen.hpp"
+#include "bishop.hpp"
+#include "knight.hpp"
+#include "rook.hpp"
+#include "pawn.hpp"
+#include "button.hpp"
+#include "theme.hpp"
 
 
 // Game state enum
 enum class State
 {
-	MENU,
-	SETTINGS,
-	CREATE_GAME,
-	PLAYING_GAME,
-	GAME_OVER,
-	PAUSE
+	Menu,
+	Settings,
+	CreateGame,
+	PlayingGame,
+	GameOver,
+	Pause
 };
 
 // Win state enum
 enum class GameOutcome
 {
-	WHITE_WINS,
-	BLACK_WINS,
-	STALEMATE
+	WhiteWins,
+	BlackWins,
+	Stalemate
 };
 
 // Game class
@@ -54,19 +54,17 @@ public:
 	void createBackground();
 	void createPieces();
 	void createTexts();
-	void createTextures();
 	void changeGamestate(State p_newState);
 	void endTurn(sf::Vector2i p_mousePos);
 
 	// Functions relating to the king
 	bool isInCheck(sf::Vector2i p_kingPos, Team p_kingTeam);
-	sf::Vector2i getKing(Team p_kingTeam);
+	sf::Vector2i getKing(Team kingTeam, bool currentBoard);
 	int numberOfPieces();
 
 	// Functions regarding to the next move
 	bool willBeInCheck(sf::Vector2i p_oldPos, sf::Vector2i p_newPos, Team p_team);
 	void createPotentialBoard(sf::Vector2i p_oldPos, sf::Vector2i p_newPos, Team p_pieceTeam);
-	sf::Vector2i getPotentialKing(Team p_kingTeam);
 
 	// Functions for piece moves
 	void displayMoves();
@@ -86,6 +84,12 @@ public:
 	void updateTheme();
 	void setAudio(bool p_audioOn);
 	void pauseState(sf::Vector2i mousePos, bool leftButtonClicked, std::optional<sf::Event> event);
+
+	void loadFont(sf::Font& font, const std::string& path);
+	void loadAudio(sf::SoundBuffer& buffer, const std::string& path);
+	void loadTexture(sf::Texture& texture, const std::string& path);
+
+	void loadResources();
 
 private:
 	// Bools and consts
@@ -124,7 +128,6 @@ private:
 	Button startButton, settingsButton, exitButton, settingsBackButton, playAgainButton, mainMenuButton;
 
 	// Colors
-	sf::Color grayCircle;
 	Theme theme;
 
 	Move m_previousMove;
