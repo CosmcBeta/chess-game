@@ -1,6 +1,6 @@
-#include "src/Game.hpp"
+#include "src/game.hpp"
 
-int main() 
+int main()
 {
 	Game* game = new Game;
 	while (!game->getWindow()->isDone()) 

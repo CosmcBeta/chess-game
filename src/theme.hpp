@@ -22,7 +22,7 @@ public:
     sf::Color moveCircle;
 
 private:
-	sf::Color darkBrown, lightBrown, altBrown;
-	sf::Color darkGreen, lightGreen, altGreen;
-    sf::Color darkBlue, lightBlue, altBlue;
+	sf::Color darkBrown_, lightBrown_, altBrown_;
+	sf::Color darkGreen_, lightGreen_, altGreen_;
+    sf::Color darkBlue_, lightBlue_, altBlue_;
 };

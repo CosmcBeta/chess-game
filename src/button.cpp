@@ -3,68 +3,67 @@
 #include <iostream>
 
 Button::Button()
-	:mouseInText(false), m_text(myriadRegular)
+	:mouseInText_(false), text_(myriadRegular_)
 {
-	if (!myriadRegular.openFromFile("assets/fonts/myriad_pro_regular.ttf"))
+	if (!myriadRegular_.openFromFile("assets/fonts/myriad_pro_regular.ttf"))
 		std::cerr << "Failed to open font\n";
-	m_text = sf::Text(myriadRegular);
+	text_ = sf::Text(myriadRegular_);
 }
 
-Button::Button(const sf::String& p_string, FontType p_font, unsigned int p_characterSize, sf::Vector2f p_position)
-	:m_position(p_position), mouseInText(false), m_text(myriadRegular),
-	darkColor(0,0,0,255), lightColor(0,0,0,255)
+Button::Button(const sf::String& string, FontType font, unsigned int characterSize, sf::Vector2f position)
+	:mouseInText_(false), text_(myriadRegular_), darkColor_(0,0,0,255), lightColor_(0,0,0,255)
 {
-	if (!myriadBold.openFromFile("assets/fonts/myriad_pro_bold.ttf"))
+	if (!myriadBold_.openFromFile("assets/fonts/myriad_pro_bold.ttf"))
 		std::cerr << "Failed to open font\n";
-	if (!myriadRegular.openFromFile("assets/fonts/myriad_pro_regular.ttf"))
+	if (!myriadRegular_.openFromFile("assets/fonts/myriad_pro_regular.ttf"))
 		std::cerr << "Failed to open font\n";
-	if (!myriadSemibold.openFromFile("assets/fonts/myriad_pro_semibold.ttf"))
+	if (!myriadSemibold_.openFromFile("assets/fonts/myriad_pro_semibold.ttf"))
 		std::cerr << "Failed to open font\n";
 
-	m_text.setString(p_string);
-	switch (p_font)
+	text_.setString(string);
+	switch (font)
 	{
 	case FontType::Regular:
-		m_text.setFont(myriadRegular);
+		text_.setFont(myriadRegular_);
 		break;
 	case FontType::Bold:
-		m_text.setFont(myriadBold);
+		text_.setFont(myriadBold_);
 		break;
 	case FontType::Semibold:
-		m_text.setFont(myriadSemibold);
+		text_.setFont(myriadSemibold_);
 		break;
 	default:
 		break;
 	}
-	m_text.setCharacterSize(p_characterSize);
-	m_text.setFillColor(darkColor);
-	m_rect = m_text.getLocalBounds();
-	m_text.setOrigin({m_rect.position.x + m_rect.size.x / 2.f, m_rect.position.y + m_rect.size.y / 2.f}); // Sets origin to the exact center of the text
-	m_text.setPosition(m_position);
+	text_.setCharacterSize(characterSize);
+	text_.setFillColor(darkColor_);
+	rect_ = text_.getLocalBounds();
+	text_.setOrigin({rect_.position.x + rect_.size.x / 2.f, rect_.position.y + rect_.size.y / 2.f}); // Sets origin to the exact center of the text
+	text_.setPosition(position);
 }
 
-void Button::setColor(sf::Color p_darkColor, sf::Color p_lightColor)
+void Button::setColor(sf::Color darkColor, sf::Color lightColor)
 {
-	darkColor = p_darkColor;
-	lightColor = p_lightColor;
+	darkColor_ = darkColor;
+	lightColor_ = lightColor;
 }
 
-void Button::update(sf::Vector2i p_mousePosition)
+void Button::update(sf::Vector2i mousePosition)
 {
-	mouseInText = (p_mousePosition.x > m_text.getPosition().x - m_rect.size.x / 2.f &&
-		p_mousePosition.x < m_text.getPosition().x + m_rect.size.x / 2.f &&
-		p_mousePosition.y > m_text.getPosition().y - m_rect.size.y / 2 &&
-		p_mousePosition.y < m_text.getPosition().y + m_rect.size.y / 2);
+	mouseInText_ = (mousePosition.x > text_.getPosition().x - rect_.size.x / 2.f &&
+		mousePosition.x < text_.getPosition().x + rect_.size.x / 2.f &&
+		mousePosition.y > text_.getPosition().y - rect_.size.y / 2 &&
+		mousePosition.y < text_.getPosition().y + rect_.size.y / 2);
 
-	if (mouseInText)
-		m_text.setFillColor(lightColor);
+	if (mouseInText_)
+		text_.setFillColor(lightColor_);
 	else
-		m_text.setFillColor(darkColor);
+		text_.setFillColor(darkColor_);
 }
 
-bool Button::getMouseInText() { return mouseInText; }
+bool Button::getMouseInText() { return mouseInText_; }
 
 void Button::draw(sf::RenderTarget& target, sf::RenderStates states) const
 {
-	target.draw(m_text, states);
+	target.draw(text_, states);
 }
