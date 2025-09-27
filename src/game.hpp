@@ -1,11 +1,5 @@
 #pragma once
 
-#include <vector>
-#include <SFML/Audio.hpp>
-#include <SFML/Window/Event.hpp>
-
-
-// #include "window.hpp"
 #include "king.hpp"
 #include "queen.hpp"
 #include "bishop.hpp"
@@ -14,6 +8,11 @@
 #include "pawn.hpp"
 #include "button.hpp"
 #include "theme.hpp"
+
+#include <SFML/Audio.hpp>
+#include <SFML/Window/Event.hpp>
+
+#include <vector>
 
 
 // Game state enum

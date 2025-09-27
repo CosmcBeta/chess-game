@@ -1,10 +1,9 @@
 #pragma once 
 
-#include <SFML/Graphics.hpp>
-#include <iostream>
-#include <memory>
+#include "chess-piece.hpp"
 
-#include "piece.hpp"
+#include <SFML/Graphics.hpp>
+
 
 class Queen : public Piece
 {
