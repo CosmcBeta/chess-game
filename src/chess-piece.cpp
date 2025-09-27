@@ -1,4 +1,4 @@
-#include "piece.hpp"
+#include "chess-piece.hpp"
 
 Piece::Piece(Team team, PieceType type, sf::Vector2i position, sf::Texture& texture)
 	:team_(team), pieceType_(type), texture_(texture), firstMove_(true),
