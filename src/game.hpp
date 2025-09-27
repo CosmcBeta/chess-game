@@ -74,9 +74,6 @@ public:
 	void removeInvalidMoves(Team p_kingTeam, sf::Vector2i p_oldPos, std::vector<Move>& p_moves);
 	int getTotalMoveCount(Team p_team);
 
-	// Returns the window
-	// Window* getWindow();
-
 	void menuState(sf::Vector2i mousePos, bool leftButtonClicked);
 	void settingsState(sf::Vector2i mousePos, bool leftButtonClicked);
 	void gameOverState(sf::Vector2i mousePos, bool leftButtonClicked);
@@ -149,7 +146,5 @@ private:
 	sf::RectangleShape pauseBackground;
 
 	sf::RenderWindow window_;
-	sf::Vector2u windowSize_;
-	std::string windowTitle_;
-	bool isDone_;// isFullscreen_;
+	bool isDone_;
 };

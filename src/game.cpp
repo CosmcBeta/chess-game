@@ -32,9 +32,7 @@ Game::Game()
 	restartClock();
 	srand(static_cast<unsigned int>(time(NULL)));
 
-	
-	sf::VideoMode videoMode({640, 640});
-	window_.create(videoMode, windowTitle_, sf::Style::Default);
+	window_.create(sf::VideoMode({640, 640}), "Chess", sf::Style::Default);
 	window_.setFramerateLimit(60);
 
 
