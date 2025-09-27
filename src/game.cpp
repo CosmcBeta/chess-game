@@ -1,5 +1,7 @@
 #include "game.hpp"
 
+#include <iostream>
+
 Game::Game()
 	:pieceSelected(false), m_previousMove{MoveType::None, {0,0}},
 	blackKingInCheck(false), whiteKingInCheck(false), pieceMoved(false),
