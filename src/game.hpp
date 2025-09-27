@@ -2,8 +2,10 @@
 
 #include <vector>
 #include <SFML/Audio.hpp>
+#include <SFML/Window/Event.hpp>
 
-#include "window.hpp"
+
+// #include "window.hpp"
 #include "king.hpp"
 #include "queen.hpp"
 #include "bishop.hpp"
@@ -39,6 +41,7 @@ class Game
 public:
 	// Constructor and deconstructor
 	Game();
+	~Game();
 
 	// Input, Updates, Rendering - order called in main function
 	void handleInput();
@@ -73,7 +76,7 @@ public:
 	int getTotalMoveCount(Team p_team);
 
 	// Returns the window
-	Window* getWindow();
+	// Window* getWindow();
 
 	void menuState(sf::Vector2i mousePos, bool leftButtonClicked);
 	void settingsState(sf::Vector2i mousePos, bool leftButtonClicked);
@@ -91,6 +94,9 @@ public:
 
 	void loadResources();
 
+
+	bool getIsDone();
+
 private:
 	// Bools and consts
 	const float circleRadius = 20.f;
@@ -99,7 +105,7 @@ private:
 	bool playAgain, lockClick, buttonPressed;
 
 	// Window and time
-	Window m_window;
+	// Window m_window;
 	sf::Clock m_clock;
 	sf::Time m_elapsed;
 
@@ -142,4 +148,9 @@ private:
 	sf::Text pauseTitle;
 	Button pauseDrawButton, pauseWhiteForfeitButton, pauseBlackForfeitButton, pauseMenuButton, pauseQuitButton, returnToGame;
 	sf::RectangleShape pauseBackground;
+
+	sf::RenderWindow window_;
+	sf::Vector2u windowSize_;
+	std::string windowTitle_;
+	bool isDone_;// isFullscreen_;
 };

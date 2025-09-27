@@ -3,7 +3,7 @@
 int main()
 {
 	Game* game = new Game;
-	while (!game->getWindow()->isDone()) 
+	while (!game->getIsDone()) 
 	{
 		game->handleInput();
 		game->update();

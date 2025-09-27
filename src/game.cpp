@@ -1,8 +1,7 @@
 #include "game.hpp"
 
 Game::Game()
-	:m_window("Chess", {640, 640}),
-	pieceSelected(false), m_previousMove{MoveType::None, {0,0}},
+	:pieceSelected(false), m_previousMove{MoveType::None, {0,0}},
 	blackKingInCheck(false), whiteKingInCheck(false), pieceMoved(false),
 	buttonPressed(false), lockClick(false), playAgain(false),
 	startButton("Play", FontType::Regular, 60, {320, 320}),
@@ -25,10 +24,17 @@ Game::Game()
 	titleText(myriadBold), settingsTitleText(myriadBold), gameOverTitleText(myriadBold), winnerText(myriadSemibold),
 	settingsAudioText(myriadRegular), settingsColorText(myriadRegular), pauseTitle(myriadBold),
 	pieceMoveSound(pieceMoveBuffer), captureSound(captureBuffer), buttonClickSound(buttonClickBuffer),
-	gameStartSound(gameStartBuffer), gameEndSound(gameEndBuffer), castleSound(castleBuffer)
+	gameStartSound(gameStartBuffer), gameEndSound(gameEndBuffer), castleSound(castleBuffer),
+	isDone_(false)
 {
 	restartClock();
 	srand(static_cast<unsigned int>(time(NULL)));
+
+	
+	sf::VideoMode videoMode({640, 640});
+	window_.create(videoMode, windowTitle_, sf::Style::Default);
+	window_.setFramerateLimit(60);
+
 
 	loadResources();
 	createTexts();
@@ -37,9 +43,18 @@ Game::Game()
 	changeGamestate(State::Menu);
 }
 
+Game::~Game()
+{
+	window_.close();
+}
+
+bool Game::getIsDone()
+{
+	return isDone_;
+}
+
 sf::Time Game::getElapsed() { return m_elapsed; }
 void Game::restartClock() { m_elapsed = m_clock.restart(); }
-Window* Game::getWindow() { return &m_window; }
 
 // Changes gamestates
 void Game::changeGamestate(State p_newState)
@@ -76,8 +91,8 @@ void Game::changeGamestate(State p_newState)
 // Handles input from user
 void Game::handleInput()
 {
-	std::optional event = m_window.getEvent();
-	sf::Vector2i mousePos = m_window.getMousePos();
+	std::optional event = window_.pollEvent();
+	sf::Vector2i mousePos = sf::Mouse::getPosition(window_);
 	bool leftButtonClicked = false;
 	if (auto mouse = event->getIf<sf::Event::MouseButtonPressed>())
 	{
@@ -138,7 +153,7 @@ void Game::menuState(sf::Vector2i mousePos, bool leftButtonClicked)
 		if (exitButton.getMouseInText() && !buttonPressed)
 		{
 			buttonClickSound.play();
-			m_window.setIsDone(true);
+			isDone_ = true;
 			buttonPressed = true;
 		}
 	}
@@ -299,7 +314,7 @@ void Game::pauseState(sf::Vector2i mousePos, bool leftButtonClicked, std::option
 		if (pauseQuitButton.getMouseInText() && !buttonPressed)
 		{
 			buttonClickSound.play();
-			m_window.setIsDone(true);
+			isDone_ = true;
 			buttonPressed = true;
 		}
 		if (returnToGame.getMouseInText() && !buttonPressed)
@@ -624,7 +639,11 @@ void Game::displayMoves()
 // Updates once every frame
 void Game::update()
 {
-	m_window.update();
+	while (const std::optional event = window_.pollEvent())
+	{
+		if (event->is<sf::Event::Closed>())
+			isDone_ = true;
+	}
 
 	for (int r = 0; r < 8; r++) // Updates the positions of the pieces
 	{
@@ -861,7 +880,7 @@ void Game::endTurn(sf::Vector2i p_mousepos)
 // Displays objects to the screen
 void Game::render()
 {
-	m_window.beginDraw(); // Clear
+	window_.clear(sf::Color::Black); // Clear
 
 	// Playing game display
 	switch (gameState)
@@ -876,58 +895,58 @@ void Game::render()
 
 			for (sf::CircleShape i : moveCircles)
 			{
-				m_window.draw(i);
+				window_.draw(i);
 			}
 			break;
 		case State::Menu:
-			m_window.draw(background);
-			m_window.draw(titleText);
-			m_window.draw(startButton);
-			m_window.draw(settingsButton);
-			m_window.draw(exitButton);
+			window_.draw(background);
+			window_.draw(titleText);
+			window_.draw(startButton);
+			window_.draw(settingsButton);
+			window_.draw(exitButton);
 			break;
 		case State::Settings:
-			m_window.draw(background);
-			m_window.draw(settingsBackButton);
-			m_window.draw(settingsTitleText);
-			m_window.draw(settingsAudioText);
-			m_window.draw(settingsColorText);
-			m_window.draw(settingsAudioChoiceNo);
-			m_window.draw(settingsAudioChoiceYes);
-			m_window.draw(settingsColorChoiceBrown);
-			m_window.draw(settingsColorChoiceGreen);
-			m_window.draw(settingsColorChoiceBlue);
+			window_.draw(background);
+			window_.draw(settingsBackButton);
+			window_.draw(settingsTitleText);
+			window_.draw(settingsAudioText);
+			window_.draw(settingsColorText);
+			window_.draw(settingsAudioChoiceNo);
+			window_.draw(settingsAudioChoiceYes);
+			window_.draw(settingsColorChoiceBrown);
+			window_.draw(settingsColorChoiceGreen);
+			window_.draw(settingsColorChoiceBlue);
 			break;
 		case State::GameOver:
 			renderBoard();
-			m_window.draw(gameOverBackground);
-			m_window.draw(gameOverTitleText);
-			m_window.draw(winnerText);
-			m_window.draw(mainMenuButton);
-			m_window.draw(playAgainButton);
+			window_.draw(gameOverBackground);
+			window_.draw(gameOverTitleText);
+			window_.draw(winnerText);
+			window_.draw(mainMenuButton);
+			window_.draw(playAgainButton);
 			break;
 		case State::Pause:
 			renderBoard();
-			m_window.draw(pauseBackground);
-			m_window.draw(pauseTitle);
-			m_window.draw(pauseDrawButton);
-			m_window.draw(pauseWhiteForfeitButton);
-			m_window.draw(pauseBlackForfeitButton);
-			m_window.draw(pauseMenuButton);
-			m_window.draw(pauseQuitButton);
-			m_window.draw(returnToGame);
+			window_.draw(pauseBackground);
+			window_.draw(pauseTitle);
+			window_.draw(pauseDrawButton);
+			window_.draw(pauseWhiteForfeitButton);
+			window_.draw(pauseBlackForfeitButton);
+			window_.draw(pauseMenuButton);
+			window_.draw(pauseQuitButton);
+			window_.draw(returnToGame);
 		default:
 			break;
 	}
 
-	m_window.endDraw(); // Display
+	window_.display(); // Display
 }
 
 void Game::renderBoard()
 {
 	for (sf::RectangleShape i : backgroundArray)
 	{
-		m_window.draw(i);
+		window_.draw(i);
 	}
 
 	for (auto& rows : m_field)
@@ -939,7 +958,7 @@ void Game::renderBoard()
 				continue;
 			}
 			sf::Sprite temp = elem->getSprite();
-			m_window.draw(temp);
+			window_.draw(temp);
 		}
 	}
 }
