@@ -7,7 +7,7 @@ Press **`ESC`** during gameplay to open the pause menu.
 
 ## Screenshot
 
-`![Screenshot](assets/images/gameplay-screenshot.png)`
+![Screenshot](assets/images/gameplay-screenshot.png)
 
 
 ---
