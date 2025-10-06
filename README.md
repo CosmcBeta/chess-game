@@ -1,44 +1,66 @@
 # Chess
 
-This is a simple two player chess game written in c++ and using SFML 3.0 for the graphics library. While in game you can access the pause menu by pressing ESC.
+A simple two-player chess game written in **C++** using **SFML 3.0** for rendering.
+Press **`ESC`** during gameplay to open the pause menu.
 
-## Current roadmap (not in order): 
-- add proper pawn promotion menu
-- improve code for readibility
-- improve the look of the menus
-- rewrite some code for more efficient approach
+---
 
-## Build and run
+## Screenshot
 
-#### CMake
-This is the prefered way of building
-- Create and enter the build directory
+> _Add your screenshot here (e.g. `![Screenshot](assets/images/gameplay-screenshot.png)`)_
+
+
+---
+
+## Roadmap
+
+Planned improvements (in no particular order):
+
+- [ ] Add a proper pawn promotion menu
+- [ ] Improve code readability
+- [ ] Enhance the look and feel of the menus
+- [ ] Refactor certain sections for better efficiency
+
+---
+
+## Building and Running
+
+### Using CMake (recommended)
+
+1. Create and enter a build directory:
+   ```bash
+   mkdir build
+   cd build
+   ```
+
+2. Generate build files and compile the project:
+   ```bash
+   cmake ..
+   cmake --build .
+   ```
+
+3. Run the program from the project root:
+   ```bash
+   cd ..
+   ./build/bin/chess
+   ```
+
+4. After making changes, rebuild and run with:
+   ```bash
+   cmake --build build && ./build/bin/chess
+   ```
+
+---
+
+### Building with g++ / clang++
+
+If you prefer to compile manually, run:
 ```bash
-mkdir build
-cd build
-```
-- Generate build files and build the project with CMake
-```bash
-cmake ..
-cmake --build .
-```
-- Run the program from the project root
-```bash
-cd ..
-./build/bin/chess
+clang++ src/*.cpp -I/opt/homebrew/include -L/opt/homebrew/lib \
+-lsfml-graphics -lsfml-window -lsfml-system -std=c++17 -o chess
 ```
 
-If you would like to use g++/clang++ you would run this command:
-```bash
-clang++ src/*.cpp -I/opt/homebrew/include -L/opt/homebrew/lib -lsfml-graphics -lsfml-window -lsfml-system -std=c++17 -o chess
-```
-- Then you would execute the file with this command:
+Then execute:
 ```bash
 ./chess
-```
-
-
-- If a change is made to the code rebuild and run with this command:
-```bash
-cmake --build build && ./build/bin/chess
 ```
