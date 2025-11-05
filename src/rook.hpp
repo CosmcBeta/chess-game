@@ -1,9 +1,8 @@
-#pragma once 
+#pragma once
 
 #include "chess-piece.hpp"
 
 #include <SFML/Graphics.hpp>
-
 
 class Rook : public Piece
 {

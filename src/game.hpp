@@ -1,19 +1,13 @@
 #pragma once
 
-#include "king.hpp"
-#include "queen.hpp"
-#include "bishop.hpp"
-#include "knight.hpp"
-#include "rook.hpp"
-#include "pawn.hpp"
 #include "button.hpp"
 #include "theme.hpp"
+#include "chess-piece.hpp"
 
 #include <SFML/Audio.hpp>
 #include <SFML/Window/Event.hpp>
 
 #include <vector>
-
 
 // Game state enum
 enum class State
@@ -35,7 +29,7 @@ enum class GameOutcome
 };
 
 // Game class
-class Game 
+class Game
 {
 public:
 	// Constructor and deconstructor
@@ -56,33 +50,33 @@ public:
 	void createBackground();
 	void createPieces();
 	void createTexts();
-	void changeGamestate(State p_newState);
-	void endTurn(sf::Vector2i p_mousePos);
+	void changeGamestate(State newState);
+	void endTurn(sf::Vector2i mousePosition);
 
 	// Functions relating to the king
-	bool isInCheck(sf::Vector2i p_kingPos, Team p_kingTeam);
+	bool isInCheck(sf::Vector2i kingPosition, Team kingTeam);
 	sf::Vector2i getKing(Team kingTeam, bool currentBoard);
 	int numberOfPieces();
 
 	// Functions regarding to the next move
-	bool willBeInCheck(sf::Vector2i p_oldPos, sf::Vector2i p_newPos, Team p_team);
-	void createPotentialBoard(sf::Vector2i p_oldPos, sf::Vector2i p_newPos, Team p_pieceTeam);
+	bool willBeInCheck(sf::Vector2i oldPosition, sf::Vector2i newPosition, Team team);
+	void createPotentialBoard(sf::Vector2i oldPosition, sf::Vector2i newPosition, Team pieceTeam);
 
 	// Functions for piece moves
 	void displayMoves();
-	void removeInvalidMoves(Team p_kingTeam, sf::Vector2i p_oldPos);
-	void removeInvalidMoves(Team p_kingTeam, sf::Vector2i p_oldPos, std::vector<Move>& p_moves);
+	void removeInvalidMoves(Team kingTeam, sf::Vector2i oldPosition);
+	void removeInvalidMoves(Team kingTeam, sf::Vector2i oldPosition, std::vector<Move>& moves);
 	int getTotalMoveCount(Team p_team);
 
-	void menuState(sf::Vector2i mousePos, bool leftButtonClicked);
-	void settingsState(sf::Vector2i mousePos, bool leftButtonClicked);
-	void gameOverState(sf::Vector2i mousePos, bool leftButtonClicked);
+	void menuState(sf::Vector2i mousePosition, bool leftButtonClicked);
+	void settingsState(sf::Vector2i mousePosition, bool leftButtonClicked);
+	void gameOverState(sf::Vector2i mousePosition, bool leftButtonClicked);
 
-	bool playingGameState(sf::Vector2i actualMousePos, std::optional<sf::Event> event, bool leftButtonClicked);
+	bool playingGameState(sf::Vector2i actualMousePosition, std::optional<sf::Event> event, bool leftButtonClicked);
 
 	void updateTheme();
-	void setAudio(bool p_audioOn);
-	void pauseState(sf::Vector2i mousePos, bool leftButtonClicked, std::optional<sf::Event> event);
+	void setAudio(bool audioOn);
+	void pauseState(sf::Vector2i mousePosition, bool leftButtonClicked, std::optional<sf::Event> event);
 
 	void loadFont(sf::Font& font, const std::string& path);
 	void loadAudio(sf::SoundBuffer& buffer, const std::string& path);
@@ -96,37 +90,35 @@ public:
 private:
 	// Bools and consts
 	const float circleRadius = 20.f;
-	bool whiteKingInCheck, blackKingInCheck;
-	bool pieceSelected, pieceMoved;
-	bool playAgain, lockClick, buttonPressed;
+	bool whiteKingInCheck_, blackKingInCheck_;
+	bool pieceSelected_, pieceMoved_;
+	bool playAgain_, lockClick_, buttonPressed_;
 
 	// Window and time
-	// Window m_window;
-	sf::Clock m_clock;
-	sf::Time m_elapsed;
+	sf::Clock clock_;
+	sf::Time elapsed_;
 
 	// Vectors and arrays
-	std::vector<sf::CircleShape> moveCircles;
-	std::vector<sf::Sprite> sprites;
-	std::vector<Move> possibleMoves;
-	Board m_field;
-	Board m_potentialField;
-	sf::RectangleShape backgroundArray[64];
+	std::vector<sf::CircleShape> moveCircles_;
+	std::vector<Move> possibleMoves_;
+	Board board_;
+	Board potentialBoard_;
+	sf::RectangleShape backgroundArray_[64];
 
 	// King positions and states
-	sf::Vector2i blackKingPos, whiteKingPos;
-	Team playerTurn;
-	State gameState;
-	GameOutcome gameOutcome;
+	sf::Vector2i blackKingPosition_, whiteKingPosition_;
+	Team playerTurn_;
+	State gameState_;
+	GameOutcome gameOutcome_;
 
 	// Textures and shapes
-	sf::Texture whitePawnTex, whiteRookTex, whiteBishopTex, whiteKnightTex, whiteQueenTex, whiteKingTex;
-	sf::Texture blackPawnTex, blackRookTex, blackBishopTex, blackKnightTex, blackQueenTex, blackKingTex;
-	sf::RectangleShape background, gameOverBackground;
+	sf::Texture whitePawnTexture_, whiteRookTexture_, whiteBishopTexture_, whiteKnightTexture_, whiteQueenTexture_, whiteKingTexture_;
+	sf::Texture blackPawnTexture_, blackRookTexture_, blackBishopTexture_, blackKnightTexture_, blackQueenTexture_, blackKingTexture_;
+	sf::RectangleShape background_, gameOverBackground_;
 
 	// Texts, buttons, and fonts
-	sf::Font myriadBold, myriadRegular, myriadSemibold;
-	sf::Text titleText, settingsTitleText, gameOverTitleText, winnerText;
+	sf::Font myriadBoldFont_, myriadRegularFont_, myriadSemiboldFont_;
+	sf::Text titleText_, settingsTitleText_, gameOverTitleText_, winnerText_;
 	Button startButton, settingsButton, exitButton, settingsBackButton, playAgainButton, mainMenuButton;
 
 	// Colors
