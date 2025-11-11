@@ -1,4 +1,4 @@
-#include "knight.hpp"
+#include "pieces/knight.hpp"
 
 Knight::Knight(Team team, sf::Vector2i position, sf::Texture& texture)
 	:Piece(team, PieceType::Knight, position, texture)
@@ -7,7 +7,7 @@ Knight::Knight(Team team, sf::Vector2i position, sf::Texture& texture)
 void Knight::calculateMoves(Board board, Move previousMove)
 {
 	possibleMoves_.clear();
-	
+
 	std::array<sf::Vector2i, 8> possibleSquares =
 	{
 		sf::Vector2i(-2, -1),
@@ -23,7 +23,7 @@ void Knight::calculateMoves(Board board, Move previousMove)
 	for (auto& move : possibleSquares)
 	{
 		sf::Vector2i tempPosition(position_.x + move.x, position_.y + move.y);
-		
+
 		if (tempPosition.x < 0 || tempPosition.x > 7 || tempPosition.y < 0 || tempPosition.y > 7)
 			continue;
 

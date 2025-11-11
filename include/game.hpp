@@ -2,7 +2,7 @@
 
 #include "button.hpp"
 #include "theme.hpp"
-#include "chess-piece.hpp"
+#include "pieces/chess-piece.hpp"
 
 #include <SFML/Audio.hpp>
 #include <SFML/Window/Event.hpp>

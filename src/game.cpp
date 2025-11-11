@@ -1,10 +1,10 @@
 #include "game.hpp"
-#include "queen.hpp"
-#include "knight.hpp"
-#include "bishop.hpp"
-#include "pawn.hpp"
-#include "rook.hpp"
-#include "king.hpp"
+#include "pieces/queen.hpp"
+#include "pieces/knight.hpp"
+#include "pieces/bishop.hpp"
+#include "pieces/pawn.hpp"
+#include "pieces/rook.hpp"
+#include "pieces/king.hpp"
 
 #include <iostream>
 
@@ -1067,29 +1067,29 @@ void Game::loadTexture(sf::Texture& texture, const std::string& path)
 void Game::loadResources()
 {
 	// Textures
-	loadTexture(whitePawnTexture_, "assets/images/white_pawn.png");
-	loadTexture(whiteRookTexture_, "assets/images/white_rook.png");
-	loadTexture(whiteBishopTexture_, "assets/images/white_bishop.png");
-	loadTexture(whiteKnightTexture_, "assets/images/white_knight.png");
-	loadTexture(whiteQueenTexture_, "assets/images/white_queen.png");
-	loadTexture(whiteKingTexture_, "assets/images/white_king.png");
-	loadTexture(blackPawnTexture_, "assets/images/black_pawn.png");
-	loadTexture(blackRookTexture_, "assets/images/black_rook.png");
-	loadTexture(blackBishopTexture_, "assets/images/black_bishop.png");
-	loadTexture(blackKnightTexture_, "assets/images/black_knight.png");
-	loadTexture(blackQueenTexture_, "assets/images/black_queen.png");
-	loadTexture(blackKingTexture_, "assets/images/black_king.png");
+	loadTexture(whitePawnTexture_, "../assets/images/white_pawn.png");
+	loadTexture(whiteRookTexture_, "../assets/images/white_rook.png");
+	loadTexture(whiteBishopTexture_, "../assets/images/white_bishop.png");
+	loadTexture(whiteKnightTexture_, "../assets/images/white_knight.png");
+	loadTexture(whiteQueenTexture_, "../assets/images/white_queen.png");
+	loadTexture(whiteKingTexture_, "../assets/images/white_king.png");
+	loadTexture(blackPawnTexture_, "../assets/images/black_pawn.png");
+	loadTexture(blackRookTexture_, "../assets/images/black_rook.png");
+	loadTexture(blackBishopTexture_, "../assets/images/black_bishop.png");
+	loadTexture(blackKnightTexture_, "../assets/images/black_knight.png");
+	loadTexture(blackQueenTexture_, "../assets/images/black_queen.png");
+	loadTexture(blackKingTexture_, "../assets/images/black_king.png");
 
 	// Fonts
-	loadFont(myriadBoldFont_, "assets/fonts/myriad_pro_bold.ttf");
-	loadFont(myriadSemiboldFont_, "assets/fonts/myriad_pro_semibold.ttf");
-	loadFont(myriadRegularFont_, "assets/fonts/myriad_pro_regular.ttf");
+	loadFont(myriadBoldFont_, "../assets/fonts/myriad_pro_bold.ttf");
+	loadFont(myriadSemiboldFont_, "../assets/fonts/myriad_pro_semibold.ttf");
+	loadFont(myriadRegularFont_, "../assets/fonts/myriad_pro_regular.ttf");
 
 	// Sounds
-	loadAudio(pieceMoveBuffer, "assets/audio/move.mp3");
-	loadAudio(captureBuffer, "assets/audio/capture.mp3");
-	loadAudio(gameStartBuffer, "assets/audio/game-start.mp3");
-	loadAudio(gameEndBuffer, "assets/audio/game-end.mp3");
-	loadAudio(castleBuffer, "assets/audio/castle.mp3");
-	loadAudio(buttonClickBuffer, "assets/audio/button-click.mp3");
+	loadAudio(pieceMoveBuffer, "../assets/audio/move.mp3");
+	loadAudio(captureBuffer, "../assets/audio/capture.mp3");
+	loadAudio(gameStartBuffer, "../assets/audio/game-start.mp3");
+	loadAudio(gameEndBuffer, "../assets/audio/game-end.mp3");
+	loadAudio(castleBuffer, "../assets/audio/castle.mp3");
+	loadAudio(buttonClickBuffer, "../assets/audio/button-click.mp3");
 }

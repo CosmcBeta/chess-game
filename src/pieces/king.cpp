@@ -1,4 +1,4 @@
-#include "king.hpp"
+#include "pieces/king.hpp"
 
 King::King(Team team, sf::Vector2i position, sf::Texture& texture)
 	:Piece(team, PieceType::King, position, texture)

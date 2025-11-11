@@ -1,4 +1,4 @@
-#include "rook.hpp"
+#include "pieces/rook.hpp"
 
 Rook::Rook(Team team, sf::Vector2i position, sf::Texture& texture)
 	:Piece(team, PieceType::Rook, position, texture)

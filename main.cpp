@@ -1,9 +1,9 @@
-#include "src/game.hpp"
+#include "include/game.hpp"
 
 int main()
 {
 	Game* game = new Game;
-	while (!game->getIsDone()) 
+	while (!game->getIsDone())
 	{
 		game->handleInput();
 		game->update();

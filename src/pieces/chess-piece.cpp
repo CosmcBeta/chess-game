@@ -1,4 +1,4 @@
-#include "chess-piece.hpp"
+#include "pieces/chess-piece.hpp"
 
 Piece::Piece(Team team, PieceType type, sf::Vector2i position, sf::Texture& texture)
 	:team_(team), pieceType_(type), texture_(texture), firstMove_(true),
@@ -22,9 +22,9 @@ bool Piece::getFirstMove() { return firstMove_; }
 void Piece::setEnPassant(bool enPassant) { canEnPassant_ = enPassant; }
 bool Piece::getEnPassant() { return canEnPassant_; }
 
-void Piece::setPosition(sf::Vector2f position) 
-{ 
-	sprite_.setPosition({position.x * 80.f, position.y * 80.f}); 
+void Piece::setPosition(sf::Vector2f position)
+{
+	sprite_.setPosition({position.x * 80.f, position.y * 80.f});
 	position_.x = (int)position.x;
 	position_.y = (int)position.y;
 }

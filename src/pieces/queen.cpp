@@ -1,4 +1,4 @@
-#include "queen.hpp"
+#include "pieces/queen.hpp"
 
 Queen::Queen(Team team, sf::Vector2i position, sf::Texture& texture)
 	:Piece(team, PieceType::Queen, position, texture)

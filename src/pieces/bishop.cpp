@@ -1,4 +1,4 @@
-#include "bishop.hpp"
+#include "pieces/bishop.hpp"
 
 Bishop::Bishop(Team team, sf::Vector2i position, sf::Texture& texture)
 	:Piece(team, PieceType::Bishop, position, texture)

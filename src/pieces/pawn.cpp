@@ -1,4 +1,4 @@
-#include "pawn.hpp"
+#include "pieces/pawn.hpp"
 
 Pawn::Pawn(Team team, sf::Vector2i position, sf::Texture& texture)
 	:Piece(team, PieceType::Pawn, position, texture)
@@ -8,7 +8,7 @@ void Pawn::calculateMoves(Board board, Move previousMove)
 {
 	possibleMoves_.clear();
 	bool moveAdded = false; // Makes sure no dublicate moves are added to vector
-	
+
 	if (team_ == Team::Black) // going down
 	{
 		if (firstMove_)
@@ -21,7 +21,7 @@ void Pawn::calculateMoves(Board board, Move previousMove)
 					possibleMoves_.push_back({MoveType::PawnDouble, sf::Vector2f(sprite_.getPosition().x, sprite_.getPosition().y + (2 * SQUARE_SIZE))});
 			}
 		}
-		
+
 		if (position_.y == 7)
 			return;
 		else if (board[position_.x][position_.y + 1] == nullptr && !moveAdded)
@@ -45,7 +45,7 @@ void Pawn::calculateMoves(Board board, Move previousMove)
 					possibleMoves_.push_back({MoveType::PawnDouble, sf::Vector2f(sprite_.getPosition().x, sprite_.getPosition().y - (2 * SQUARE_SIZE))});
 			}
 		}
-		
+
 		if (position_.y == 0)
 			return;
 		else if (board[position_.x][position_.y - 1] == nullptr && !moveAdded)

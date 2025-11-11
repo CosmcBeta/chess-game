@@ -23,12 +23,12 @@ if (NOT SFML_FOUND)
 endif()
 
 # Source files
-file(GLOB SRC_FILES src/*.cpp)
+file(GLOB_RECURSE SRC_FILES src/*.cpp)
 
 # Executable
 add_executable(chess main.cpp ${SRC_FILES})
 target_compile_features(chess PRIVATE cxx_std_17)
-target_include_directories(chess PRIVATE src)
+target_include_directories(chess PRIVATE ${PROJECT_SOURCE_DIR}/include)
 
 # Link SFML
 target_link_libraries(chess PRIVATE SFML::Graphics SFML::Audio)

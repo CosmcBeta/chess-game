@@ -5,7 +5,7 @@
 Button::Button()
 	:mouseInText_(false), text_(myriadRegular_)
 {
-	if (!myriadRegular_.openFromFile("assets/fonts/myriad_pro_regular.ttf"))
+	if (!myriadRegular_.openFromFile("../assets/fonts/myriad_pro_regular.ttf"))
 		std::cerr << "Failed to open font\n";
 	text_ = sf::Text(myriadRegular_);
 }
@@ -13,11 +13,11 @@ Button::Button()
 Button::Button(const sf::String& string, FontType font, unsigned int characterSize, sf::Vector2f position)
 	:mouseInText_(false), text_(myriadRegular_), darkColor_(0,0,0,255), lightColor_(0,0,0,255)
 {
-	if (!myriadBold_.openFromFile("assets/fonts/myriad_pro_bold.ttf"))
+	if (!myriadBold_.openFromFile("../assets/fonts/myriad_pro_bold.ttf"))
 		std::cerr << "Failed to open font\n";
-	if (!myriadRegular_.openFromFile("assets/fonts/myriad_pro_regular.ttf"))
+	if (!myriadRegular_.openFromFile("../assets/fonts/myriad_pro_regular.ttf"))
 		std::cerr << "Failed to open font\n";
-	if (!myriadSemibold_.openFromFile("assets/fonts/myriad_pro_semibold.ttf"))
+	if (!myriadSemibold_.openFromFile("../assets/fonts/myriad_pro_semibold.ttf"))
 		std::cerr << "Failed to open font\n";
 
 	text_.setString(string);
