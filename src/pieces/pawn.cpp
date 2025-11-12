@@ -10,99 +10,44 @@ void Pawn::calculateMoves(Board board, Move previousMove)
 {
 	possibleMoves_.clear();
 
-	if (team_ == Team::Black) // going down
+	if (position_.rank == FIRST || position_.rank == LAST)
 	{
-		if (firstMove_)
-		{
-			if (board[position_.file][position_.rank + 1] == nullptr)
-			{
-				possibleMoves_.push_back({MoveType::Normal, {position_.file, position_.rank + 1}});
-				if (board[position_.file][position_.rank + 2] == nullptr)
-				{
-					possibleMoves_.push_back({MoveType::PawnDouble, {position_.file, position_.rank + 2}});
-				}
-			}
-		}
-
-		if (position_.rank == 7)
-		{
-			return;
-		}
-		else if (board[position_.file][position_.rank + 1] == nullptr)
-		{
-			possibleMoves_.push_back({MoveType::Normal, {position_.file, position_.rank + 1}});
-		}
-
-		if (position_.file < 7 && board[position_.file + 1][position_.rank + 1] != nullptr && board[position_.file + 1][position_.rank + 1]->getTeam() != team_)
-		{
-			possibleMoves_.push_back({MoveType::Normal, {position_.file + 1, position_.rank + 1}});
-		}
-		if (position_.file > 0 && board[position_.file - 1][position_.rank + 1] != nullptr && board[position_.file - 1][position_.rank + 1]->getTeam() != team_)
-		{
-			possibleMoves_.push_back({MoveType::Normal, {position_.file - 1, position_.rank + 1}});
-		}
-
-	}
-	else // going up
-	{
-		if (firstMove_)
-		{
-			if (board[position_.file][position_.rank - 1] == nullptr)
-			{
-				possibleMoves_.push_back({MoveType::Normal, {position_.file, position_.rank - 1}});
-				if (board[position_.file][position_.rank - 2] == nullptr)
-				{
-					possibleMoves_.push_back({MoveType::PawnDouble, {position_.file, position_.rank - 2}});
-				}
-			}
-		}
-
-		if (position_.rank == 0)
-		{
-			return;
-		}
-		else if (board[position_.file][position_.rank - 1] == nullptr)
-		{
-			possibleMoves_.push_back({MoveType::Normal, {position_.file, position_.rank - 1}});
-		}
-
-		if (position_.file < 7 && board[position_.file + 1][position_.rank - 1] != nullptr && board[position_.file + 1][position_.rank - 1]->getTeam() != team_)
-		{
-			possibleMoves_.push_back({MoveType::Normal, {position_.file + 1, position_.rank - 1}});
-		}
-		if (position_.file > 0 && board[position_.file - 1][position_.rank - 1] != nullptr && board[position_.file - 1][position_.rank - 1]->getTeam() != team_)
-		{
-			possibleMoves_.push_back({MoveType::Normal, {position_.file - 1, position_.rank - 1}});
-		}
+	    return;
 	}
 
-	// En Passant
-	if (previousMove.moveType == MoveType::PawnDouble)
-	{
-		if (team_ == Team::White && position_.rank == 3) // in forth from top row and playing white aka going up
-		{
-			if (previousMove.position.file == position_.file - 1 && previousMove.position.rank == position_.rank)
-			{
-				possibleMoves_.push_back({MoveType::EnPassant, {position_.file - 1, position_.rank - 1}});
-			}
+	int direction = (team_ == Team::White) ? -1 : 1;
+	int enPassantRank = (team_ == Team::White) ? 3 : 4;
 
-			if (previousMove.position.file == position_.file + 1 && previousMove.position.rank == position_.rank)
-			{
-				possibleMoves_.push_back({MoveType::EnPassant, {position_.file + 1, position_.rank - 1}});
-			}
-		}
 
-		if (team_ == Team::Black && position_.rank == 4) // in forth from top row and playing white aka going up
-		{
-			if (previousMove.position.file == position_.file - 1 && previousMove.position.rank == position_.rank)
-			{
-				possibleMoves_.push_back({MoveType::EnPassant, {position_.file - 1, position_.rank + 1}});
-			}
+    if (board[position_.file][position_.rank + direction] == nullptr)
+    {
+        possibleMoves_.push_back({MoveType::Normal, {position_.file, position_.rank + direction}});
+    }
 
-			if (previousMove.position.file == position_.file + 1 && previousMove.position.rank == position_.rank)
-			{
-				possibleMoves_.push_back({MoveType::EnPassant, {position_.file + 1, position_.rank + 1}});
-			}
-		}
-	}
+    if (firstMove_ && board[position_.file][position_.rank + direction * 2] == nullptr)
+    {
+        possibleMoves_.push_back({MoveType::PawnDouble, {position_.file, position_.rank + direction * 2}});
+    }
+
+    for (int offset : {-1, 1})
+    {
+        int adjacentFile {position_.file + offset};
+        if (FIRST <= adjacentFile && adjacentFile <= LAST && board[adjacentFile][position_.rank + direction] != nullptr \
+            && board[adjacentFile][position_.rank + direction]->getTeam() != team_)
+        {
+            possibleMoves_.push_back({MoveType::Capture, {adjacentFile, position_.rank + direction}});
+        }
+    }
+
+    if (previousMove.moveType == MoveType::PawnDouble && position_.rank == enPassantRank)
+    {
+        for (int offset : {-1, 1})
+        {
+            int adjacentFile {position_.file + offset};
+            if (previousMove.position.file == adjacentFile && previousMove.position.rank == position_.rank))
+            {
+                possibleMoves_.push_back({MoveType::EnPassant, {adjacentFile, position_.rank + direction}});
+            }
+        }
+    }
 }

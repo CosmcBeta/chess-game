@@ -1,5 +1,8 @@
 #pragma once
 
+constexpr int FIRST = 0;
+constexpr int LAST = 7;
+
 struct Position
 {
     int file; // first position in 2d array (x)
