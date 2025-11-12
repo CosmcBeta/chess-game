@@ -1,13 +1,12 @@
 #pragma once
 
-#include "chess-piece.hpp"
-
-#include <SFML/Graphics.hpp>
+#include "chess_piece.hpp"
+#include "piece_info.hpp"
 
 class Pawn : public Piece
 {
 public:
-	Pawn(Team team, sf::Vector2i position, sf::Texture& texture);
+	Pawn(Team team, Position position);
 
 	virtual void calculateMoves(Board board, Move previousMove);
 };

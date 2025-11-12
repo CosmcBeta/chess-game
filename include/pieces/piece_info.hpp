@@ -2,7 +2,7 @@
 
 struct Position
 {
-    int file;
+    int file; // first position in 2d array (x)
     int rank;
 };
 
