@@ -1,38 +1,44 @@
 #include "pieces/knight.hpp"
+#include "pieces/chess_piece.hpp"
+#include "pieces/piece_info.hpp"
 
-Knight::Knight(Team team, sf::Vector2i position, sf::Texture& texture)
-	:Piece(team, PieceType::Knight, position, texture)
+#include <array>
+
+Knight::Knight(Team team, Position position)
+	:Piece(team, PieceType::Knight, position)
 {}
 
-void Knight::calculateMoves(Board board, Move previousMove)
+void Knight::calculateMoves(const Board& board, Move previousMove)
 {
 	possibleMoves_.clear();
 
-	std::array<sf::Vector2i, 8> possibleSquares =
+	std::array<Position, 8> possibleSquares =
 	{
-		sf::Vector2i(-2, -1),
-		sf::Vector2i(-2, 1),
-		sf::Vector2i(2, -1),
-		sf::Vector2i(2, 1),
-		sf::Vector2i(-1, -2),
-		sf::Vector2i(-1, 2),
-		sf::Vector2i(1, -2),
-		sf::Vector2i(1, 2)
+        Position(-2, -1),
+    	Position(-2, 1),
+    	Position(2, -1),
+    	Position(2, 1),
+    	Position(-1, -2),
+    	Position(-1, 2),
+    	Position(1, -2),
+    	Position(1, 2)
 	};
 
-	for (auto& move : possibleSquares)
+	for (const auto& move : possibleSquares)
 	{
-		sf::Vector2i tempPosition(position_.x + move.x, position_.y + move.y);
+		Position tempPosition {position_.file + move.file, position_.rank + move.rank};
 
-		if (tempPosition.x < 0 || tempPosition.x > 7 || tempPosition.y < 0 || tempPosition.y > 7)
+		if (tempPosition.file < FIRST || tempPosition.file > LAST || tempPosition.rank < FIRST || tempPosition.rank > LAST)
+		{
 			continue;
-
-		if (board[tempPosition.x][tempPosition.y] == nullptr)
-			possibleMoves_.push_back({MoveType::Normal, sf::Vector2f(tempPosition.x * SQUARE_SIZE, tempPosition.y * SQUARE_SIZE)});
-
-		if (board[tempPosition.x][tempPosition.y] != nullptr && board[tempPosition.x][tempPosition.y]->getTeam() != team_)
-			possibleMoves_.push_back({MoveType::Normal, sf::Vector2f(tempPosition.x * SQUARE_SIZE, tempPosition.y * SQUARE_SIZE)});
+		}
+		else if (board[tempPosition.file][tempPosition.rank] == nullptr)
+		{
+			possibleMoves_.push_back({MoveType::Normal, {tempPosition.file, tempPosition.rank}});
+		}
+		else if (board[tempPosition.file][tempPosition.rank]->getTeam() != team_)
+		{
+			possibleMoves_.push_back({MoveType::Capture, {tempPosition.file, tempPosition.rank}});
+		}
 	}
-
-
 }

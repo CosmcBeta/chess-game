@@ -1,13 +1,12 @@
 #pragma once
 
-#include "chess-piece.hpp"
-
-#include <SFML/Graphics.hpp>
+#include "chess_piece.hpp"
+#include "piece_info.hpp"
 
 class Knight : public Piece
 {
 public:
-	Knight(Team team, sf::Vector2i position, sf::Texture& texture);
+	Knight(Team team, Position position);
 
-	virtual void calculateMoves(Board board, Move previousMove);
+	virtual void calculateMoves(const Board& board, Move previousMove);
 };
