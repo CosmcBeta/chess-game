@@ -6,8 +6,6 @@
 
 class Piece;
 using Board = std::array<std::array<Piece*, 8>, 8>;
-// const int SQUARE_SIZE = 80;
-// static constexpr float SCALE = 0.24024024f;
 
 class Piece
 {
@@ -28,7 +26,7 @@ public:
 	void setEnPassant(bool enPassant);
 
 protected:
-	Position position_; // Position on an 8x8 scale
+	Position position_;
 	Team team_;
 	PieceType pieceType_;
 	std::vector<Move> possibleMoves_;

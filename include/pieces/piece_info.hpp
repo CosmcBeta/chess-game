@@ -3,6 +3,9 @@
 constexpr int FIRST = 0;
 constexpr int LAST = 7;
 
+// const int SQUARE_SIZE = 80;
+// static constexpr float SCALE = 0.24024024f;
+
 struct Position
 {
     int file; // first position in 2d array (x)
