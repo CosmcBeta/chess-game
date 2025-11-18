@@ -3,8 +3,8 @@
 #include "pieces/piece_info.hpp"
 
 #include <array>
+#include <map>
 #include <span>
-#include <unordered_map>
 #include <utility>
 
 namespace
@@ -65,7 +65,7 @@ void SlidingPiece::calculateMoves(const Board& board, Move previousMove)
     possibleMoves_.clear();
 
     int numberOfDirectionsLeft = directions_.size();
-    std::unordered_map<Direction, Position> positions {};
+    std::map<Direction, Position> positions {};
     for (const Direction& dir : directions_)
     {
         positions[dir] = position_;
