@@ -2,8 +2,10 @@
 #include "pieces/chess_piece.hpp"
 #include "pieces/piece_info.hpp"
 
+#include <algorithm>
 #include <array>
 #include <span>
+#include <unordered_map>
 #include <utility>
 
 namespace
@@ -63,5 +65,48 @@ void SlidingPiece::calculateMoves(Board board, Move previousMove)
 {
     possibleMoves_.clear();
 
+    int numberOfDirectionsLeft = directions_.size();
+    std::unordered_map<Direction, Position> positions {};
+    for (const Direction& dir : directions_)
+    {
+        positions[dir] = position_;
+    }
 
+    do
+    {
+        for (auto& [dir, pos] : positions)
+        {
+            if (pos.file == -1 || pos.rank == -1)
+            {
+                continue;
+            }
+
+            pos.file += dir.first;
+            pos.rank += dir.second;
+
+            if (pos.file < FIRST || pos.file > LAST || pos.rank < FIRST || pos.rank > LAST)
+            {
+                positions.at(dir) = {-1, -1};
+                numberOfDirectionsLeft -= 1;
+                continue;
+            }
+
+            if (board[pos.file][pos.rank] == nullptr)
+            {
+                possibleMoves_.push_back({MoveType::Normal, pos});
+                positions.at(dir) = pos;
+            }
+            else if (board[pos.file][pos.rank]->getTeam() != team_)
+            {
+                possibleMoves_.push_back({MoveType::Capture, pos});
+                positions.at(dir) = {-1, -1};
+                numberOfDirectionsLeft -= 1;
+            }
+            else
+            {
+                positions.at(dir) = {-1, -1};
+                numberOfDirectionsLeft -= 1;
+            }
+        }
+    } while (numberOfDirectionsLeft != 0);
 }
