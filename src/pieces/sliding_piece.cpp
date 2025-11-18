@@ -2,7 +2,6 @@
 #include "pieces/chess_piece.hpp"
 #include "pieces/piece_info.hpp"
 
-#include <algorithm>
 #include <array>
 #include <span>
 #include <unordered_map>
