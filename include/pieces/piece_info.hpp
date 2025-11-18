@@ -10,6 +10,11 @@ struct Position
 {
     int file; // first position in 2d array (x)
     int rank;
+
+    bool operator==(const Position& other) const
+    {
+        return file == other.file && rank == other.rank;
+    }
 };
 
 enum class Team
