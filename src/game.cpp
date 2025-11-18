@@ -1,9 +1,9 @@
 #include "game.hpp"
-#include "pieces/queen.hpp"
+#include "pieces/chess_piece.hpp"
+#include "pieces/piece_info.hpp"
+#include "pieces/sliding_piece.hpp"
 #include "pieces/knight.hpp"
-#include "pieces/bishop.hpp"
 #include "pieces/pawn.hpp"
-#include "pieces/rook.hpp"
 #include "pieces/king.hpp"
 
 #include <iostream>
@@ -335,9 +335,9 @@ void Game::pauseState(sf::Vector2i mousePosition, bool leftButtonClicked, std::o
 
 bool Game::playingGameState(sf::Vector2i actualMousePosition, std::optional<sf::Event> event, bool leftButtonClicked)
 {
-	static sf::Vector2i selectedPiecePos(0, 0); // Array scale
-	sf::Vector2i mousePosArray = sf::Vector2i(actualMousePosition.x / SQUARE_SIZE, actualMousePosition.y / SQUARE_SIZE); // 8 by 8
-	sf::Vector2i mousePos = sf::Vector2i(mousePosArray.x * SQUARE_SIZE, mousePosArray.y * SQUARE_SIZE); // 640 by 640, where to put the piece basically
+	static Position selectedPiecePos {0, 0}; // Array scale
+	Position mousePosArray = {actualMousePosition.x / SQUARE_SIZE, actualMousePosition.y / SQUARE_SIZE}; // 8 by 8
+	sf::Vector2i mousePos = sf::Vector2i(mousePosArray.file * SQUARE_SIZE, mousePosArray.rank * SQUARE_SIZE); // 640 by 640, where to put the piece basically
 
 	// Options
 	if (const auto* keyPressed = event->getIf<sf::Event::KeyPressed>())
@@ -352,17 +352,17 @@ bool Game::playingGameState(sf::Vector2i actualMousePosition, std::optional<sf::
 	if (!pieceSelected_ && leftButtonClicked)
 	{
 		// Clicks a spot where your teams piece isn't
-		if (board_[mousePosArray.x][mousePosArray.y] == nullptr || board_[mousePosArray.x][mousePosArray.y]->getTeam() != playerTurn_)
+		if (board_[mousePosArray.file][mousePosArray.rank] == nullptr || board_[mousePosArray.file][mousePosArray.rank]->getTeam() != playerTurn_)
 		{
 			return false;
 		}
 
 		// Gets moves for piece
-		board_[mousePosArray.x][mousePosArray.y]->calculateMoves(board_, m_previousMove);
-		possibleMoves_ = board_[mousePosArray.x][mousePosArray.y]->getMoves();
+		board_[mousePosArray.file][mousePosArray.rank]->calculateMoves(board_, m_previousMove);
+		possibleMoves_ = board_[mousePosArray.file][mousePosArray.rank]->getMoves();
 
 		// Remove moves if piece's king is in check
-		removeInvalidMoves(board_[mousePosArray.x][mousePosArray.y]->getTeam(), mousePosArray);
+		removeInvalidMoves(board_[mousePosArray.file][mousePosArray.rank]->getTeam(), mousePosArray);
 
 		displayMoves();
 		pieceSelected_ = true;
@@ -373,19 +373,19 @@ bool Game::playingGameState(sf::Vector2i actualMousePosition, std::optional<sf::
 
 	if (pieceSelected_ && leftButtonClicked)
 	{
-		if (board_[mousePosArray.x][mousePosArray.y] != nullptr && // Checks if the new tile selected is the same team as the piece that is trying to move
-			board_[mousePosArray.x][mousePosArray.y]->getTeam() == board_[selectedPiecePos.x][selectedPiecePos.y]->getTeam())
+		if (board_[mousePosArray.file][mousePosArray.rank] != nullptr && // Checks if the new tile selected is the same team as the piece that is trying to move
+		board_[mousePosArray.file][mousePosArray.rank]->getTeam() == board_[selectedPiecePos.file][selectedPiecePos.rank]->getTeam())
 		{
 			// Clear moves
 			moveCircles_.clear();
 			possibleMoves_.clear();
 
 			// Gets moves for piece
-			board_[mousePosArray.x][mousePosArray.y]->calculateMoves(board_, m_previousMove);
-			possibleMoves_ = board_[mousePosArray.x][mousePosArray.y]->getMoves();
+			board_[mousePosArray.file][mousePosArray.rank]->calculateMoves(board_, m_previousMove);
+			possibleMoves_ = board_[mousePosArray.file][mousePosArray.rank]->getMoves();
 
 			// Remove moves if piece's king is in check
-			removeInvalidMoves(board_[mousePosArray.x][mousePosArray.y]->getTeam(), mousePosArray);
+			removeInvalidMoves(board_[mousePosArray.file][mousePosArray.rank]->getTeam(), mousePosArray);
 
 			displayMoves();
 			pieceSelected_ = true;
@@ -396,15 +396,15 @@ bool Game::playingGameState(sf::Vector2i actualMousePosition, std::optional<sf::
 
 		for (Move move : possibleMoves_)
 		{
-			if (static_cast<sf::Vector2f>(mousePos) == move.position) // Checks if move is a possible move
+			if (mousePosArray == move.position) // Checks if move is a possible move
 			{
-				if (willBeInCheck(selectedPiecePos, mousePosArray, board_[selectedPiecePos.x][selectedPiecePos.y]->getTeam()))// create a fake board where piece is here and check for check  //getKing(Team::BLACK))
+				if (willBeInCheck(selectedPiecePos, mousePosArray, board_[selectedPiecePos.file][selectedPiecePos.rank]->getTeam()))// create a fake board where piece is here and check for check  //getKing(Team::BLACK))
 				{
 					continue;
 				}
 
 				// Sets the current move type to capture if the place the piece is moving to has a piece already there
-				if (board_[mousePosArray.x][mousePosArray.y] != nullptr)
+				if (board_[mousePosArray.file][mousePosArray.rank] != nullptr)
 				{
 					move.moveType = MoveType::Capture;
 				}
@@ -427,42 +427,42 @@ bool Game::playingGameState(sf::Vector2i actualMousePosition, std::optional<sf::
 				}
 
 				// Changes pawn into queen if it reaches the end
-				if (board_[selectedPiecePos.x][selectedPiecePos.y]->getPieceType() == PieceType::Pawn &&
-					board_[selectedPiecePos.x][selectedPiecePos.y]->getTeam() == Team::White && mousePosArray.y == 0)
+				if (board_[selectedPiecePos.file][selectedPiecePos.rank]->getPieceType() == PieceType::Pawn &&
+					board_[selectedPiecePos.file][selectedPiecePos.rank]->getTeam() == Team::White && mousePosArray.rank == 0)
 				{
-					board_[mousePosArray.x][mousePosArray.y] = new Queen(Team::White, sf::Vector2i(mousePosArray.x, mousePosArray.y), whiteQueenTexture_);
+					board_[mousePosArray.file][mousePosArray.rank] = new SlidingPiece(Team::White, mousePosArray, PieceType::Queen);
 				}
-				else if (board_[selectedPiecePos.x][selectedPiecePos.y]->getPieceType() == PieceType::Pawn &&
-					board_[selectedPiecePos.x][selectedPiecePos.y]->getTeam() == Team::Black && mousePosArray.y == 7)
+				else if (board_[selectedPiecePos.file][selectedPiecePos.rank]->getPieceType() == PieceType::Pawn &&
+					board_[selectedPiecePos.file][selectedPiecePos.rank]->getTeam() == Team::Black && mousePosArray.rank == 7)
 				{
-					board_[mousePosArray.x][mousePosArray.y] = new Queen(Team::Black, sf::Vector2i(mousePosArray.x, mousePosArray.y), blackQueenTexture_);
+					board_[mousePosArray.file][mousePosArray.rank] = new SlidingPiece(Team::Black, mousePosArray, PieceType::Queen);
 				}
 				else
 				{
-					board_[mousePosArray.x][mousePosArray.y] = board_[selectedPiecePos.x][selectedPiecePos.y];
+					board_[mousePosArray.file][mousePosArray.rank] = board_[selectedPiecePos.file][selectedPiecePos.rank];
 				}
 
-				board_[selectedPiecePos.x][selectedPiecePos.y] = nullptr;
+				board_[selectedPiecePos.file][selectedPiecePos.rank] = nullptr;
 
 				// Movement of rook for castling
 				if (move.moveType == MoveType::Castle)
 				{
-					if (move.position == sf::Vector2f(2 * SQUARE_SIZE, 0))
+					if (move.position == Position{2, 0})
 					{
 						board_[3][0] = board_[0][0];
 						board_[0][0] = nullptr;
 					}
-					if (move.position == sf::Vector2f(6 * SQUARE_SIZE, 0))
+					if (move.position == Position{6, 0})
 					{
 						board_[5][0] = board_[7][0];
 						board_[7][0] = nullptr;
 					}
-					if (move.position == sf::Vector2f(2 * SQUARE_SIZE, 7 * SQUARE_SIZE))
+					if (move.position == Position{2, 7})
 					{
 						board_[3][7] = board_[0][7];
 						board_[0][7] = nullptr;
 					}
-					if (move.position == sf::Vector2f(6 * SQUARE_SIZE, 7 * SQUARE_SIZE))
+					if (move.position == Position{6, 7})
 					{
 						board_[5][7] = board_[7][7];
 						board_[7][7] = nullptr;
@@ -472,13 +472,13 @@ bool Game::playingGameState(sf::Vector2i actualMousePosition, std::optional<sf::
 				// Removes the piece that en passant takes from the baord
 				if (move.moveType == MoveType::EnPassant)
 				{
-					if (move.position.y / SQUARE_SIZE == 2)
+					if (move.position.rank == 2)
 					{
-						board_[move.position.x / SQUARE_SIZE][3] = nullptr;
+						board_[move.position.file][3] = nullptr;
 					}
-					if (move.position.y / SQUARE_SIZE == 5)
+					if (move.position.rank == 5)
 					{
-						board_[move.position.x / SQUARE_SIZE][4] = nullptr;
+						board_[move.position.file][4] = nullptr;
 					}
 				}
 
@@ -588,13 +588,13 @@ void Game::createTexts()
 }
 
 // Removes any moves that puts king in check
-void Game::removeInvalidMoves(Team kingTeam, sf::Vector2i oldPosition)
+void Game::removeInvalidMoves(Team kingTeam, Position oldPosition)
 {
 	auto iter = possibleMoves_.begin();
 	int i = 0;
 	while (iter != possibleMoves_.end())
 	{
-		sf::Vector2i temp((int)possibleMoves_.at(i).position.x / SQUARE_SIZE, (int)possibleMoves_.at(i).position.y / SQUARE_SIZE);
+		Position temp {possibleMoves_.at(i).position.file, possibleMoves_.at(i).position.rank};
 		if (willBeInCheck(oldPosition, temp, kingTeam))
 		{
 			iter = possibleMoves_.erase(iter);
@@ -608,13 +608,13 @@ void Game::removeInvalidMoves(Team kingTeam, sf::Vector2i oldPosition)
 }
 
 // Removes any moves that put king in check given a specific set of possible moves
-void Game::removeInvalidMoves(Team kingTeam, sf::Vector2i oldPosition, std::vector<Move>& moves)
+void Game::removeInvalidMoves(Team kingTeam, Position oldPosition, std::vector<Move>& moves)
 {
 	auto iter = moves.begin();
 	int i = 0;
 	while (iter != moves.end())
 	{
-		sf::Vector2i temp((int)moves.at(i).position.x / SQUARE_SIZE, (int)moves.at(i).position.y / SQUARE_SIZE);
+		Position temp {moves.at(i).position.file, moves.at(i).position.rank};
 		if (willBeInCheck(oldPosition, temp, kingTeam))
 		{
 			iter = moves.erase(iter);
@@ -637,7 +637,7 @@ void Game::displayMoves()
 		// Create circle for each point and adds them to an array
 		sf::CircleShape tempCircle(circleRadius);
 		tempCircle.setFillColor(theme.moveCircle);
-		tempCircle.setPosition(sf::Vector2f(i.position.x + circleRadius, i.position.y + circleRadius));
+		tempCircle.setPosition(sf::Vector2f(i.position.file + circleRadius, i.position.rank + circleRadius));
 		moveCircles_.push_back(tempCircle);
 	}
 }
@@ -651,15 +651,15 @@ void Game::update()
 			isDone_ = true;
 	}
 
-	for (int r = 0; r < 8; r++) // Updates the positions of the pieces
+	for (int file = 0; file < 8; file++) // Updates the positions of the pieces
 	{
-		for (int c = 0; c < 8; c++)
+		for (int rank = 0; rank < 8; rank++)
 		{
-			if (board_[r][c] == nullptr)
+			if (board_[file][rank] == nullptr)
 			{
 				continue;
 			}
-			board_[r][c]->setPosition(sf::Vector2f((float)r, (float)c));
+			board_[file][rank]->setPosition({file, rank});
 		}
 	}
 
@@ -732,25 +732,24 @@ int Game::numberOfPieces()
 // Gets the total number of moves given the team
 int Game::getTotalMoveCount(Team team)
 {
-	std::vector<sf::Vector2i> allMoves;
+	std::vector<Position> allMoves;
 	for (auto& row : board_)
 	{
-		for (auto& elem : row)
+		for (auto& piece : row)
 		{
-			if (elem == nullptr || elem->getTeam() != team)
+			if (piece == nullptr || piece->getTeam() != team)
 			{
 				continue;
 			}
 
-			elem->calculateMoves(board_, m_previousMove);
-			std::vector<Move> elemMoves = elem->getMoves();
+			piece->calculateMoves(board_, m_previousMove);
+			std::vector<Move> pieceMoves = piece->getMoves();
 
-			removeInvalidMoves(team, elem->getArrayPosition(), elemMoves);
+			removeInvalidMoves(team, piece->getPosition(), pieceMoves);
 
-			for (auto& move : elemMoves)
+			for (auto& move : pieceMoves)
 			{
-				sf::Vector2i temp((int)move.position.x / SQUARE_SIZE, (int)move.position.y / SQUARE_SIZE);
-				allMoves.push_back(temp);
+				allMoves.push_back(move.position);
 			}
 		}
 	}
@@ -758,48 +757,47 @@ int Game::getTotalMoveCount(Team team)
 }
 
 // Gets the position of the king on either the current or potential board based on the bool
-sf::Vector2i Game::getKing(Team kingTeam, bool currentBoard)
+Position Game::getKing(Team kingTeam, bool currentBoard)
 {
 	Board& board = currentBoard ? board_ : potentialBoard_;
 
 	for (auto& row : board)
 	{
-		for (auto& elem : row)
+		for (auto& piece : row)
 		{
-			if (elem == nullptr)
+			if (piece == nullptr)
 			{
 				continue;
 			}
 
-			if (elem->getPieceType() == PieceType::King && elem->getTeam() == kingTeam)
+			if (piece->getPieceType() == PieceType::King && piece->getTeam() == kingTeam)
 			{
-				return elem->getArrayPosition();
+				return piece->getPosition();
 			}
 		}
 	}
-	return sf::Vector2i(0, 0); // should fail if king not found
+	return {0, 0}; // should fail if king not found
 }
 
 // Checks if the piece at the given position is in check
-bool Game::isInCheck(sf::Vector2i kingPosition, Team kingTeam)
+bool Game::isInCheck(Position kingPosition, Team kingTeam)
 {
-	std::vector<sf::Vector2i> allMoves;
+	std::vector<Position> allMoves;
 	for (auto& row : board_)
 	{
-		for (auto& elem : row)
+		for (auto& piece : row)
 		{
-			if (elem == nullptr || elem->getTeam() == kingTeam)
+			if (piece == nullptr || piece->getTeam() == kingTeam)
 			{
 				continue;
 			}
 
-			elem->calculateMoves(board_, m_previousMove);
-			std::vector<Move> elemMoves = elem->getMoves();
+			piece->calculateMoves(board_, m_previousMove);
+			std::vector<Move> pieceMoves = piece->getMoves();
 
-			for (auto& move : elemMoves)
+			for (auto& move : pieceMoves)
 			{
-				sf::Vector2i temp((int)move.position.x / SQUARE_SIZE, (int)move.position.y / SQUARE_SIZE);
-				allMoves.push_back(temp);
+				allMoves.push_back(move.position);
 			}
 		}
 	}
@@ -815,32 +813,31 @@ bool Game::isInCheck(sf::Vector2i kingPosition, Team kingTeam)
 }
 
 // Checks if the piece at the given position is in check on potential board
-bool Game::willBeInCheck(sf::Vector2i oldPosition, sf::Vector2i newPosition, Team team)
+bool Game::willBeInCheck(Position oldPosition, Position newPosition, Team team)
 {
 	createPotentialBoard(oldPosition, newPosition, team);
 
-	std::vector<sf::Vector2i> allMoves;
+	std::vector<Position> allMoves;
 	for (auto& row : potentialBoard_)
 	{
-		for (auto& elem : row)
+		for (auto& piece : row)
 		{
-			if (elem == nullptr || elem->getTeam() == team)
+			if (piece == nullptr || piece->getTeam() == team)
 			{
 				continue;
 			}
 
-			elem->calculateMoves(potentialBoard_, m_previousMove);
-			std::vector<Move> elemMoves = elem->getMoves();
+			piece->calculateMoves(potentialBoard_, m_previousMove);
+			std::vector<Move> pieceMoves = piece->getMoves();
 
-			for (auto& move : elemMoves)
+			for (auto& move : pieceMoves)
 			{
-				sf::Vector2i temp((int)move.position.x / SQUARE_SIZE, (int)move.position.y / SQUARE_SIZE);
-				allMoves.push_back(temp);
+				allMoves.push_back(move.position);
 			}
 		}
 	}
 
-	sf::Vector2i kingPos = getKing(team, false);
+	Position kingPos = getKing(team, false);
 
 	for (auto& move : allMoves)
 	{
@@ -854,28 +851,28 @@ bool Game::willBeInCheck(sf::Vector2i oldPosition, sf::Vector2i newPosition, Tea
 }
 
 // Creates the potential board
-void Game::createPotentialBoard(sf::Vector2i oldPosition, sf::Vector2i newPosition, Team pieceTeam)
+void Game::createPotentialBoard(Position oldPosition, Position newPosition, Team pieceTeam)
 {
 	// Resets the board
-	for (int i = 0; i < 8; i++)
+	for (int file = 0; file < 8; file++)
 	{
-		for (int j = 0; j < 8; j++)
+		for (int rank = 0; rank < 8; rank++)
 		{
-			potentialBoard_[i][j] = board_[i][j];
+			potentialBoard_[file][rank] = board_[file][rank];
 		}
 	}
 
 	// Moves the piece to where it would be
-	potentialBoard_[newPosition.x][newPosition.y] = new Piece(pieceTeam, board_[oldPosition.x][oldPosition.y]->getPieceType(), newPosition, whitePawnTexture_);
-	potentialBoard_[oldPosition.x][oldPosition.y] = nullptr;
+	potentialBoard_[newPosition.file][newPosition.rank] = potentialBoard_[oldPosition.file][oldPosition.rank];
+	potentialBoard_[oldPosition.file][oldPosition.rank] = nullptr;
 }
 
 // Called at the end of a players turn
-void Game::endTurn(sf::Vector2i mousePosition)
+void Game::endTurn(Position mousePosition)
 {
 	playerTurn_ = (playerTurn_ == Team::White) ? Team::Black: Team::White;
 
-	board_[mousePosition.x][mousePosition.y]->setFirstMove(false);
+	board_[mousePosition.file][mousePosition.rank]->setFirstMove(false);
 
 	moveCircles_.clear();
 	possibleMoves_.clear();
@@ -957,14 +954,43 @@ void Game::renderBoard()
 
 	for (auto& rows : board_)
 	{
-		for (auto& elem : rows)
+		for (auto& piece : rows)
 		{
-			if (elem == nullptr)
+			if (piece == nullptr)
 			{
 				continue;
 			}
-			sf::Sprite temp = elem->getSprite();
-			window_.draw(temp);
+
+			sf::Texture texture {};
+			switch (piece->getPieceType())
+			{
+    		    case PieceType::Pawn:
+                    texture = piece->getTeam() == Team::White ? whitePawnTexture_ : blackPawnTexture_;
+    				break;
+    			case PieceType::King:
+                    texture = piece->getTeam() == Team::White ? whitePawnTexture_ : blackPawnTexture_;
+    			    break;
+    			case PieceType::Queen:
+                    texture = piece->getTeam() == Team::White ? whitePawnTexture_ : blackPawnTexture_;
+    			    break;
+    			case PieceType::Bishop:
+                    texture = piece->getTeam() == Team::White ? whitePawnTexture_ : blackPawnTexture_;
+    			    break;
+    			case PieceType::Rook:
+                    texture = piece->getTeam() == Team::White ? whitePawnTexture_ : blackPawnTexture_;
+    				break;
+    			case PieceType::Knight:
+                    texture = piece->getTeam() == Team::White ? whitePawnTexture_ : blackPawnTexture_;
+    			    break;
+    			defualt:
+                    texture = whitePawnTexture_;
+    			    break;
+			}
+			sf::Sprite sprite(texture);
+			Position pos = piece->getPosition();
+			sprite.setPosition({pos.file * 80.f, pos.rank * 80.f});
+			sprite.setScale({SCALE, SCALE});
+			window_.draw(sprite);
 		}
 	}
 }
@@ -1000,31 +1026,31 @@ void Game::createBackground()
 void Game::createPieces()
 {
 	// Add white pieces
-	board_[4][7] = new King(Team::White, {4, 7}, whiteKingTexture_);
-	board_[3][7] = new Queen(Team::White, {3, 7}, whiteQueenTexture_);
-	board_[2][7] = new Bishop(Team::White, {2, 7}, whiteBishopTexture_);
-	board_[5][7] = new Bishop(Team::White, {5, 7}, whiteBishopTexture_);
-	board_[1][7] = new Knight(Team::White, {1, 7}, whiteKnightTexture_);
-	board_[6][7] = new Knight(Team::White, {6, 7}, whiteKnightTexture_);
-	board_[0][7] = new Rook(Team::White, {0, 7}, whiteRookTexture_);
-	board_[7][7] = new Rook(Team::White, {7, 7}, whiteRookTexture_);
+	board_[4][7] = new King(Team::White, {4, 7});
+	board_[3][7] = new SlidingPiece(Team::White, {3, 7}, PieceType::Queen);
+	board_[2][7] = new SlidingPiece(Team::White, {2, 7}, PieceType::Bishop);
+	board_[5][7] = new SlidingPiece(Team::White, {5, 7}, PieceType::Bishop);
+	board_[1][7] = new Knight(Team::White, {1, 7});
+	board_[6][7] = new Knight(Team::White, {6, 7});
+	board_[0][7] = new SlidingPiece(Team::White, {0, 7}, PieceType::Rook);
+	board_[7][7] = new SlidingPiece(Team::White, {7, 7}, PieceType::Rook);
 	for (int i = 0; i < 8; i++)
 	{
-		board_[i][6] = new Pawn(Team::White, {i, 6}, whitePawnTexture_);
+		board_[i][6] = new Pawn(Team::White, {i, 6});
 	}
 
 	// Add black pieces
-	board_[4][0] = new King(Team::Black, {4, 0}, blackKingTexture_);
-	board_[3][0] = new Queen(Team::Black, {3, 0}, blackQueenTexture_);
-	board_[2][0] = new Bishop(Team::Black, {2, 0}, blackBishopTexture_);
-	board_[5][0] = new Bishop(Team::Black, {5, 0}, blackBishopTexture_);
-	board_[1][0] = new Knight(Team::Black, {1, 0}, blackKnightTexture_);
-	board_[6][0] = new Knight(Team::Black, {6, 0}, blackKnightTexture_);
-	board_[0][0] = new Rook(Team::Black, {0, 0}, blackRookTexture_);
-	board_[7][0] = new Rook(Team::Black, {7, 0}, blackRookTexture_);
+	board_[4][0] = new King(Team::Black, {4, 0});
+	board_[3][0] = new SlidingPiece(Team::Black, {3, 0}, PieceType::Queen);
+	board_[2][0] = new SlidingPiece(Team::Black, {2, 0}, PieceType::Bishop);
+	board_[5][0] = new SlidingPiece(Team::Black, {5, 0}, PieceType::Bishop);
+	board_[1][0] = new Knight(Team::Black, {1, 0});
+	board_[6][0] = new Knight(Team::Black, {6, 0});
+	board_[0][0] = new SlidingPiece(Team::Black, {0, 0}, PieceType::Rook);
+	board_[7][0] = new SlidingPiece(Team::Black, {7, 0}, PieceType::Rook);
 	for (int i = 0; i < 8; i++)
 	{
-		board_[i][1] = new Pawn(Team::Black, {i, 1}, blackPawnTexture_);
+		board_[i][1] = new Pawn(Team::Black, {i, 1});
 	}
 
 	// Add black spaces

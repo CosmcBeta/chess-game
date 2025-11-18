@@ -1,14 +1,16 @@
 #pragma once
 
 #include "button.hpp"
+#include "pieces/piece_info.hpp"
 #include "theme.hpp"
-#include "pieces/chess-piece.hpp"
+#include "pieces/chess_piece.hpp"
 
 #include <SFML/Audio.hpp>
 #include <SFML/Window/Event.hpp>
 
 #include <vector>
-
+constexpr int SQUARE_SIZE = 80;
+constexpr float SCALE = 0.24024024f;
 // Game state enum
 enum class State
 {
@@ -51,21 +53,21 @@ public:
 	void createPieces();
 	void createTexts();
 	void changeGamestate(State newState);
-	void endTurn(sf::Vector2i mousePosition);
+	void endTurn(Position mousePosition);
 
 	// Functions relating to the king
-	bool isInCheck(sf::Vector2i kingPosition, Team kingTeam);
-	sf::Vector2i getKing(Team kingTeam, bool currentBoard);
+	bool isInCheck(Position kingPosition, Team kingTeam);
+	Position getKing(Team kingTeam, bool currentBoard);
 	int numberOfPieces();
 
 	// Functions regarding to the next move
-	bool willBeInCheck(sf::Vector2i oldPosition, sf::Vector2i newPosition, Team team);
-	void createPotentialBoard(sf::Vector2i oldPosition, sf::Vector2i newPosition, Team pieceTeam);
+	bool willBeInCheck(Position oldPosition, Position newPosition, Team team);
+	void createPotentialBoard(Position oldPosition, Position newPosition, Team pieceTeam);
 
 	// Functions for piece moves
 	void displayMoves();
-	void removeInvalidMoves(Team kingTeam, sf::Vector2i oldPosition);
-	void removeInvalidMoves(Team kingTeam, sf::Vector2i oldPosition, std::vector<Move>& moves);
+	void removeInvalidMoves(Team kingTeam, Position oldPosition);
+	void removeInvalidMoves(Team kingTeam, Position oldPosition, std::vector<Move>& moves);
 	int getTotalMoveCount(Team p_team);
 
 	void menuState(sf::Vector2i mousePosition, bool leftButtonClicked);
@@ -106,7 +108,7 @@ private:
 	sf::RectangleShape backgroundArray_[64];
 
 	// King positions and states
-	sf::Vector2i blackKingPosition_, whiteKingPosition_;
+	Position blackKingPosition_, whiteKingPosition_;
 	Team playerTurn_;
 	State gameState_;
 	GameOutcome gameOutcome_;
