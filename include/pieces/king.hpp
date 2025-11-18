@@ -1,13 +1,16 @@
-#pragma once 
+#pragma once
 
-#include "chess-piece.hpp"
+#include "chess_piece.hpp"
+#include "piece_info.hpp"
 
-#include <SFML/Graphics.hpp>
+#include <initializer_list>
 
 class King : public Piece
 {
 public:
-	King(Team team, sf::Vector2i position, sf::Texture& texture);
+	King(Team team, Position position);
 
-	virtual void calculateMoves(Board board, Move previousMove);
+	virtual void calculateMoves(const Board& board, Move previousMove);
+
+	bool checkCastle(int rookFile, int pieceRank, const Board& board, std::initializer_list<int> emptySpaces);
 };

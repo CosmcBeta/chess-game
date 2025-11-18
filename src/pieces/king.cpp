@@ -1,72 +1,70 @@
 #include "pieces/king.hpp"
+#include "pieces/piece_info.hpp"
+#include "pieces/chess_piece.hpp"
 
-King::King(Team team, sf::Vector2i position, sf::Texture& texture)
-	:Piece(team, PieceType::King, position, texture)
+#include <initializer_list>
+#include <algorithm>
+
+King::King(Team team, Position position)
+	:Piece(team, PieceType::King, position)
 {}
 
-void King::calculateMoves(Board board, Move previousMove)
+void King::calculateMoves(const Board& board, Move previousMove)
 {
 	possibleMoves_.clear();
 
-	std::array<sf::Vector2i, 8> possibleSquares =
+	std::array<Position, 8> possibleSquares =
 	{
-		sf::Vector2i(-1, -1),
-		sf::Vector2i(-1, 0),
-		sf::Vector2i(-1, 1),
-		sf::Vector2i(0, 1),
-		sf::Vector2i(0, -1),
-		sf::Vector2i(1, -1),
-		sf::Vector2i(1, 0),
-		sf::Vector2i(1, 1)
+		Position(-1, -1),
+		Position(-1, 0),
+		Position(-1, 1),
+		Position(0, 1),
+		Position(0, -1),
+		Position(1, -1),
+		Position(1, 0),
+		Position(1, 1)
 	};
 
-	for (auto& move : possibleSquares)
+	for (const auto& move : possibleSquares)
 	{
-		sf::Vector2i tempPosition(position_.x + move.x, position_.y + move.y);
+		Position tempPosition {position_.file + move.file, position_.rank + move.rank};
 
-		if (tempPosition.x < 0 || tempPosition.x > 7 || tempPosition.y < 0 || tempPosition.y > 7)
+		if (tempPosition.file < FIRST || tempPosition.file > LAST || tempPosition.rank < FIRST || tempPosition.rank > LAST)
+		{
 			continue;
-
-		if (board[tempPosition.x][tempPosition.y] == nullptr)
-			possibleMoves_.push_back({MoveType::Normal, sf::Vector2f(tempPosition.x * SQUARE_SIZE, tempPosition.y * SQUARE_SIZE)});
-
-		if (board[tempPosition.x][tempPosition.y] != nullptr && board[tempPosition.x][tempPosition.y]->getTeam() != team_)
-			possibleMoves_.push_back({MoveType::Normal, sf::Vector2f(tempPosition.x * SQUARE_SIZE, tempPosition.y * SQUARE_SIZE)});
+		}
+		else if (board[tempPosition.file][tempPosition.rank] == nullptr)
+		{
+			possibleMoves_.push_back({MoveType::Normal, {tempPosition.file, tempPosition.rank}});
+		}
+		else if (board[tempPosition.file][tempPosition.rank]->getTeam() != team_)
+		{
+			possibleMoves_.push_back({MoveType::Capture, {tempPosition.file, tempPosition.rank}});
+		}
 	}
 
-	if (firstMove_ && team_ == Team::Black) // Checks if king has moved
+	int rank = (team_ == Team::Black) ? FIRST : LAST;
+	if (firstMove_)
 	{
-		if (board[0][0] != nullptr && board[0][0]->getPieceType() == PieceType::Rook && board[0][0]->getTeam() == team_ && board[0][0]->getFirstMove()) // checks if piece in corner is the Rook and hasn't moved
+	    if (checkCastle(FIRST, rank, board, {1, 2, 3}))
 		{
-			if (board[1][0] == nullptr && board[2][0] == nullptr && board[3][0] == nullptr)
-			{
-				possibleMoves_.push_back({MoveType::Castle, sf::Vector2f(2 * SQUARE_SIZE, 0)});
-			}
+		    possibleMoves_.push_back({MoveType::Castle, {2, rank}});
 		}
-		if (board[7][0] != nullptr && board[7][0]->getPieceType() == PieceType::Rook && board[7][0]->getTeam() == team_ && board[7][0]->getFirstMove())
-		{
-			if (board[6][0] == nullptr && board[5][0] == nullptr)
-			{
-				possibleMoves_.push_back({MoveType::Castle, sf::Vector2f(6 * SQUARE_SIZE, 0)});
-			}
-		}
-	}
 
-	if (firstMove_ && team_ == Team::White) // Checks if king has moved
-	{
-		if (board[0][7] != nullptr && board[0][7]->getPieceType() == PieceType::Rook && board[0][7]->getTeam() == team_ && board[0][7]->getFirstMove()) // checks if piece in corner is the Rook and hasn't moved
+		if (checkCastle(LAST, rank, board, {5, 6}))
 		{
-			if (board[1][7] == nullptr && board[2][7] == nullptr && board[3][7] == nullptr)
-			{
-				possibleMoves_.push_back({MoveType::Castle, sf::Vector2f(2 * SQUARE_SIZE, 7 * SQUARE_SIZE)});
-			}
-		}
-		if (board[7][7] != nullptr && board[7][7]->getPieceType() == PieceType::Rook && board[7][7]->getTeam() == team_ && board[7][7]->getFirstMove())
-		{
-			if (board[6][7] == nullptr && board[5][7] == nullptr)
-			{
-				possibleMoves_.push_back({MoveType::Castle, sf::Vector2f(6 * SQUARE_SIZE, 7 * SQUARE_SIZE)});
-			}
+		    possibleMoves_.push_back({MoveType::Castle, {6, rank}});
 		}
 	}
+}
+
+bool King::checkCastle(int rookFile, int pieceRank, const Board& board, std::initializer_list<int> emptySpaces)
+{
+    const auto* rook = board[rookFile][pieceRank];
+    if (!rook || rook->getPieceType() != PieceType::Rook || rook->getTeam() != team_ || !rook->getFirstMove())
+    {
+        return false;
+    }
+
+    return std::all_of(emptySpaces.begin(), emptySpaces.end(), [&](int file) { return board[file][pieceRank] == nullptr; });
 }
