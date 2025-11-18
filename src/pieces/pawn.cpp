@@ -44,7 +44,7 @@ void Pawn::calculateMoves(const Board& board, Move previousMove)
         for (int offset : {-1, 1})
         {
             int adjacentFile {position_.file + offset};
-            if (previousMove.position.file == adjacentFile && previousMove.position.rank == position_.rank))
+            if (previousMove.position.file == adjacentFile && previousMove.position.rank == position_.rank)
             {
                 possibleMoves_.push_back({MoveType::EnPassant, {adjacentFile, position_.rank + direction}});
             }
