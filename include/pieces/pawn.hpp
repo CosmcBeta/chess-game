@@ -8,5 +8,5 @@ class Pawn : public Piece
 public:
 	Pawn(Team team, Position position);
 
-	virtual void calculateMoves(Board board, Move previousMove);
+	virtual void calculateMoves(const Board& board, Move previousMove);
 };

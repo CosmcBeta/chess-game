@@ -11,7 +11,7 @@ class SlidingPiece : public Piece
 public:
     SlidingPiece(Team team, Position position, PieceType type);
 
-    virtual void calculateMoves(Board board, Move previousMove);
+    virtual void calculateMoves(const Board& board, Move previousMove);
 
 private:
     std::span<const std::pair<int, int>> directions_;

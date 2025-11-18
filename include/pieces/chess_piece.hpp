@@ -14,7 +14,7 @@ class Piece
 public:
 	Piece(Team team, PieceType type, Position position);
 
-	virtual void calculateMoves(Board board, Move previousMove) = 0;
+	virtual void calculateMoves(const Board& board, Move previousMove) = 0;
 
 	Team getTeam() const;
 	PieceType getPieceType() const;

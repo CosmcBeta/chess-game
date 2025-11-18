@@ -6,7 +6,7 @@ Pawn::Pawn(Team team, Position position)
 	:Piece(team, PieceType::Pawn, position)
 {}
 
-void Pawn::calculateMoves(Board board, Move previousMove)
+void Pawn::calculateMoves(const Board& board, Move previousMove)
 {
 	possibleMoves_.clear();
 

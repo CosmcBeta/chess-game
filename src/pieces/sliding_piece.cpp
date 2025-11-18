@@ -60,7 +60,7 @@ SlidingPiece::SlidingPiece(Team team, Position position, PieceType type)
 :Piece(team, type, position), directions_(getDirections(type))
 {}
 
-void SlidingPiece::calculateMoves(Board board, Move previousMove)
+void SlidingPiece::calculateMoves(const Board& board, Move previousMove)
 {
     possibleMoves_.clear();
 
