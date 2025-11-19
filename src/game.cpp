@@ -978,7 +978,7 @@ void Game::renderBoard()
     			case PieceType::Knight:
                     texture = piece->getTeam() == Team::White ? whitePawnTexture_ : blackPawnTexture_;
     			    break;
-    			defualt:
+    			default:
                     texture = whitePawnTexture_;
     			    break;
 			}
