@@ -1,10 +1,12 @@
 #pragma once
 
+#include <memory>
+
 constexpr int FIRST = 0;
 constexpr int LAST = 7;
 
-// const int SQUARE_SIZE = 80;
-// static constexpr float SCALE = 0.24024024f;
+class Piece;
+using Board = std::array<std::array<std::unique_ptr<Piece>, 8>, 8>;
 
 struct Position
 {

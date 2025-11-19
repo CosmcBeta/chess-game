@@ -60,7 +60,7 @@ void King::calculateMoves(const Board& board, Move previousMove)
 
 bool King::checkCastle(int rookFile, int pieceRank, const Board& board, std::initializer_list<int> emptySpaces)
 {
-    const auto* rook = board[rookFile][pieceRank];
+    const Piece* rook = board[rookFile][pieceRank].get();
     if (!rook || rook->getPieceType() != PieceType::Rook || rook->getTeam() != team_ || !rook->getFirstMove())
     {
         return false;

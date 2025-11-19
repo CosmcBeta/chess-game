@@ -3,14 +3,15 @@
 #include "button.hpp"
 #include "pieces/piece_info.hpp"
 #include "theme.hpp"
-#include "pieces/chess_piece.hpp"
 
 #include <SFML/Audio.hpp>
 #include <SFML/Window/Event.hpp>
 
 #include <vector>
+
 constexpr int SQUARE_SIZE = 80;
 constexpr float SCALE = 0.24024024f;
+
 // Game state enum
 enum class State
 {

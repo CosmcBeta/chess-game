@@ -7,6 +7,7 @@
 #include "pieces/king.hpp"
 
 #include <iostream>
+#include <memory>
 
 Game::Game()
 	:pieceSelected_(false), m_previousMove{MoveType::None, {0,0}},
@@ -430,42 +431,38 @@ bool Game::playingGameState(sf::Vector2i actualMousePosition, std::optional<sf::
 				if (board_[selectedPiecePos.file][selectedPiecePos.rank]->getPieceType() == PieceType::Pawn &&
 					board_[selectedPiecePos.file][selectedPiecePos.rank]->getTeam() == Team::White && mousePosArray.rank == 0)
 				{
-					board_[mousePosArray.file][mousePosArray.rank] = new SlidingPiece(Team::White, mousePosArray, PieceType::Queen);
+					board_[mousePosArray.file][mousePosArray.rank] = std::make_unique<SlidingPiece>(Team::White, mousePosArray, PieceType::Queen);
+					board_[selectedPiecePos.file][selectedPiecePos.rank].reset();
 				}
 				else if (board_[selectedPiecePos.file][selectedPiecePos.rank]->getPieceType() == PieceType::Pawn &&
 					board_[selectedPiecePos.file][selectedPiecePos.rank]->getTeam() == Team::Black && mousePosArray.rank == 7)
 				{
-					board_[mousePosArray.file][mousePosArray.rank] = new SlidingPiece(Team::Black, mousePosArray, PieceType::Queen);
+					board_[mousePosArray.file][mousePosArray.rank] = std::make_unique<SlidingPiece>(Team::Black, mousePosArray, PieceType::Queen);
+					board_[selectedPiecePos.file][selectedPiecePos.rank].reset();
 				}
 				else
 				{
-					board_[mousePosArray.file][mousePosArray.rank] = board_[selectedPiecePos.file][selectedPiecePos.rank];
+					board_[mousePosArray.file][mousePosArray.rank] = std::move(board_[selectedPiecePos.file][selectedPiecePos.rank]);
 				}
-
-				board_[selectedPiecePos.file][selectedPiecePos.rank] = nullptr;
 
 				// Movement of rook for castling
 				if (move.moveType == MoveType::Castle)
 				{
 					if (move.position == Position{2, 0})
 					{
-						board_[3][0] = board_[0][0];
-						board_[0][0] = nullptr;
+						board_[3][0] = std::move(board_[0][0]);
 					}
 					if (move.position == Position{6, 0})
 					{
-						board_[5][0] = board_[7][0];
-						board_[7][0] = nullptr;
+						board_[5][0] = std::move(board_[7][0]);
 					}
 					if (move.position == Position{2, 7})
 					{
-						board_[3][7] = board_[0][7];
-						board_[0][7] = nullptr;
+						board_[3][7] = std::move(board_[0][7]);
 					}
 					if (move.position == Position{6, 7})
 					{
-						board_[5][7] = board_[7][7];
-						board_[7][7] = nullptr;
+						board_[5][7] = std::move(board_[7][7]);
 					}
 				}
 
@@ -858,13 +855,12 @@ void Game::createPotentialBoard(Position oldPosition, Position newPosition, Team
 	{
 		for (int rank = 0; rank < 8; rank++)
 		{
-			potentialBoard_[file][rank] = board_[file][rank];
+			potentialBoard_[file][rank] = std::move(board_[file][rank]);
 		}
 	}
 
 	// Moves the piece to where it would be
-	potentialBoard_[newPosition.file][newPosition.rank] = potentialBoard_[oldPosition.file][oldPosition.rank];
-	potentialBoard_[oldPosition.file][oldPosition.rank] = nullptr;
+	potentialBoard_[newPosition.file][newPosition.rank] = std::move(potentialBoard_[oldPosition.file][oldPosition.rank]);
 }
 
 // Called at the end of a players turn
@@ -1026,31 +1022,31 @@ void Game::createBackground()
 void Game::createPieces()
 {
 	// Add white pieces
-	board_[4][7] = new King(Team::White, {4, 7});
-	board_[3][7] = new SlidingPiece(Team::White, {3, 7}, PieceType::Queen);
-	board_[2][7] = new SlidingPiece(Team::White, {2, 7}, PieceType::Bishop);
-	board_[5][7] = new SlidingPiece(Team::White, {5, 7}, PieceType::Bishop);
-	board_[1][7] = new Knight(Team::White, {1, 7});
-	board_[6][7] = new Knight(Team::White, {6, 7});
-	board_[0][7] = new SlidingPiece(Team::White, {0, 7}, PieceType::Rook);
-	board_[7][7] = new SlidingPiece(Team::White, {7, 7}, PieceType::Rook);
+	board_[4][7] = std::make_unique<King>(Team::White, Position{4, 7});
+	board_[3][7] = std::make_unique<SlidingPiece>(Team::White, Position{3, 7}, PieceType::Queen);
+	board_[2][7] = std::make_unique<SlidingPiece>(Team::White, Position{2, 7}, PieceType::Bishop);
+	board_[5][7] = std::make_unique<SlidingPiece>(Team::White, Position{5, 7}, PieceType::Bishop);
+	board_[1][7] = std::make_unique<Knight>(Team::White, Position{1, 7});
+	board_[6][7] = std::make_unique<Knight>(Team::White, Position{6, 7});
+	board_[0][7] = std::make_unique<SlidingPiece>(Team::White, Position{0, 7}, PieceType::Rook);
+	board_[7][7] = std::make_unique<SlidingPiece>(Team::White, Position{7, 7}, PieceType::Rook);
 	for (int i = 0; i < 8; i++)
 	{
-		board_[i][6] = new Pawn(Team::White, {i, 6});
+		board_[i][6] = std::make_unique<Pawn>(Team::White, Position{i, 6});
 	}
 
 	// Add black pieces
-	board_[4][0] = new King(Team::Black, {4, 0});
-	board_[3][0] = new SlidingPiece(Team::Black, {3, 0}, PieceType::Queen);
-	board_[2][0] = new SlidingPiece(Team::Black, {2, 0}, PieceType::Bishop);
-	board_[5][0] = new SlidingPiece(Team::Black, {5, 0}, PieceType::Bishop);
-	board_[1][0] = new Knight(Team::Black, {1, 0});
-	board_[6][0] = new Knight(Team::Black, {6, 0});
-	board_[0][0] = new SlidingPiece(Team::Black, {0, 0}, PieceType::Rook);
-	board_[7][0] = new SlidingPiece(Team::Black, {7, 0}, PieceType::Rook);
+	board_[4][0] = std::make_unique<King>(Team::Black, Position{4, 0});
+	board_[3][0] = std::make_unique<SlidingPiece>(Team::Black, Position{3, 0}, PieceType::Queen);
+	board_[2][0] = std::make_unique<SlidingPiece>(Team::Black, Position{2, 0}, PieceType::Bishop);
+	board_[5][0] = std::make_unique<SlidingPiece>(Team::Black, Position{5, 0}, PieceType::Bishop);
+	board_[1][0] = std::make_unique<Knight>(Team::Black, Position{1, 0});
+	board_[6][0] = std::make_unique<Knight>(Team::Black, Position{6, 0});
+	board_[0][0] = std::make_unique<SlidingPiece>(Team::Black, Position{0, 0}, PieceType::Rook);
+	board_[7][0] = std::make_unique<SlidingPiece>(Team::Black, Position{7, 0}, PieceType::Rook);
 	for (int i = 0; i < 8; i++)
 	{
-		board_[i][1] = new Pawn(Team::Black, {i, 1});
+		board_[i][1] = std::make_unique<Pawn>(Team::Black, Position{i, 1});
 	}
 
 	// Add black spaces
