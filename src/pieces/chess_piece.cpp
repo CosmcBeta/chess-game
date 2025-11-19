@@ -21,11 +21,6 @@ Position Piece::getPosition() const
     return position_;
 }
 
-std::vector<Move> Piece::getMoves() const
-{
-    return possibleMoves_;
-}
-
 void Piece::setFirstMove(bool firstMove)
 {
     firstMove_ = firstMove;

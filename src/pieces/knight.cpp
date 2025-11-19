@@ -3,14 +3,15 @@
 #include "pieces/piece_info.hpp"
 
 #include <array>
+#include <vector>
 
 Knight::Knight(Team team, Position position)
 	:Piece(team, PieceType::Knight, position)
 {}
 
-void Knight::calculateMoves(const Board& board, Move previousMove)
+std::vector<Move> Knight::calculateMoves(const Board& board, Move previousMove) const
 {
-	possibleMoves_.clear();
+	std::vector<Move> possibleMoves {};
 
 	std::array<Position, 8> possibleSquares =
 	{
@@ -34,11 +35,13 @@ void Knight::calculateMoves(const Board& board, Move previousMove)
 		}
 		else if (board[tempPosition.file][tempPosition.rank] == nullptr)
 		{
-			possibleMoves_.push_back({MoveType::Normal, {tempPosition.file, tempPosition.rank}});
+			possibleMoves.push_back({MoveType::Normal, {tempPosition.file, tempPosition.rank}});
 		}
 		else if (board[tempPosition.file][tempPosition.rank]->getTeam() != team_)
 		{
-			possibleMoves_.push_back({MoveType::Capture, {tempPosition.file, tempPosition.rank}});
+			possibleMoves.push_back({MoveType::Capture, {tempPosition.file, tempPosition.rank}});
 		}
 	}
+
+	return possibleMoves;
 }

@@ -6,6 +6,7 @@
 #include <map>
 #include <span>
 #include <utility>
+#include <vector>
 
 namespace
 {
@@ -60,9 +61,9 @@ SlidingPiece::SlidingPiece(Team team, Position position, PieceType type)
 :Piece(team, type, position), directions_(getDirections(type))
 {}
 
-void SlidingPiece::calculateMoves(const Board& board, Move previousMove)
+std::vector<Move> SlidingPiece::calculateMoves(const Board& board, Move previousMove) const
 {
-    possibleMoves_.clear();
+    std::vector<Move> possibleMoves {};
 
     int numberOfDirectionsLeft = directions_.size();
     std::map<Direction, Position> positions {};
@@ -92,12 +93,12 @@ void SlidingPiece::calculateMoves(const Board& board, Move previousMove)
 
             if (board[pos.file][pos.rank] == nullptr)
             {
-                possibleMoves_.push_back({MoveType::Normal, pos});
+                possibleMoves.push_back({MoveType::Normal, pos});
                 positions.at(dir) = pos;
             }
             else if (board[pos.file][pos.rank]->getTeam() != team_)
             {
-                possibleMoves_.push_back({MoveType::Capture, pos});
+                possibleMoves.push_back({MoveType::Capture, pos});
                 positions.at(dir) = {-1, -1};
                 numberOfDirectionsLeft -= 1;
             }
@@ -108,4 +109,6 @@ void SlidingPiece::calculateMoves(const Board& board, Move previousMove)
             }
         }
     } while (numberOfDirectionsLeft != 0);
+
+    return possibleMoves
 }

@@ -10,12 +10,11 @@ public:
 	Piece(Team team, PieceType type, Position position);
 	virtual ~Piece() = default;
 
-	virtual void calculateMoves(const Board& board, Move previousMove) = 0;
+	virtual std::vector<Move> calculateMoves(const Board& board, Move previousMove) const = 0;
 
 	Team getTeam() const;
 	PieceType getPieceType() const;
 	Position getPosition() const;
-	std::vector<Move> getMoves() const;
 	bool getFirstMove() const;
 	bool getEnPassant() const;
 
@@ -27,7 +26,6 @@ protected:
 	Position position_;
 	Team team_;
 	PieceType pieceType_;
-	std::vector<Move> possibleMoves_;
 	bool firstMove_;
 	bool canEnPassant_;
 };
