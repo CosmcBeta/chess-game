@@ -19,9 +19,9 @@ public:
 
 	int getNumberOfPieces() const;
 	Position getKingPosition(Team kingTeam, bool currentBoard) const;
+	bool isInCheck(Position kingPosition, Team kingTeam) const;
 
     void createPieces();
-	bool isInCheck(Position kingPosition, Team kingTeam);
 
 	bool willBeInCheck(Position oldPosition, Position newPosition, Team team);
 	void createPotentialBoard(Position oldPosition, Position newPosition, Team pieceTeam);

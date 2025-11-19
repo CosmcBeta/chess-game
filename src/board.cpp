@@ -56,28 +56,27 @@ void ChessBoard::createPieces()
 	}
 }
 
-bool ChessBoard::isInCheck(Position kingPosition, Team kingTeam)
+bool ChessBoard::isInCheck(Position kingPosition, Team kingTeam) const
 {
-    std::vector<Position> allMoves;
-	for (auto& row : board_)
+    std::vector<Position> allMoves {};
+	for (const auto& rank : board_)
 	{
-		for (auto& piece : row)
+		for (const auto& piece : rank)
 		{
-			if (piece == nullptr || piece->getTeam() == kingTeam)
+			if (!piece || piece->getTeam() == kingTeam)
 			{
 				continue;
 			}
 
-			piece->calculateMoves(board_, previousMove_);
-			std::vector<Move> pieceMoves = piece->getMoves();
+			std::vector<Move> pieceMoves {piece->calculateMoves(board_, previousMove_)};
 
-			for (auto& move : pieceMoves)
+			for (const Move& move : pieceMoves)
 			{
 				allMoves.push_back(move.position);
 			}
 		}
 	}
-	for (auto& move : allMoves)
+	for (const Position& move : allMoves)
 	{
 		if (kingPosition == move)
 		{
@@ -102,7 +101,7 @@ Position ChessBoard::getKingPosition(Team kingTeam, bool currentBoard) const
 			}
 		}
 	}
-	return {0, 0}; // should fail if king not found
+	return {0, 0}; // should fail if king not found (work on this)
 }
 
 int ChessBoard::getNumberOfPieces() const
@@ -125,29 +124,28 @@ bool ChessBoard::willBeInCheck(Position oldPosition, Position newPosition, Team 
 {
     createPotentialBoard(oldPosition, newPosition, team);
 
-	std::vector<Position> allMoves;
-	for (auto& row : potentialBoard_)
+	std::vector<Position> allMoves {};
+	for (const auto& rank : potentialBoard_)
 	{
-		for (auto& piece : row)
+		for (const auto& piece : rank)
 		{
-			if (piece == nullptr || piece->getTeam() == team)
+			if (!piece || piece->getTeam() == team)
 			{
 				continue;
 			}
 
-			piece->calculateMoves(potentialBoard_, previousMove_);
-			std::vector<Move> pieceMoves = piece->getMoves();
+			std::vector<Move> pieceMoves {piece->calculateMoves(potentialBoard_, previousMove_)};
 
-			for (auto& move : pieceMoves)
+			for (const Move& move : pieceMoves)
 			{
 				allMoves.push_back(move.position);
 			}
 		}
 	}
 
-	Position kingPos = getKing(team, false);
+	Position kingPos {getKingPosition(team, false)};
 
-	for (auto& move : allMoves)
+	for (const Position& move : allMoves)
 	{
 		if (kingPos == move)
 		{
@@ -165,7 +163,14 @@ void ChessBoard::createPotentialBoard(Position oldPosition, Position newPosition
 	{
 		for (int rank = 0; rank < 8; rank++)
 		{
-			potentialBoard_[file][rank] = std::move(board_[file][rank]);
+		    if (board_[file][rank])
+		    {
+				potentialBoard_[file][rank] = board_[file][rank]->clone();
+			}
+			else
+			{
+                potentialBoard_[file][rank] = nullptr;
+			}
 		}
 	}
 
@@ -175,60 +180,57 @@ void ChessBoard::createPotentialBoard(Position oldPosition, Position newPosition
 
 void ChessBoard::removeInvalidMoves(Team kingTeam, Position oldPosition)
 {
-    auto iter = possibleMoves_.begin();
-	int i = 0;
-	while (iter != possibleMoves_.end())
+    auto iterator {possibleMoves_.begin()};
+	int i {0};
+	while (iterator != possibleMoves_.end())
 	{
-		Position temp {possibleMoves_.at(i).position.file, possibleMoves_.at(i).position.rank};
-		if (willBeInCheck(oldPosition, temp, kingTeam))
+		if (willBeInCheck(oldPosition, possibleMoves_.at(i).position, kingTeam))
 		{
-			iter = possibleMoves_.erase(iter);
+			iterator = possibleMoves_.erase(iterator);
 		}
 		else
 		{
-			++iter;
-			++i;
+			iterator++;
+			i++;
 		}
 	}
 }
 
 void ChessBoard::removeInvalidMoves(Team kingTeam, Position oldPosition, std::vector<Move>& moves)
 {
-    auto iter = moves.begin();
-	int i = 0;
-	while (iter != moves.end())
+    auto iterator {moves.begin()};
+	int i {0};
+	while (iterator != moves.end())
 	{
-		Position temp {moves.at(i).position.file, moves.at(i).position.rank};
-		if (willBeInCheck(oldPosition, temp, kingTeam))
+		if (willBeInCheck(oldPosition, moves.at(i).position, kingTeam))
 		{
-			iter = moves.erase(iter);
+			iterator = moves.erase(iterator);
 		}
 		else
 		{
-			++iter;
-			++i;
+			iterator++;
+			i++;
 		}
 	}
 }
 
 int ChessBoard::getTotalMoveCount(Team team)
 {
-    std::vector<Position> allMoves;
-	for (auto& row : board_)
+    std::vector<Position> allMoves {};
+	for (const auto& rank : board_)
 	{
-		for (auto& piece : row)
+		for (const auto& piece : rank)
 		{
-			if (piece == nullptr || piece->getTeam() != team)
+			if (!piece || piece->getTeam() != team)
 			{
 				continue;
 			}
 
-			piece->calculateMoves(board_, previousMove_);
-			std::vector<Move> pieceMoves = piece->getMoves();
+			std::vector<Move> pieceMoves {piece->calculateMoves(board_, previousMove_)};
 
 			removeInvalidMoves(team, piece->getPosition(), pieceMoves);
 
-			for (auto& move : pieceMoves)
+			for (const Move& move : pieceMoves)
 			{
 				allMoves.push_back(move.position);
 			}
