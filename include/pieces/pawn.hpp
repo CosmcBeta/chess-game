@@ -4,11 +4,13 @@
 #include "piece_info.hpp"
 
 #include <vector>
+#include <memory>
 
 class Pawn : public Piece
 {
 public:
 	Pawn(Team team, Position position);
 
-	virtual std::vector<Move> calculateMoves(const Board& board, Move previousMove) const;
+	std::vector<Move> calculateMoves(const Board& board, Move previousMove) const override;
+	std::unique_ptr<Piece> clone() const override;
 };

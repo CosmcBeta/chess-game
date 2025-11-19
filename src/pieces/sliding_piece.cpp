@@ -7,6 +7,7 @@
 #include <span>
 #include <utility>
 #include <vector>
+#include <memory>
 
 namespace
 {
@@ -110,5 +111,10 @@ std::vector<Move> SlidingPiece::calculateMoves(const Board& board, Move previous
         }
     } while (numberOfDirectionsLeft != 0);
 
-    return possibleMoves
+    return possibleMoves;
+}
+
+std::unique_ptr<Piece> SlidingPiece::clone() const
+{
+    return std::make_unique<SlidingPiece>(*this);
 }

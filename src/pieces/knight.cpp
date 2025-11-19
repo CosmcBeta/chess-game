@@ -4,6 +4,7 @@
 
 #include <array>
 #include <vector>
+#include <memory>
 
 Knight::Knight(Team team, Position position)
 	:Piece(team, PieceType::Knight, position)
@@ -44,4 +45,9 @@ std::vector<Move> Knight::calculateMoves(const Board& board, Move previousMove) 
 	}
 
 	return possibleMoves;
+}
+
+std::unique_ptr<Piece> Knight::clone() const
+{
+    return std::make_unique<Knight>(*this);
 }

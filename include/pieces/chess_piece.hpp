@@ -2,6 +2,7 @@
 
 #include "piece_info.hpp"
 
+#include <memory>
 #include <vector>
 
 class Piece
@@ -11,6 +12,7 @@ public:
 	virtual ~Piece() = default;
 
 	virtual std::vector<Move> calculateMoves(const Board& board, Move previousMove) const = 0;
+	virtual std::unique_ptr<Piece> clone() const = 0;
 
 	Team getTeam() const;
 	PieceType getPieceType() const;

@@ -4,6 +4,7 @@
 
 #include <initializer_list>
 #include <algorithm>
+#include <memory>
 #include <vector>
 
 King::King(Team team, Position position)
@@ -70,4 +71,9 @@ bool King::checkCastle(int rookFile, int pieceRank, const Board& board, std::ini
     }
 
     return std::all_of(emptySpaces.begin(), emptySpaces.end(), [&](int file) { return board[file][pieceRank] == nullptr; });
+}
+
+std::unique_ptr<Piece> King::clone() const
+{
+    return std::make_unique<King>(*this);
 }

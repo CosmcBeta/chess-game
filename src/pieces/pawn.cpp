@@ -3,6 +3,7 @@
 #include "pieces/piece_info.hpp"
 
 #include <vector>
+#include <memory>
 
 Pawn::Pawn(Team team, Position position)
 	:Piece(team, PieceType::Pawn, position)
@@ -54,4 +55,9 @@ std::vector<Move> Pawn::calculateMoves(const Board& board, Move previousMove) co
     }
 
     return possibleMoves;
+}
+
+std::unique_ptr<Piece> Pawn::clone() const
+{
+    return std::make_unique<Pawn>(*this);
 }
