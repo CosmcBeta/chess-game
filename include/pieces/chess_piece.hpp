@@ -4,13 +4,11 @@
 
 #include <vector>
 
-class Piece;
-using Board = std::array<std::array<Piece*, 8>, 8>;
-
 class Piece
 {
 public:
 	Piece(Team team, PieceType type, Position position);
+	virtual ~Piece() = default;
 
 	virtual void calculateMoves(const Board& board, Move previousMove) = 0;
 
