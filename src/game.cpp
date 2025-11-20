@@ -6,34 +6,35 @@
 #include "pieces/pawn.hpp"
 #include "pieces/king.hpp"
 
+#include <algorithm>
 #include <iostream>
 #include <memory>
 
 Game::Game()
-	:pieceSelected_(false), m_previousMove{MoveType::None, {File::A, Rank::One}},
+	:pieceSelected_(false), previousMove_{MoveType::None, {File::A, Rank::One}},
 	blackKingInCheck_(false), whiteKingInCheck_(false), pieceMoved_(false),
 	buttonPressed_(false), lockClick_(false), playAgain_(false),
-	startButton("Play", FontType::Regular, 60, {320, 320}),
-	settingsButton("Settings", FontType::Regular, 60, {320, 400}),
-	exitButton("Exit", FontType::Regular, 60, {320, 480}),
-	settingsBackButton("Main Menu", FontType::Regular, 40, {320, 600}),
-	playAgainButton("Play Again", FontType::Regular, 35, {200, 400}),
-	mainMenuButton("Main Menu", FontType::Regular, 35, {420, 400}),
-	settingsColorChoiceBrown("Brown", FontType::Regular, 35, {280, 290}),
-	settingsColorChoiceBlue("Blue", FontType::Regular, 35, {500, 290}),
-	settingsColorChoiceGreen("Green", FontType::Regular, 35, {400, 290}),
-	settingsAudioChoiceYes("Yes", FontType::Regular, 35, {280, 420}),
-	settingsAudioChoiceNo("No", FontType::Regular, 35, {420, 420}),
-	pauseDrawButton("Draw Game", FontType::Regular, 35, {210, 360}),
-	pauseWhiteForfeitButton("White Forfeit", FontType::Regular, 35, {440, 290}),
-	pauseBlackForfeitButton("Black Forfeit", FontType::Regular, 35, {210, 290}),
-	pauseQuitButton("Quit Game", FontType::Regular, 35, {440, 420}),
-	pauseMenuButton("Main Menu", FontType::Regular, 35, {440, 360}),
-	returnToGame("Resume", FontType::Regular, 35, {210, 420}),
+	startButton_("Play", FontType::Regular, 60, {320, 320}),
+	settingsButton_("Settings", FontType::Regular, 60, {320, 400}),
+	exitButton_("Exit", FontType::Regular, 60, {320, 480}),
+	settingsBackButton_("Main Menu", FontType::Regular, 40, {320, 600}),
+	playAgainButton_("Play Again", FontType::Regular, 35, {200, 400}),
+	mainMenuButton_("Main Menu", FontType::Regular, 35, {420, 400}),
+	settingsColorChoiceBrown_("Brown", FontType::Regular, 35, {280, 290}),
+	settingsColorChoiceBlue_("Blue", FontType::Regular, 35, {500, 290}),
+	settingsColorChoiceGreen_("Green", FontType::Regular, 35, {400, 290}),
+	settingsAudioChoiceYes_("Yes", FontType::Regular, 35, {280, 420}),
+	settingsAudioChoiceNo_("No", FontType::Regular, 35, {420, 420}),
+	pauseDrawButton_("Draw Game", FontType::Regular, 35, {210, 360}),
+	pauseWhiteForfeitButton_("White Forfeit", FontType::Regular, 35, {440, 290}),
+	pauseBlackForfeitButton_("Black Forfeit", FontType::Regular, 35, {210, 290}),
+	pauseQuitButton_("Quit Game", FontType::Regular, 35, {440, 420}),
+	pauseMenuButton_("Main Menu", FontType::Regular, 35, {440, 360}),
+	returnToGame_("Resume", FontType::Regular, 35, {210, 420}),
 	titleText_(myriadBoldFont_), settingsTitleText_(myriadBoldFont_), gameOverTitleText_(myriadBoldFont_), winnerText_(myriadSemiboldFont_),
-	settingsAudioText(myriadRegularFont_), settingsColorText(myriadRegularFont_), pauseTitle(myriadBoldFont_),
-	pieceMoveSound(pieceMoveBuffer), captureSound(captureBuffer), buttonClickSound(buttonClickBuffer),
-	gameStartSound(gameStartBuffer), gameEndSound(gameEndBuffer), castleSound(castleBuffer),
+	settingsAudioText_(myriadRegularFont_), settingsColorText_(myriadRegularFont_), pauseTitle_(myriadBoldFont_),
+	pieceMoveSound_(pieceMoveBuffer_), captureSound_(captureBuffer_), buttonClickSound_(buttonClickBuffer_),
+	gameStartSound_(gameStartBuffer_), gameEndSound_(gameEndBuffer_), castleSound_(castleBuffer_),
 	isDone_(false)
 {
 	restartClock();
@@ -72,12 +73,12 @@ void Game::changeGamestate(State newState)
 	{
 		createPieces();
 		playerTurn_ = Team::White;
-		gameStartSound.play();
+		gameStartSound_.play();
 		changeGamestate(State::PlayingGame);
 	}
 	else if (gameState_ == State::GameOver)
 	{
-		gameEndSound.play();
+		gameEndSound_.play();
 		switch (gameOutcome_)
 		{
 		case GameOutcome::WhiteWins:
@@ -139,27 +140,27 @@ void Game::handleInput()
 
 void Game::menuState(sf::Vector2i mousePosition, bool leftButtonClicked)
 {
-	startButton.update(mousePosition);
-	settingsButton.update(mousePosition);
-	exitButton.update(mousePosition);
+	startButton_.update(mousePosition);
+	settingsButton_.update(mousePosition);
+	exitButton_.update(mousePosition);
 
 	if (leftButtonClicked)
 	{
-		if (startButton.getMouseInText() && !buttonPressed_)
+		if (startButton_.getMouseInText() && !buttonPressed_)
 		{
-			buttonClickSound.play();
+			buttonClickSound_.play();
 			changeGamestate(State::CreateGame);
 			buttonPressed_ = true;
 		}
-		if (settingsButton.getMouseInText() && !buttonPressed_)
+		if (settingsButton_.getMouseInText() && !buttonPressed_)
 		{
-			buttonClickSound.play();
+			buttonClickSound_.play();
 			changeGamestate(State::Settings);
 			buttonPressed_ = true;
 		}
-		if (exitButton.getMouseInText() && !buttonPressed_)
+		if (exitButton_.getMouseInText() && !buttonPressed_)
 		{
-			buttonClickSound.play();
+			buttonClickSound_.play();
 			isDone_ = true;
 			buttonPressed_ = true;
 		}
@@ -168,51 +169,51 @@ void Game::menuState(sf::Vector2i mousePosition, bool leftButtonClicked)
 
 void Game::settingsState(sf::Vector2i mousePosition, bool leftButtonClicked)
 {
-	settingsBackButton.update(mousePosition);
-	settingsAudioChoiceNo.update(mousePosition);
-	settingsAudioChoiceYes.update(mousePosition);
-	settingsColorChoiceBrown.update(mousePosition);
-	settingsColorChoiceBlue.update(mousePosition);
-	settingsColorChoiceGreen.update(mousePosition);
+	settingsBackButton_.update(mousePosition);
+	settingsAudioChoiceNo_.update(mousePosition);
+	settingsAudioChoiceYes_.update(mousePosition);
+	settingsColorChoiceBrown_.update(mousePosition);
+	settingsColorChoiceBlue_.update(mousePosition);
+	settingsColorChoiceGreen_.update(mousePosition);
 
 	if (leftButtonClicked)
 	{
-		if (settingsBackButton.getMouseInText() && !buttonPressed_)
+		if (settingsBackButton_.getMouseInText() && !buttonPressed_)
 		{
-			buttonClickSound.play();
+			buttonClickSound_.play();
 			changeGamestate(State::Menu);
 			buttonPressed_ = true;
 		}
-		if (settingsAudioChoiceNo.getMouseInText() && !buttonPressed_)
+		if (settingsAudioChoiceNo_.getMouseInText() && !buttonPressed_)
 		{
-			buttonClickSound.play();
+			buttonClickSound_.play();
 			setAudio(false);
 			buttonPressed_ = true;
 		}
-		if (settingsAudioChoiceYes.getMouseInText() && !buttonPressed_)
+		if (settingsAudioChoiceYes_.getMouseInText() && !buttonPressed_)
 		{
-			buttonClickSound.play();
+			buttonClickSound_.play();
 			setAudio(true);
 			buttonPressed_ = true;
 		}
-		if (settingsColorChoiceBrown.getMouseInText() && !buttonPressed_)
+		if (settingsColorChoiceBrown_.getMouseInText() && !buttonPressed_)
 		{
-			buttonClickSound.play();
-			theme.setTheme(ThemeSet::Brown);
+			buttonClickSound_.play();
+			theme_.setTheme(ThemeSet::Brown);
 			updateTheme();
 			buttonPressed_ = true;
 		}
-		if (settingsColorChoiceBlue.getMouseInText() && !buttonPressed_)
+		if (settingsColorChoiceBlue_.getMouseInText() && !buttonPressed_)
 		{
-			buttonClickSound.play();
-			theme.setTheme(ThemeSet::Blue);
+			buttonClickSound_.play();
+			theme_.setTheme(ThemeSet::Blue);
 			updateTheme();
 			buttonPressed_ = true;
 		}
-		if (settingsColorChoiceGreen.getMouseInText() && !buttonPressed_)
+		if (settingsColorChoiceGreen_.getMouseInText() && !buttonPressed_)
 		{
-			buttonClickSound.play();
-			theme.setTheme(ThemeSet::Green);
+			buttonClickSound_.play();
+			theme_.setTheme(ThemeSet::Green);
 			updateTheme();
 			buttonPressed_ = true;
 		}
@@ -223,37 +224,37 @@ void Game::updateTheme()
 {
 	// Board & background
 	createBackground();
-	background_.setFillColor(theme.alternate);
-	gameOverBackground_.setFillColor(theme.alternate);
+	background_.setFillColor(theme_.alternate);
+	gameOverBackground_.setFillColor(theme_.alternate);
 
 	// Texts
-	titleText_.setFillColor(theme.darkMain);
-	settingsTitleText_.setFillColor(theme.darkMain);
-	gameOverTitleText_.setFillColor(theme.darkMain);
-	winnerText_.setFillColor(theme.darkMain);
-	settingsColorText.setFillColor(theme.darkMain);
-	settingsAudioText.setFillColor(theme.darkMain);
-	pauseBackground.setFillColor(theme.alternate);
-	pauseTitle.setFillColor(theme.darkMain);
+	titleText_.setFillColor(theme_.darkMain);
+	settingsTitleText_.setFillColor(theme_.darkMain);
+	gameOverTitleText_.setFillColor(theme_.darkMain);
+	winnerText_.setFillColor(theme_.darkMain);
+	settingsColorText_.setFillColor(theme_.darkMain);
+	settingsAudioText_.setFillColor(theme_.darkMain);
+	pauseBackground_.setFillColor(theme_.alternate);
+	pauseTitle_.setFillColor(theme_.darkMain);
 
 	// Buttons
-	startButton.setColor(theme.darkMain, theme.lightMain);
-	settingsButton.setColor(theme.darkMain, theme.lightMain);
-	exitButton.setColor(theme.darkMain, theme.lightMain);
-	settingsBackButton.setColor(theme.darkMain, theme.lightMain);
-	playAgainButton.setColor(theme.darkMain, theme.lightMain);
-	mainMenuButton.setColor(theme.darkMain, theme.lightMain);
-	settingsColorChoiceBrown.setColor(theme.darkMain, theme.lightMain);
-	settingsColorChoiceBlue.setColor(theme.darkMain, theme.lightMain);
-	settingsColorChoiceGreen.setColor(theme.darkMain, theme.lightMain);
-	settingsAudioChoiceYes.setColor(theme.darkMain, theme.lightMain);
-	settingsAudioChoiceNo.setColor(theme.darkMain, theme.lightMain);
-	pauseDrawButton.setColor(theme.darkMain, theme.lightMain);
-	pauseWhiteForfeitButton.setColor(theme.darkMain, theme.lightMain);
-	pauseBlackForfeitButton.setColor(theme.darkMain, theme.lightMain);
-	pauseMenuButton.setColor(theme.darkMain, theme.lightMain);
-	pauseQuitButton.setColor(theme.darkMain, theme.lightMain);
-	returnToGame.setColor(theme.darkMain, theme.lightMain);
+	startButton_.setColor(theme_.darkMain, theme_.lightMain);
+	settingsButton_.setColor(theme_.darkMain, theme_.lightMain);
+	exitButton_.setColor(theme_.darkMain, theme_.lightMain);
+	settingsBackButton_.setColor(theme_.darkMain, theme_.lightMain);
+	playAgainButton_.setColor(theme_.darkMain, theme_.lightMain);
+	mainMenuButton_.setColor(theme_.darkMain, theme_.lightMain);
+	settingsColorChoiceBrown_.setColor(theme_.darkMain, theme_.lightMain);
+	settingsColorChoiceBlue_.setColor(theme_.darkMain, theme_.lightMain);
+	settingsColorChoiceGreen_.setColor(theme_.darkMain, theme_.lightMain);
+	settingsAudioChoiceYes_.setColor(theme_.darkMain, theme_.lightMain);
+	settingsAudioChoiceNo_.setColor(theme_.darkMain, theme_.lightMain);
+	pauseDrawButton_.setColor(theme_.darkMain, theme_.lightMain);
+	pauseWhiteForfeitButton_.setColor(theme_.darkMain, theme_.lightMain);
+	pauseBlackForfeitButton_.setColor(theme_.darkMain, theme_.lightMain);
+	pauseMenuButton_.setColor(theme_.darkMain, theme_.lightMain);
+	pauseQuitButton_.setColor(theme_.darkMain, theme_.lightMain);
+	returnToGame_.setColor(theme_.darkMain, theme_.lightMain);
 }
 
 void Game::setAudio(bool audioOn)
@@ -271,12 +272,12 @@ void Game::setAudio(bool audioOn)
 // pauseDrawButton, pauseWhiteForfeitButton, pauseBlackForfeitButton, pauseMenuButton, pauseQuitButton
 void Game::pauseState(sf::Vector2i mousePosition, bool leftButtonClicked, std::optional<sf::Event> event)
 {
-	pauseDrawButton.update(mousePosition);
-	pauseWhiteForfeitButton.update(mousePosition);
-	pauseBlackForfeitButton.update(mousePosition);
-	pauseMenuButton.update(mousePosition);
-	pauseQuitButton.update(mousePosition);
-	returnToGame.update(mousePosition);
+	pauseDrawButton_.update(mousePosition);
+	pauseWhiteForfeitButton_.update(mousePosition);
+	pauseBlackForfeitButton_.update(mousePosition);
+	pauseMenuButton_.update(mousePosition);
+	pauseQuitButton_.update(mousePosition);
+	returnToGame_.update(mousePosition);
 
 	if (const auto* keyPressed = event->getIf<sf::Event::KeyPressed>())
 	{
@@ -288,45 +289,45 @@ void Game::pauseState(sf::Vector2i mousePosition, bool leftButtonClicked, std::o
 
 	if (leftButtonClicked)
 	{
-		if (pauseDrawButton.getMouseInText() && !buttonPressed_)
+		if (pauseDrawButton_.getMouseInText() && !buttonPressed_)
 		{
-			buttonClickSound.play();
+			buttonClickSound_.play();
 			gameOutcome_ = GameOutcome::Stalemate;
 			playAgain_ = true;
 			changeGamestate(State::GameOver);
 			buttonPressed_ = true;
 		}
-		if (pauseWhiteForfeitButton.getMouseInText() && !buttonPressed_)
+		if (pauseWhiteForfeitButton_.getMouseInText() && !buttonPressed_)
 		{
-			buttonClickSound.play();
+			buttonClickSound_.play();
 			gameOutcome_ = GameOutcome::BlackWins;
 			playAgain_ = true;
 			changeGamestate(State::GameOver);
 			buttonPressed_ = true;
 		}
-		if (pauseBlackForfeitButton.getMouseInText() && !buttonPressed_)
+		if (pauseBlackForfeitButton_.getMouseInText() && !buttonPressed_)
 		{
-			buttonClickSound.play();
+			buttonClickSound_.play();
 			gameOutcome_ = GameOutcome::WhiteWins;
 			playAgain_ = true;
 			changeGamestate(State::GameOver);
 			buttonPressed_ = true;
 		}
-		if (pauseMenuButton.getMouseInText() && !buttonPressed_)
+		if (pauseMenuButton_.getMouseInText() && !buttonPressed_)
 		{
-			buttonClickSound.play();
+			buttonClickSound_.play();
 			changeGamestate(State::Menu);
 			buttonPressed_ = true;
 		}
-		if (pauseQuitButton.getMouseInText() && !buttonPressed_)
+		if (pauseQuitButton_.getMouseInText() && !buttonPressed_)
 		{
-			buttonClickSound.play();
+			buttonClickSound_.play();
 			isDone_ = true;
 			buttonPressed_ = true;
 		}
-		if (returnToGame.getMouseInText() && !buttonPressed_)
+		if (returnToGame_.getMouseInText() && !buttonPressed_)
 		{
-			buttonClickSound.play();
+			buttonClickSound_.play();
 			changeGamestate(State::PlayingGame);
 			buttonPressed_ = true;
 		}
@@ -336,9 +337,13 @@ void Game::pauseState(sf::Vector2i mousePosition, bool leftButtonClicked, std::o
 
 bool Game::playingGameState(sf::Vector2i actualMousePosition, std::optional<sf::Event> event, bool leftButtonClicked)
 {
-	static Position selectedPiecePos {File::A, Rank::One}; // Array scale
-	Position mousePosArray {static_cast<File>(actualMousePosition.x / SQUARE_SIZE), static_cast<Rank>(actualMousePosition.y / SQUARE_SIZE)}; // 8 by 8
-	sf::Vector2i mousePos {static_cast<int>(toIndex(mousePosArray.file) * SQUARE_SIZE), static_cast<int>(toIndex(mousePosArray.rank) * SQUARE_SIZE)}; // 640 by 640, where to put the piece basically
+    int fileIndex {std::clamp(actualMousePosition.x / SQUARE_SIZE, static_cast<int>(toIndex(File::A)), static_cast<int>(toIndex(File::H)))};
+    int rankIndex {std::clamp(actualMousePosition.y / SQUARE_SIZE, static_cast<int>(toIndex(Rank::One)), static_cast<int>(toIndex(Rank::Eight)))};
+	Position mousePosition {static_cast<File>(fileIndex), static_cast<Rank>(rankIndex)};
+	static Position selectedPiecePosition {File::A, Rank::One};
+
+	// auto& mousePosPiece {board_[mousePosition]};
+	// auto& selectedPiece {board_[selectedPiecePosition]};
 
 	// Options
 	if (const auto* keyPressed = event->getIf<sf::Event::KeyPressed>())
@@ -350,98 +355,97 @@ bool Game::playingGameState(sf::Vector2i actualMousePosition, std::optional<sf::
 	}
 
 	// Piece is not selected
-	if (!pieceSelected_ && leftButtonClicked)
+	if (!pieceSelected_ && leftButtonClicked && board_[mousePosition] && board_[mousePosition]->getTeam() == playerTurn_)
 	{
 		// Clicks a spot where your teams piece isn't
-		if (!board_[mousePosArray] || board_[mousePosArray]->getTeam() != playerTurn_)
-		{
-			return false;
-		}
+		// if (!board_[mousePosition] || board_[mousePosition]->getTeam() != playerTurn_)
+		// {
+		// 	return false;
+		// }
 
 		// Gets moves for piece
-		possibleMoves_ = board_[mousePosArray]->calculateMoves(board_, m_previousMove);
+		possibleMoves_ = board_[mousePosition]->calculateMoves(board_, previousMove_);
 
 		// Remove moves if piece's king is in check
-		removeInvalidMoves(board_[mousePosArray]->getTeam(), mousePosArray);
+		removeInvalidMoves(board_[mousePosition]->getTeam(), mousePosition);
 
 		displayMoves();
 		pieceSelected_ = true;
-		selectedPiecePos = mousePosArray;
 		lockClick_ = true;
+		selectedPiecePosition = mousePosition;
 	}
 
 
 	if (pieceSelected_ && leftButtonClicked)
 	{
 	    // Checks if the new tile selected is the same team as the piece that is trying to move
-		if (board_[mousePosArray] && board_[mousePosArray]->getTeam() == board_[selectedPiecePos]->getTeam())
+		if (board_[mousePosition] && board_[mousePosition]->getTeam() == board_[selectedPiecePosition]->getTeam())
 		{
 			// Clear moves
 			moveCircles_.clear();
 			possibleMoves_.clear();
 
 			// Gets moves for piece
-			possibleMoves_ = board_[mousePosArray]->calculateMoves(board_, m_previousMove);
-			// possibleMoves_ = board_[mousePosArray.file][mousePosArray.rank]->getMoves();
+			possibleMoves_ = board_[mousePosition]->calculateMoves(board_, previousMove_);
 
 			// Remove moves if piece's king is in check
-			removeInvalidMoves(board_[mousePosArray]->getTeam(), mousePosArray);
+			removeInvalidMoves(board_[mousePosition]->getTeam(), mousePosition);
 
 			displayMoves();
 			pieceSelected_ = true;
 			lockClick_ = true;
-			selectedPiecePos = mousePosArray;
+			selectedPiecePosition = mousePosition;
 			return false;
 		}
 
 		for (Move move : possibleMoves_)
 		{
-			if (mousePosArray == move.position) // Checks if move is a possible move
+			if (mousePosition == move.position) // Checks if move is a possible move
 			{
-				if (willBeInCheck(selectedPiecePos, mousePosArray, board_[selectedPiecePos]->getTeam()))// create a fake board where piece is here and check for check  //getKing(Team::BLACK))
+				if (willBeInCheck(selectedPiecePosition, mousePosition, board_[selectedPiecePosition]->getTeam()))// create a fake board where piece is here and check for check  //getKing(Team::BLACK))
 				{
 					continue;
 				}
 
 				// Sets the current move type to capture if the place the piece is moving to has a piece already there
-				if (board_[mousePosArray])
+				if (board_[mousePosition])
 				{
 					move.moveType = MoveType::Capture;
 				}
 
 				// adds moves to the history
-				m_previousMove = move;
+				previousMove_ = move;
 
 				// Plays sounds for the moves
 				if (move.moveType == MoveType::Castle)
 				{
-					castleSound.play();
+					castleSound_.play();
 				}
 				else if (move.moveType == MoveType::Capture || move.moveType == MoveType::EnPassant)
 				{
-					captureSound.play();
+					captureSound_.play();
 				}
 				else
 				{
-					pieceMoveSound.play();
+					pieceMoveSound_.play();
 				}
 
 				// Changes pawn into queen if it reaches the end
-				if (board_[selectedPiecePos]->getPieceType() == PieceType::Pawn &&
-					board_[selectedPiecePos]->getTeam() == Team::White && mousePosArray.rank == Rank::One)
+				if (board_[selectedPiecePosition]->getPieceType() == PieceType::Pawn &&
+					board_[selectedPiecePosition]->getTeam() == Team::White && mousePosition.rank == Rank::One)
 				{
-					board_[mousePosArray] = std::make_unique<SlidingPiece>(Team::White, mousePosArray, PieceType::Queen);
-					board_[selectedPiecePos].reset();
+					board_[mousePosition] = std::make_unique<SlidingPiece>(Team::White, mousePosition, PieceType::Queen);
+					board_[selectedPiecePosition].reset();
 				}
-				else if (board_[selectedPiecePos]->getPieceType() == PieceType::Pawn &&
-					board_[selectedPiecePos]->getTeam() == Team::Black && mousePosArray.rank == Rank::Eight)
+				else if (board_[selectedPiecePosition]->getPieceType() == PieceType::Pawn &&
+					board_[selectedPiecePosition]->getTeam() == Team::Black && mousePosition.rank == Rank::Eight)
 				{
-					board_[mousePosArray] = std::make_unique<SlidingPiece>(Team::Black, mousePosArray, PieceType::Queen);
-					board_[selectedPiecePos].reset();
+					board_[mousePosition] = std::make_unique<SlidingPiece>(Team::Black, mousePosition, PieceType::Queen);
+					board_[selectedPiecePosition].reset();
 				}
 				else
 				{
-					board_[mousePosArray] = std::move(board_[selectedPiecePos]);
+					board_[mousePosition] = std::move(board_[selectedPiecePosition]);
 				}
 
 				// Movement of rook for castling
@@ -478,7 +482,7 @@ bool Game::playingGameState(sf::Vector2i actualMousePosition, std::optional<sf::
 					}
 				}
 
-				endTurn(mousePosArray);
+				endTurn(mousePosition);
 
 				if (blackKingInCheck_)
 				{
@@ -500,20 +504,20 @@ bool Game::playingGameState(sf::Vector2i actualMousePosition, std::optional<sf::
 
 void Game::gameOverState(sf::Vector2i mousePosition, bool leftButtonClicked)
 {
-	mainMenuButton.update(mousePosition);
-	playAgainButton.update(mousePosition);
+	mainMenuButton_.update(mousePosition);
+	playAgainButton_.update(mousePosition);
 
 	if (leftButtonClicked)
 	{
-		if (mainMenuButton.getMouseInText() && !buttonPressed_)
+		if (mainMenuButton_.getMouseInText() && !buttonPressed_)
 		{
-			buttonClickSound.play();
+			buttonClickSound_.play();
 			changeGamestate(State::Menu);
 			buttonPressed_ = true;
 		}
-		if (playAgainButton.getMouseInText() && !buttonPressed_)
+		if (playAgainButton_.getMouseInText() && !buttonPressed_)
 		{
-			buttonClickSound.play();
+			buttonClickSound_.play();
 			changeGamestate(State::CreateGame);
 			buttonPressed_ = true;
 		}
@@ -525,62 +529,62 @@ void Game::createTexts()
 {
 	sf::FloatRect textBounds {};
 
-	background_.setFillColor(theme.alternate);
+	background_.setFillColor(theme_.alternate);
 	background_.setSize({800, 800});
 
-	gameOverBackground_.setFillColor(theme.alternate);
+	gameOverBackground_.setFillColor(theme_.alternate);
 	gameOverBackground_.setOutlineThickness(3);
 	gameOverBackground_.setOutlineColor(sf::Color::Black);
 	gameOverBackground_.setPosition({100, 200});
 	gameOverBackground_.setSize({440, 240});
 
-	pauseBackground.setFillColor(theme.alternate);
-	pauseBackground.setOutlineThickness(3);
-	pauseBackground.setOutlineColor(sf::Color::Black);
-	pauseBackground.setPosition({70, 170});
-	pauseBackground.setSize({500, 300});
+	pauseBackground_.setFillColor(theme_.alternate);
+	pauseBackground_.setOutlineThickness(3);
+	pauseBackground_.setOutlineColor(sf::Color::Black);
+	pauseBackground_.setPosition({70, 170});
+	pauseBackground_.setSize({500, 300});
 
 	titleText_ = sf::Text(myriadBoldFont_, "Chess", 185);
-	titleText_.setFillColor(theme.darkMain);
+	titleText_.setFillColor(theme_.darkMain);
 	textBounds = titleText_.getLocalBounds();
 	titleText_.setOrigin({textBounds.position.x + textBounds.size.x / 2.f, textBounds.position.y + textBounds.size.y / 2.f});
 	titleText_.setPosition({320, 160});
 
 	settingsTitleText_ = sf::Text(myriadBoldFont_, "Settings", 135);
-	settingsTitleText_.setFillColor(theme.darkMain);
+	settingsTitleText_.setFillColor(theme_.darkMain);
 	textBounds = settingsTitleText_.getLocalBounds();
 	settingsTitleText_.setOrigin({textBounds.position.x + textBounds.size.x / 2.f, textBounds.position.y + textBounds.size.y / 2.f});
 	settingsTitleText_.setPosition({320, 120});
 
 	gameOverTitleText_ = sf::Text(myriadBoldFont_, "Game Over", 80);
-	gameOverTitleText_.setFillColor(theme.darkMain);
+	gameOverTitleText_.setFillColor(theme_.darkMain);
 	textBounds = gameOverTitleText_.getLocalBounds();
 	gameOverTitleText_.setOrigin({textBounds.position.x + textBounds.size.x / 2.f, textBounds.position.y + textBounds.size.y / 2.f});
 	gameOverTitleText_.setPosition({320, 235});
 
 	winnerText_ = sf::Text(myriadSemiboldFont_, "Stalemate", 45);
-	winnerText_.setFillColor(theme.darkMain);
+	winnerText_.setFillColor(theme_.darkMain);
 	textBounds = winnerText_.getLocalBounds();
 	winnerText_.setOrigin({textBounds.position.x + textBounds.size.x / 2.f, textBounds.position.y + textBounds.size.y / 2.f});
 	winnerText_.setPosition({320, 290});
 
-	settingsColorText = sf::Text(myriadRegularFont_, "Color:", 50);
-	settingsColorText.setFillColor(theme.darkMain);
-	textBounds = settingsColorText.getLocalBounds();
-	settingsColorText.setOrigin({textBounds.position.x + textBounds.size.x / 2.f, textBounds.position.y + textBounds.size.y / 2.f});
-	settingsColorText.setPosition({120, 290});
+	settingsColorText_ = sf::Text(myriadRegularFont_, "Color:", 50);
+	settingsColorText_.setFillColor(theme_.darkMain);
+	textBounds = settingsColorText_.getLocalBounds();
+	settingsColorText_.setOrigin({textBounds.position.x + textBounds.size.x / 2.f, textBounds.position.y + textBounds.size.y / 2.f});
+	settingsColorText_.setPosition({120, 290});
 
-	settingsAudioText = sf::Text(myriadRegularFont_, "Audio:", 50);
-	settingsAudioText.setFillColor(theme.darkMain);
-	textBounds = settingsAudioText.getLocalBounds();
-	settingsAudioText.setOrigin({textBounds.position.x + textBounds.size.x / 2.f, textBounds.position.y + textBounds.size.y / 2.f});
-	settingsAudioText.setPosition({120, 420});
+	settingsAudioText_ = sf::Text(myriadRegularFont_, "Audio:", 50);
+	settingsAudioText_.setFillColor(theme_.darkMain);
+	textBounds = settingsAudioText_.getLocalBounds();
+	settingsAudioText_.setOrigin({textBounds.position.x + textBounds.size.x / 2.f, textBounds.position.y + textBounds.size.y / 2.f});
+	settingsAudioText_.setPosition({120, 420});
 
-	pauseTitle = sf::Text(myriadBoldFont_, "Pause Menu", 80);
-	pauseTitle.setFillColor(theme.darkMain);
-	textBounds = pauseTitle.getLocalBounds();
-	pauseTitle.setOrigin({textBounds.position.x + textBounds.size.x / 2.f, textBounds.position.y + textBounds.size.y / 2.f});
-	pauseTitle.setPosition({320, 210});
+	pauseTitle_ = sf::Text(myriadBoldFont_, "Pause Menu", 80);
+	pauseTitle_.setFillColor(theme_.darkMain);
+	textBounds = pauseTitle_.getLocalBounds();
+	pauseTitle_.setOrigin({textBounds.position.x + textBounds.size.x / 2.f, textBounds.position.y + textBounds.size.y / 2.f});
+	pauseTitle_.setPosition({320, 210});
 }
 
 // Removes any moves that puts king in check
@@ -631,9 +635,9 @@ void Game::displayMoves()
 	for (auto& i : possibleMoves_)
 	{
 		// Create circle for each point and adds them to an array
-		sf::CircleShape tempCircle(circleRadius);
-		tempCircle.setFillColor(theme.moveCircle);
-		tempCircle.setPosition(sf::Vector2f(toIndex(i.position.file) * SQUARE_SIZE + circleRadius, toIndex(i.position.rank) * SQUARE_SIZE + circleRadius));
+		sf::CircleShape tempCircle(circleRadius_);
+		tempCircle.setFillColor(theme_.moveCircle);
+		tempCircle.setPosition(sf::Vector2f(toIndex(i.position.file) * SQUARE_SIZE + circleRadius_, toIndex(i.position.rank) * SQUARE_SIZE + circleRadius_));
 		moveCircles_.push_back(tempCircle);
 	}
 }
@@ -741,7 +745,7 @@ int Game::getTotalMoveCount(Team team)
 				continue;
 			}
 
-			std::vector<Move> pieceMoves {piece->calculateMoves(board_, m_previousMove)};
+			std::vector<Move> pieceMoves {piece->calculateMoves(board_, previousMove_)};
 
 			removeInvalidMoves(team, piece->getPosition(), pieceMoves);
 
@@ -784,7 +788,7 @@ bool Game::isInCheck(Position kingPosition, Team kingTeam)
 				continue;
 			}
 
-			std::vector<Move> pieceMoves {piece->calculateMoves(board_, m_previousMove)};
+			std::vector<Move> pieceMoves {piece->calculateMoves(board_, previousMove_)};
 
 			for (const Move& move : pieceMoves)
 			{
@@ -814,7 +818,7 @@ bool Game::willBeInCheck(Position oldPosition, Position newPosition, Team team)
 				continue;
 			}
 
-			std::vector<Move> pieceMoves {piece->calculateMoves(potentialBoard_, m_previousMove)};
+			std::vector<Move> pieceMoves {piece->calculateMoves(potentialBoard_, previousMove_)};
 
 			for (const Move& move : pieceMoves)
 			{
@@ -890,40 +894,40 @@ void Game::render()
 		case State::Menu:
 			window_.draw(background_);
 			window_.draw(titleText_);
-			window_.draw(startButton);
-			window_.draw(settingsButton);
-			window_.draw(exitButton);
+			window_.draw(startButton_);
+			window_.draw(settingsButton_);
+			window_.draw(exitButton_);
 			break;
 		case State::Settings:
 			window_.draw(background_);
-			window_.draw(settingsBackButton);
+			window_.draw(settingsBackButton_);
 			window_.draw(settingsTitleText_);
-			window_.draw(settingsAudioText);
-			window_.draw(settingsColorText);
-			window_.draw(settingsAudioChoiceNo);
-			window_.draw(settingsAudioChoiceYes);
-			window_.draw(settingsColorChoiceBrown);
-			window_.draw(settingsColorChoiceGreen);
-			window_.draw(settingsColorChoiceBlue);
+			window_.draw(settingsAudioText_);
+			window_.draw(settingsColorText_);
+			window_.draw(settingsAudioChoiceNo_);
+			window_.draw(settingsAudioChoiceYes_);
+			window_.draw(settingsColorChoiceBrown_);
+			window_.draw(settingsColorChoiceGreen_);
+			window_.draw(settingsColorChoiceBlue_);
 			break;
 		case State::GameOver:
 			renderBoard();
 			window_.draw(gameOverBackground_);
 			window_.draw(gameOverTitleText_);
 			window_.draw(winnerText_);
-			window_.draw(mainMenuButton);
-			window_.draw(playAgainButton);
+			window_.draw(mainMenuButton_);
+			window_.draw(playAgainButton_);
 			break;
 		case State::Pause:
 			renderBoard();
-			window_.draw(pauseBackground);
-			window_.draw(pauseTitle);
-			window_.draw(pauseDrawButton);
-			window_.draw(pauseWhiteForfeitButton);
-			window_.draw(pauseBlackForfeitButton);
-			window_.draw(pauseMenuButton);
-			window_.draw(pauseQuitButton);
-			window_.draw(returnToGame);
+			window_.draw(pauseBackground_);
+			window_.draw(pauseTitle_);
+			window_.draw(pauseDrawButton_);
+			window_.draw(pauseWhiteForfeitButton_);
+			window_.draw(pauseBlackForfeitButton_);
+			window_.draw(pauseMenuButton_);
+			window_.draw(pauseQuitButton_);
+			window_.draw(returnToGame_);
 		default:
 			break;
 	}
@@ -942,7 +946,7 @@ void Game::renderBoard()
 	{
 		for (auto& piece : rows)
 		{
-			if (piece == nullptr)
+			if (!piece)
 			{
 				continue;
 			}
@@ -985,10 +989,10 @@ void Game::renderBoard()
 void Game::createBackground()
 {
 	sf::RectangleShape lightRect(sf::Vector2f(SQUARE_SIZE, SQUARE_SIZE));
-	lightRect.setFillColor(theme.alternate);
+	lightRect.setFillColor(theme_.alternate);
 
 	sf::RectangleShape darkRect(sf::Vector2f(SQUARE_SIZE, SQUARE_SIZE));
-	darkRect.setFillColor(theme.darkMain);
+	darkRect.setFillColor(theme_.darkMain);
 
 	int j = 0;
 	for (int r = 0; r < 8; r++)
@@ -1098,10 +1102,10 @@ void Game::loadResources()
 	loadFont(myriadRegularFont_, "../assets/fonts/myriad_pro_regular.ttf");
 
 	// Sounds
-	loadAudio(pieceMoveBuffer, "../assets/audio/move.mp3");
-	loadAudio(captureBuffer, "../assets/audio/capture.mp3");
-	loadAudio(gameStartBuffer, "../assets/audio/game-start.mp3");
-	loadAudio(gameEndBuffer, "../assets/audio/game-end.mp3");
-	loadAudio(castleBuffer, "../assets/audio/castle.mp3");
-	loadAudio(buttonClickBuffer, "../assets/audio/button-click.mp3");
+	loadAudio(pieceMoveBuffer_, "../assets/audio/move.mp3");
+	loadAudio(captureBuffer_, "../assets/audio/capture.mp3");
+	loadAudio(gameStartBuffer_, "../assets/audio/game-start.mp3");
+	loadAudio(gameEndBuffer_, "../assets/audio/game-end.mp3");
+	loadAudio(castleBuffer_, "../assets/audio/castle.mp3");
+	loadAudio(buttonClickBuffer_, "../assets/audio/button-click.mp3");
 }

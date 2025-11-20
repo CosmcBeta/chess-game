@@ -87,12 +87,11 @@ public:
 
 	void loadResources();
 
-
 	bool getIsDone();
 
 private:
 	// Bools and consts
-	const float circleRadius = 20.f;
+	const float circleRadius_ = 20.f;
 	bool whiteKingInCheck_, blackKingInCheck_;
 	bool pieceSelected_, pieceMoved_;
 	bool playAgain_, lockClick_, buttonPressed_;
@@ -122,23 +121,23 @@ private:
 	// Texts, buttons, and fonts
 	sf::Font myriadBoldFont_, myriadRegularFont_, myriadSemiboldFont_;
 	sf::Text titleText_, settingsTitleText_, gameOverTitleText_, winnerText_;
-	Button startButton, settingsButton, exitButton, settingsBackButton, playAgainButton, mainMenuButton;
+	Button startButton_, settingsButton_, exitButton_, settingsBackButton_, playAgainButton_, mainMenuButton_;
 
 	// Colors
-	Theme theme;
+	Theme theme_;
 
-	Move m_previousMove;
+	Move previousMove_;
 
-	sf::Text settingsColorText, settingsAudioText;
-	Button settingsColorChoiceBrown, settingsColorChoiceGreen, settingsAudioChoiceYes, settingsAudioChoiceNo;
-	Button settingsColorChoiceBlue;
+	sf::Text settingsColorText_, settingsAudioText_;
+	Button settingsColorChoiceBrown_, settingsColorChoiceGreen_, settingsAudioChoiceYes_, settingsAudioChoiceNo_;
+	Button settingsColorChoiceBlue_;
 
-	sf::SoundBuffer pieceMoveBuffer, captureBuffer, gameStartBuffer, gameEndBuffer, castleBuffer, buttonClickBuffer;
-	sf::Sound pieceMoveSound, captureSound, gameStartSound, gameEndSound, castleSound, buttonClickSound;
+	sf::SoundBuffer pieceMoveBuffer_, captureBuffer_, gameStartBuffer_, gameEndBuffer_, castleBuffer_, buttonClickBuffer_;
+	sf::Sound pieceMoveSound_, captureSound_, gameStartSound_, gameEndSound_, castleSound_, buttonClickSound_;
 
-	sf::Text pauseTitle;
-	Button pauseDrawButton, pauseWhiteForfeitButton, pauseBlackForfeitButton, pauseMenuButton, pauseQuitButton, returnToGame;
-	sf::RectangleShape pauseBackground;
+	sf::Text pauseTitle_;
+	Button pauseDrawButton_, pauseWhiteForfeitButton_, pauseBlackForfeitButton_, pauseMenuButton_, pauseQuitButton_, returnToGame_;
+	sf::RectangleShape pauseBackground_;
 
 	sf::RenderWindow window_;
 	bool isDone_;
