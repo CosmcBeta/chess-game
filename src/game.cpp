@@ -1,5 +1,4 @@
 #include "game.hpp"
-#include "board.hpp"
 #include "pieces/chess_piece.hpp"
 #include "pieces/piece_info.hpp"
 #include "pieces/sliding_piece.hpp"
@@ -955,19 +954,19 @@ void Game::renderBoard()
                     texture = piece->getTeam() == Team::White ? whitePawnTexture_ : blackPawnTexture_;
     				break;
     			case PieceType::King:
-                    texture = piece->getTeam() == Team::White ? whitePawnTexture_ : blackPawnTexture_;
+                    texture = piece->getTeam() == Team::White ? whiteKingTexture_ : blackKingTexture_;
     			    break;
     			case PieceType::Queen:
-                    texture = piece->getTeam() == Team::White ? whitePawnTexture_ : blackPawnTexture_;
+                    texture = piece->getTeam() == Team::White ? whiteQueenTexture_ : blackQueenTexture_;
     			    break;
     			case PieceType::Bishop:
-                    texture = piece->getTeam() == Team::White ? whitePawnTexture_ : blackPawnTexture_;
+                    texture = piece->getTeam() == Team::White ? whiteBishopTexture_ : blackBishopTexture_;
     			    break;
     			case PieceType::Rook:
-                    texture = piece->getTeam() == Team::White ? whitePawnTexture_ : blackPawnTexture_;
+                    texture = piece->getTeam() == Team::White ? whiteRookTexture_ : blackRookTexture_;
     				break;
     			case PieceType::Knight:
-                    texture = piece->getTeam() == Team::White ? whitePawnTexture_ : blackPawnTexture_;
+                    texture = piece->getTeam() == Team::White ? whiteKnightTexture_ : blackKnightTexture_;
     			    break;
     			default:
                     texture = whitePawnTexture_;

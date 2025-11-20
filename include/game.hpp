@@ -1,6 +1,5 @@
 #pragma once
 
-#include "board.hpp"
 #include "button.hpp"
 #include "pieces/piece_info.hpp"
 #include "theme.hpp"
@@ -143,6 +142,4 @@ private:
 
 	sf::RenderWindow window_;
 	bool isDone_;
-
-	// ChessBoard chessBoard_;
 };
