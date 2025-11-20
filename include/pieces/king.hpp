@@ -15,5 +15,5 @@ public:
 	std::vector<Move> calculateMoves(const Board& board, Move previousMove) const override;
 	std::unique_ptr<Piece> clone() const override;
 
-	bool checkCastle(int rookFile, int pieceRank, const Board& board, std::initializer_list<int> emptySpaces) const;
+	bool checkCastle(Position position, const Board& board, std::initializer_list<File> emptySpaces) const;
 };

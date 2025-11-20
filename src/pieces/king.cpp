@@ -7,6 +7,22 @@
 #include <memory>
 #include <vector>
 
+namespace
+{
+    using Direction = std::pair<int, int>;
+
+    constexpr std::array<Direction, 8> DIRECTIONS {
+		{{-1, -1},
+		{-1, 0},
+		{-1, 1},
+		{0, 1},
+		{0, -1},
+		{1, -1},
+		{1, 0},
+		{1, 1}}
+	};
+}
+
 King::King(Team team, Position position)
 	:Piece(team, PieceType::King, position)
 {}
@@ -15,62 +31,50 @@ std::vector<Move> King::calculateMoves(const Board& board, Move previousMove) co
 {
 	std::vector<Move> possibleMoves {};
 
-	std::array<Position, 8> possibleSquares =
+	for (const auto& move : DIRECTIONS)
 	{
-		Position(-1, -1),
-		Position(-1, 0),
-		Position(-1, 1),
-		Position(0, 1),
-		Position(0, -1),
-		Position(1, -1),
-		Position(1, 0),
-		Position(1, 1)
-	};
+		Position tempPosition {position_.file + move.first, position_.rank + move.second};
 
-	for (const auto& move : possibleSquares)
-	{
-		Position tempPosition {position_.file + move.file, position_.rank + move.rank};
-
-		if (tempPosition.file < FIRST || tempPosition.file > LAST || tempPosition.rank < FIRST || tempPosition.rank > LAST)
+		if (!isValid(tempPosition))
 		{
 			continue;
 		}
-		else if (board[tempPosition.file][tempPosition.rank] == nullptr)
+		else if (!board[tempPosition])
 		{
-			possibleMoves.push_back({MoveType::Normal, {tempPosition.file, tempPosition.rank}});
+			possibleMoves.push_back({MoveType::Normal, tempPosition});
 		}
-		else if (board[tempPosition.file][tempPosition.rank]->getTeam() != team_)
+		else if (board[tempPosition]->getTeam() != team_)
 		{
-			possibleMoves.push_back({MoveType::Capture, {tempPosition.file, tempPosition.rank}});
+			possibleMoves.push_back({MoveType::Capture, tempPosition});
 		}
 	}
 
-	int rank = (team_ == Team::Black) ? FIRST : LAST;
+	Rank rank = (team_ == Team::Black) ? Rank::One : Rank::Eight;
 	if (firstMove_)
 	{
-	    if (checkCastle(FIRST, rank, board, {1, 2, 3}))
+	    if (checkCastle({File::A, rank}, board, {File::B, File::C, File::D}))
 		{
-		    possibleMoves.push_back({MoveType::Castle, {2, rank}});
+		    possibleMoves.push_back({MoveType::Castle, {File::C, rank}});
 		}
 
-		if (checkCastle(LAST, rank, board, {5, 6}))
+		if (checkCastle({File::H, rank}, board, {File::F, File::G}))
 		{
-		    possibleMoves.push_back({MoveType::Castle, {6, rank}});
+		    possibleMoves.push_back({MoveType::Castle, {File::G, rank}});
 		}
 	}
 
 	return possibleMoves;
 }
 
-bool King::checkCastle(int rookFile, int pieceRank, const Board& board, std::initializer_list<int> emptySpaces) const
+bool King::checkCastle(Position position, const Board& board, std::initializer_list<File> emptySpaces) const
 {
-    const Piece* rook = board[rookFile][pieceRank].get();
+    const Piece* rook = board[position].get();
     if (!rook || rook->getPieceType() != PieceType::Rook || rook->getTeam() != team_ || !rook->getFirstMove())
     {
         return false;
     }
 
-    return std::all_of(emptySpaces.begin(), emptySpaces.end(), [&](int file) { return board[file][pieceRank] == nullptr; });
+    return std::all_of(emptySpaces.begin(), emptySpaces.end(), [&](File file) { return board[position] == nullptr; });
 }
 
 std::unique_ptr<Piece> King::clone() const
