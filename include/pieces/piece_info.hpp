@@ -87,6 +87,26 @@ public:
         return chessBoard_[toIndex(position.file)][toIndex(position.rank)];
     }
 
+    auto begin()
+    {
+        return chessBoard_.begin();
+    }
+
+    auto end()
+    {
+        return chessBoard_.end();
+    }
+
+    const auto begin() const
+    {
+        return chessBoard_.begin();
+    }
+
+    const auto end() const
+    {
+        return chessBoard_.end();
+    }
+
 private:
     std::array<std::array<std::unique_ptr<Piece>, 8>, 8> chessBoard_;
 };
