@@ -28,16 +28,23 @@ struct Position
     }
 };
 
-template<typename T>
+template <typename T>
 constexpr T operator+(T e, int offset)
 {
     return static_cast<T>(static_cast<int>(e) + offset);
 }
 
-template<typename T>
+template <typename T>
 constexpr T operator-(T e, int offset)
 {
     return static_cast<T>(static_cast<int>(e) - offset);
+}
+
+template <typename T>
+constexpr T operator+=(T& e, int offset)
+{
+    e = e + offset;
+    return e;
 }
 
 constexpr bool isValid(File f)

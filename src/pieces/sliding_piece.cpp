@@ -14,7 +14,7 @@ namespace
     using Direction = std::pair<int, int>;
 
     // file, rank
-    constexpr std::array<Direction, 8> DIRECTIONS = {
+    constexpr std::array<Direction, 8> DIRECTIONS {
         {{-1, 0},
         {0, -1},
         {1, 0},
@@ -42,7 +42,7 @@ namespace
 
     constexpr std::span<const Direction> emptyDirections() noexcept
     {
-        static constexpr std::array<Direction, 1> none{{Direction{0, 0}}};
+        static constexpr std::array<Direction, 1> none {{Direction{0, 0}}};
         return {none};
     }
 
@@ -66,50 +66,39 @@ std::vector<Move> SlidingPiece::calculateMoves(const Board& board, Move previous
 {
     std::vector<Move> possibleMoves {};
 
-    int numberOfDirectionsLeft = directions_.size();
     std::map<Direction, Position> positions {};
     for (const Direction& dir : directions_)
     {
         positions[dir] = position_;
     }
 
-    do
+    for (auto& [dir, pos] : positions)
     {
-        for (auto& [dir, pos] : positions)
+        while (true)
         {
-            if (pos.file == -1 || pos.rank == -1)
-            {
-                continue;
-            }
-
             pos.file += dir.first;
             pos.rank += dir.second;
 
-            if (pos.file < FIRST || pos.file > LAST || pos.rank < FIRST || pos.rank > LAST)
+            if (!isValid(pos))
             {
-                positions.at(dir) = {-1, -1};
-                numberOfDirectionsLeft -= 1;
-                continue;
+                break;
             }
 
-            if (board[pos.file][pos.rank] == nullptr)
+            if (!board[pos])
             {
                 possibleMoves.push_back({MoveType::Normal, pos});
-                positions.at(dir) = pos;
             }
-            else if (board[pos.file][pos.rank]->getTeam() != team_)
+            else if (board[pos]->getTeam() != team_)
             {
                 possibleMoves.push_back({MoveType::Capture, pos});
-                positions.at(dir) = {-1, -1};
-                numberOfDirectionsLeft -= 1;
+                break;
             }
             else
             {
-                positions.at(dir) = {-1, -1};
-                numberOfDirectionsLeft -= 1;
+                break;
             }
         }
-    } while (numberOfDirectionsLeft != 0);
+    }
 
     return possibleMoves;
 }
