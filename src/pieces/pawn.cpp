@@ -13,44 +13,41 @@ std::vector<Move> Pawn::calculateMoves(const Board& board, Move previousMove) co
 {
 	std::vector<Move> possibleMoves {};
 
-	if (position_.rank == FIRST || position_.rank == LAST)
+	if (position_.rank == Rank::One || position_.rank == Rank::Eight)
 	{
 	    return possibleMoves;
 	}
 
 	int direction = (team_ == Team::White) ? -1 : 1;
-	int enPassantRank = (team_ == Team::White) ? 3 : 4;
+	Rank enPassantRank = (team_ == Team::White) ? Rank::Four : Rank::Five;
 
+	Position forwardOne {position_.file, position_.rank + direction};
+	Position forwardTwo {position_.file, position_.rank + (direction * 2)};
 
-    if (board[position_.file][position_.rank + direction] == nullptr)
+    if (!board[forwardOne])
     {
-        possibleMoves.push_back({MoveType::Normal, {position_.file, position_.rank + direction}});
+        possibleMoves.push_back({MoveType::Normal, forwardOne});
     }
 
-    if (firstMove_ && board[position_.file][position_.rank + direction * 2] == nullptr)
+    if (firstMove_ && !board[forwardTwo])
     {
-        possibleMoves.push_back({MoveType::PawnDouble, {position_.file, position_.rank + direction * 2}});
+        possibleMoves.push_back({MoveType::PawnDouble, forwardTwo});
     }
 
     for (int offset : {-1, 1})
     {
-        int adjacentFile {position_.file + offset};
-        if (FIRST <= adjacentFile && adjacentFile <= LAST && board[adjacentFile][position_.rank + direction] != nullptr \
-            && board[adjacentFile][position_.rank + direction]->getTeam() != team_)
-        {
-            possibleMoves.push_back({MoveType::Capture, {adjacentFile, position_.rank + direction}});
-        }
-    }
+        File adjacentFile {position_.file + offset};
+        if (isValid(adjacentFile)) continue;
 
-    if (previousMove.moveType == MoveType::PawnDouble && position_.rank == enPassantRank)
-    {
-        for (int offset : {-1, 1})
+        Position diagonalPosition {adjacentFile, position_.rank + direction};
+        if (board[diagonalPosition] && board[diagonalPosition]->getTeam() != team_)
         {
-            int adjacentFile {position_.file + offset};
-            if (previousMove.position.file == adjacentFile && previousMove.position.rank == position_.rank)
-            {
-                possibleMoves.push_back({MoveType::EnPassant, {adjacentFile, position_.rank + direction}});
-            }
+            possibleMoves.push_back({MoveType::Capture, diagonalPosition});
+        }
+
+        if (previousMove.moveType == MoveType::PawnDouble && position_.rank == enPassantRank && previousMove.position == Position{adjacentFile, position_.rank})
+        {
+            possibleMoves.push_back({MoveType::EnPassant, diagonalPosition});
         }
     }
 
