@@ -6,6 +6,22 @@
 #include <vector>
 #include <memory>
 
+namespace
+{
+    using Direction = std::pair<int, int>;
+
+    constexpr std::array<Direction, 8> TARGETS {
+		{{-2, -1},
+    	{-2, 1},
+    	{2, -1},
+    	{2, 1},
+    	{-1, -2},
+    	{-1, 2},
+    	{1, -2},
+    	{1, 2}}
+	};
+}
+
 Knight::Knight(Team team, Position position)
 	:Piece(team, PieceType::Knight, position)
 {}
@@ -14,31 +30,19 @@ std::vector<Move> Knight::calculateMoves(const Board& board, Move previousMove) 
 {
 	std::vector<Move> possibleMoves {};
 
-	std::array<Position, 8> possibleSquares =
+	for (const auto& move : TARGETS)
 	{
-        Position(-2, -1),
-    	Position(-2, 1),
-    	Position(2, -1),
-    	Position(2, 1),
-    	Position(-1, -2),
-    	Position(-1, 2),
-    	Position(1, -2),
-    	Position(1, 2)
-	};
+		Position tempPosition {position_.file + move.first, position_.rank + move.second};
 
-	for (const auto& move : possibleSquares)
-	{
-		Position tempPosition {position_.file + move.file, position_.rank + move.rank};
-
-		if (tempPosition.file < FIRST || tempPosition.file > LAST || tempPosition.rank < FIRST || tempPosition.rank > LAST)
+		if (!isValid(tempPosition))
 		{
 			continue;
 		}
-		else if (board[tempPosition.file][tempPosition.rank] == nullptr)
+		else if (!board[tempPosition])
 		{
 			possibleMoves.push_back({MoveType::Normal, {tempPosition.file, tempPosition.rank}});
 		}
-		else if (board[tempPosition.file][tempPosition.rank]->getTeam() != team_)
+		else if (board[tempPosition]->getTeam() != team_)
 		{
 			possibleMoves.push_back({MoveType::Capture, {tempPosition.file, tempPosition.rank}});
 		}
