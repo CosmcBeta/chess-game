@@ -141,4 +141,6 @@ private:
 
 	sf::RenderWindow window_;
 	bool isDone_;
+
+	Position selectedPiecePosition_;
 };

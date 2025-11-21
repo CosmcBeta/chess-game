@@ -9,6 +9,7 @@
 #include <algorithm>
 #include <iostream>
 #include <memory>
+#include <stdexcept>
 
 Game::Game()
 	:pieceSelected_(false), previousMove_{MoveType::None, {File::A, Rank::One}},
@@ -35,7 +36,7 @@ Game::Game()
 	settingsAudioText_(myriadRegularFont_), settingsColorText_(myriadRegularFont_), pauseTitle_(myriadBoldFont_),
 	pieceMoveSound_(pieceMoveBuffer_), captureSound_(captureBuffer_), buttonClickSound_(buttonClickBuffer_),
 	gameStartSound_(gameStartBuffer_), gameEndSound_(gameEndBuffer_), castleSound_(castleBuffer_),
-	isDone_(false)
+	isDone_(false), selectedPiecePosition_(File::A, Rank::One)
 {
 	restartClock();
 	srand(static_cast<unsigned int>(time(NULL)));
@@ -340,7 +341,7 @@ bool Game::playingGameState(sf::Vector2i actualMousePosition, std::optional<sf::
     int fileIndex {std::clamp(actualMousePosition.x / SQUARE_SIZE, static_cast<int>(toIndex(File::A)), static_cast<int>(toIndex(File::H)))};
     int rankIndex {std::clamp(actualMousePosition.y / SQUARE_SIZE, static_cast<int>(toIndex(Rank::One)), static_cast<int>(toIndex(Rank::Eight)))};
 	Position mousePosition {static_cast<File>(fileIndex), static_cast<Rank>(rankIndex)};
-	static Position selectedPiecePosition {File::A, Rank::One};
+	// static Position selectedPiecePosition {File::A, Rank::One};
 
 	// auto& mousePosPiece {board_[mousePosition]};
 	// auto& selectedPiece {board_[selectedPiecePosition]};
@@ -372,14 +373,15 @@ bool Game::playingGameState(sf::Vector2i actualMousePosition, std::optional<sf::
 		displayMoves();
 		pieceSelected_ = true;
 		lockClick_ = true;
-		selectedPiecePosition = mousePosition;
+		selectedPiecePosition_ = mousePosition;
 	}
 
 
 	if (pieceSelected_ && leftButtonClicked)
 	{
+	    // auto& selectedPiece {board_[selectedPiecePosition]};
 	    // Checks if the new tile selected is the same team as the piece that is trying to move
-		if (board_[mousePosition] && board_[mousePosition]->getTeam() == board_[selectedPiecePosition]->getTeam())
+		if (board_[mousePosition] && board_[mousePosition]->getTeam() == board_[selectedPiecePosition_]->getTeam())
 		{
 			// Clear moves
 			moveCircles_.clear();
@@ -394,7 +396,7 @@ bool Game::playingGameState(sf::Vector2i actualMousePosition, std::optional<sf::
 			displayMoves();
 			pieceSelected_ = true;
 			lockClick_ = true;
-			selectedPiecePosition = mousePosition;
+			selectedPiecePosition_ = mousePosition;
 			return false;
 		}
 
@@ -402,7 +404,7 @@ bool Game::playingGameState(sf::Vector2i actualMousePosition, std::optional<sf::
 		{
 			if (mousePosition == move.position) // Checks if move is a possible move
 			{
-				if (willBeInCheck(selectedPiecePosition, mousePosition, board_[selectedPiecePosition]->getTeam()))// create a fake board where piece is here and check for check  //getKing(Team::BLACK))
+				if (willBeInCheck(selectedPiecePosition_, mousePosition, board_[selectedPiecePosition_]->getTeam()))// create a fake board where piece is here and check for check  //getKing(Team::BLACK))
 				{
 					continue;
 				}
@@ -431,21 +433,21 @@ bool Game::playingGameState(sf::Vector2i actualMousePosition, std::optional<sf::
 				}
 
 				// Changes pawn into queen if it reaches the end
-				if (board_[selectedPiecePosition]->getPieceType() == PieceType::Pawn &&
-					board_[selectedPiecePosition]->getTeam() == Team::White && mousePosition.rank == Rank::One)
+				if (board_[selectedPiecePosition_]->getPieceType() == PieceType::Pawn &&
+					board_[selectedPiecePosition_]->getTeam() == Team::White && mousePosition.rank == Rank::One)
 				{
 					board_[mousePosition] = std::make_unique<SlidingPiece>(Team::White, mousePosition, PieceType::Queen);
-					board_[selectedPiecePosition].reset();
+					board_[selectedPiecePosition_].reset();
 				}
-				else if (board_[selectedPiecePosition]->getPieceType() == PieceType::Pawn &&
-					board_[selectedPiecePosition]->getTeam() == Team::Black && mousePosition.rank == Rank::Eight)
+				else if (board_[selectedPiecePosition_]->getPieceType() == PieceType::Pawn &&
+					board_[selectedPiecePosition_]->getTeam() == Team::Black && mousePosition.rank == Rank::Eight)
 				{
 					board_[mousePosition] = std::make_unique<SlidingPiece>(Team::Black, mousePosition, PieceType::Queen);
-					board_[selectedPiecePosition].reset();
+					board_[selectedPiecePosition_].reset();
 				}
 				else
 				{
-					board_[mousePosition] = std::move(board_[selectedPiecePosition]);
+					board_[mousePosition] = std::move(board_[selectedPiecePosition_]);
 				}
 
 				// Movement of rook for castling

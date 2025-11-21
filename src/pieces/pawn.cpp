@@ -37,7 +37,7 @@ std::vector<Move> Pawn::calculateMoves(const Board& board, Move previousMove) co
     for (int offset : {-1, 1})
     {
         File adjacentFile {position_.file + offset};
-        if (isValid(adjacentFile)) continue;
+        if (!isValid(adjacentFile)) continue;
 
         Position diagonalPosition {adjacentFile, position_.rank + direction};
         if (board[diagonalPosition] && board[diagonalPosition]->getTeam() != team_)
