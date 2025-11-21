@@ -9,7 +9,6 @@
 #include <algorithm>
 #include <iostream>
 #include <memory>
-#include <stdexcept>
 
 Game::Game()
 	:pieceSelected_(false), previousMove_{MoveType::None, {File::A, Rank::One}},
