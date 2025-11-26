@@ -4,8 +4,8 @@
 #include "piece_info.hpp"
 
 #include <initializer_list>
-#include <vector>
 #include <memory>
+#include <vector>
 
 class King : public Piece
 {
@@ -15,5 +15,6 @@ public:
 	std::vector<Move> calculateMoves(const Board& board, Move previousMove) const override;
 	std::unique_ptr<Piece> clone() const override;
 
-	bool checkCastle(Position position, const Board& board, std::initializer_list<File> emptySpaces) const;
+	bool checkCastle(Position position, const Board& board,
+					 std::initializer_list<File> emptySpaces) const;
 };

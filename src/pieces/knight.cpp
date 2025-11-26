@@ -3,28 +3,19 @@
 #include "pieces/piece_info.hpp"
 
 #include <array>
-#include <vector>
 #include <memory>
+#include <vector>
 
 namespace
 {
-    using Direction = std::pair<int, int>;
+	using Direction = std::pair<int, int>;
 
-    constexpr std::array<Direction, 8> TARGETS {
-		{{-2, -1},
-    	{-2, 1},
-    	{2, -1},
-    	{2, 1},
-    	{-1, -2},
-    	{-1, 2},
-    	{1, -2},
-    	{1, 2}}
+	constexpr std::array<Direction, 8> TARGETS {
+		{{-2, -1}, {-2, 1}, {2, -1}, {2, 1}, {-1, -2}, {-1, 2}, {1, -2}, {1, 2}}
 	};
 }
 
-Knight::Knight(Team team, Position position)
-	:Piece(team, PieceType::Knight, position)
-{}
+Knight::Knight(Team team, Position position): Piece(team, PieceType::Knight, position) {}
 
 std::vector<Move> Knight::calculateMoves(const Board& board, Move previousMove) const
 {
@@ -40,11 +31,15 @@ std::vector<Move> Knight::calculateMoves(const Board& board, Move previousMove) 
 		}
 		else if (!board[tempPosition])
 		{
-			possibleMoves.push_back({MoveType::Normal, {tempPosition.file, tempPosition.rank}});
+			possibleMoves.push_back({
+				MoveType::Normal, {tempPosition.file, tempPosition.rank}
+			});
 		}
 		else if (board[tempPosition]->getTeam() != team_)
 		{
-			possibleMoves.push_back({MoveType::Capture, {tempPosition.file, tempPosition.rank}});
+			possibleMoves.push_back({
+				MoveType::Capture, {tempPosition.file, tempPosition.rank}
+			 });
 		}
 	}
 
@@ -53,5 +48,5 @@ std::vector<Move> Knight::calculateMoves(const Board& board, Move previousMove) 
 
 std::unique_ptr<Piece> Knight::clone() const
 {
-    return std::make_unique<Knight>(*this);
+	return std::make_unique<Knight>(*this);
 }

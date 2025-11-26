@@ -1,31 +1,22 @@
 #include "pieces/king.hpp"
-#include "pieces/piece_info.hpp"
 #include "pieces/chess_piece.hpp"
+#include "pieces/piece_info.hpp"
 
-#include <initializer_list>
 #include <algorithm>
+#include <initializer_list>
 #include <memory>
 #include <vector>
 
 namespace
 {
-    using Direction = std::pair<int, int>;
+	using Direction = std::pair<int, int>;
 
-    constexpr std::array<Direction, 8> DIRECTIONS {
-		{{-1, -1},
-		{-1, 0},
-		{-1, 1},
-		{0, 1},
-		{0, -1},
-		{1, -1},
-		{1, 0},
-		{1, 1}}
-	};
+	constexpr std::array<Direction, 8> DIRECTIONS {
+		{{-1, -1}, {-1, 0}, {-1, 1}, {0, 1}, {0, -1}, {1, -1}, {1, 0}, {1, 1}}
+	  };
 }
 
-King::King(Team team, Position position)
-	:Piece(team, PieceType::King, position)
-{}
+King::King(Team team, Position position): Piece(team, PieceType::King, position) {}
 
 std::vector<Move> King::calculateMoves(const Board& board, Move previousMove) const
 {
@@ -52,32 +43,39 @@ std::vector<Move> King::calculateMoves(const Board& board, Move previousMove) co
 	Rank rank = (team_ == Team::Black) ? Rank::One : Rank::Eight;
 	if (firstMove_)
 	{
-	    if (checkCastle({File::A, rank}, board, {File::B, File::C, File::D}))
+		if (checkCastle({File::A, rank}, board, {File::B, File::C, File::D}))
 		{
-		    possibleMoves.push_back({MoveType::Castle, {File::C, rank}});
+			possibleMoves.push_back({
+				MoveType::Castle, {File::C, rank}
+			 });
 		}
 
 		if (checkCastle({File::H, rank}, board, {File::F, File::G}))
 		{
-		    possibleMoves.push_back({MoveType::Castle, {File::G, rank}});
+			possibleMoves.push_back({
+				MoveType::Castle, {File::G, rank}
+			 });
 		}
 	}
 
 	return possibleMoves;
 }
 
-bool King::checkCastle(Position position, const Board& board, std::initializer_list<File> emptySpaces) const
+bool King::checkCastle(Position position, const Board& board,
+					   std::initializer_list<File> emptySpaces) const
 {
-    const Piece* rook = board[position].get();
-    if (!rook || rook->getPieceType() != PieceType::Rook || rook->getTeam() != team_ || !rook->getFirstMove())
-    {
-        return false;
-    }
+	const Piece* rook = board[position].get();
+	if (!rook || rook->getPieceType() != PieceType::Rook || rook->getTeam() != team_ ||
+		!rook->getFirstMove())
+	{
+		return false;
+	}
 
-    return std::all_of(emptySpaces.begin(), emptySpaces.end(), [&](File file) { return board[position] == nullptr; });
+	return std::all_of(emptySpaces.begin(), emptySpaces.end(),
+					   [&](File file) { return board[position] == nullptr; });
 }
 
 std::unique_ptr<Piece> King::clone() const
 {
-    return std::make_unique<King>(*this);
+	return std::make_unique<King>(*this);
 }

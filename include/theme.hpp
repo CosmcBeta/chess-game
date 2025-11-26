@@ -6,7 +6,7 @@ enum class ThemeSet
 {
 	Brown,
 	Green,
-    Blue
+	Blue
 };
 
 class Theme
@@ -14,15 +14,15 @@ class Theme
 public:
 	Theme();
 
-    void setTheme(ThemeSet p_theme);
+	void setTheme(ThemeSet p_theme);
 
 	sf::Color darkMain;
 	sf::Color lightMain;
 	sf::Color alternate;
-    sf::Color moveCircle;
+	sf::Color moveCircle;
 
 private:
 	sf::Color darkBrown_, lightBrown_, altBrown_;
 	sf::Color darkGreen_, lightGreen_, altGreen_;
-    sf::Color darkBlue_, lightBlue_, altBlue_;
+	sf::Color darkBlue_, lightBlue_, altBlue_;
 };

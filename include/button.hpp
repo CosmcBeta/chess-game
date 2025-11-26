@@ -19,14 +19,14 @@ class Button : public sf::Drawable
 {
 public:
 	Button();
-	Button(const sf::String& string, FontType font, unsigned int characterSize, sf::Vector2f position);
+	Button(const sf::String& string, FontType font, unsigned int characterSize,
+		   sf::Vector2f position);
 
 	void update(sf::Vector2i mousePosition);
 	bool getMouseInText();
 	void setColor(sf::Color darkColor, sf::Color lightColor);
 
 private:
-
 	virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const;
 
 	sf::Text text_;

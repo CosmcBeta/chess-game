@@ -75,11 +75,13 @@ public:
 	void settingsState(sf::Vector2i mousePosition, bool leftButtonClicked);
 	void gameOverState(sf::Vector2i mousePosition, bool leftButtonClicked);
 
-	bool playingGameState(sf::Vector2i actualMousePosition, std::optional<sf::Event> event, bool leftButtonClicked);
+	bool playingGameState(sf::Vector2i actualMousePosition, std::optional<sf::Event> event,
+						  bool leftButtonClicked);
 
 	void updateTheme();
 	void setAudio(bool audioOn);
-	void pauseState(sf::Vector2i mousePosition, bool leftButtonClicked, std::optional<sf::Event> event);
+	void pauseState(sf::Vector2i mousePosition, bool leftButtonClicked,
+					std::optional<sf::Event> event);
 
 	void loadFont(sf::Font& font, const std::string& path);
 	void loadAudio(sf::SoundBuffer& buffer, const std::string& path);
@@ -114,14 +116,17 @@ private:
 	GameOutcome gameOutcome_;
 
 	// Textures and shapes
-	sf::Texture whitePawnTexture_, whiteRookTexture_, whiteBishopTexture_, whiteKnightTexture_, whiteQueenTexture_, whiteKingTexture_;
-	sf::Texture blackPawnTexture_, blackRookTexture_, blackBishopTexture_, blackKnightTexture_, blackQueenTexture_, blackKingTexture_;
+	sf::Texture whitePawnTexture_, whiteRookTexture_, whiteBishopTexture_, whiteKnightTexture_,
+		whiteQueenTexture_, whiteKingTexture_;
+	sf::Texture blackPawnTexture_, blackRookTexture_, blackBishopTexture_, blackKnightTexture_,
+		blackQueenTexture_, blackKingTexture_;
 	sf::RectangleShape background_, gameOverBackground_;
 
 	// Texts, buttons, and fonts
 	sf::Font myriadBoldFont_, myriadRegularFont_, myriadSemiboldFont_;
 	sf::Text titleText_, settingsTitleText_, gameOverTitleText_, winnerText_;
-	Button startButton_, settingsButton_, exitButton_, settingsBackButton_, playAgainButton_, mainMenuButton_;
+	Button startButton_, settingsButton_, exitButton_, settingsBackButton_, playAgainButton_,
+		mainMenuButton_;
 
 	// Colors
 	Theme theme_;
@@ -129,14 +134,18 @@ private:
 	Move previousMove_;
 
 	sf::Text settingsColorText_, settingsAudioText_;
-	Button settingsColorChoiceBrown_, settingsColorChoiceGreen_, settingsAudioChoiceYes_, settingsAudioChoiceNo_;
+	Button settingsColorChoiceBrown_, settingsColorChoiceGreen_, settingsAudioChoiceYes_,
+		settingsAudioChoiceNo_;
 	Button settingsColorChoiceBlue_;
 
-	sf::SoundBuffer pieceMoveBuffer_, captureBuffer_, gameStartBuffer_, gameEndBuffer_, castleBuffer_, buttonClickBuffer_;
-	sf::Sound pieceMoveSound_, captureSound_, gameStartSound_, gameEndSound_, castleSound_, buttonClickSound_;
+	sf::SoundBuffer pieceMoveBuffer_, captureBuffer_, gameStartBuffer_, gameEndBuffer_,
+		castleBuffer_, buttonClickBuffer_;
+	sf::Sound pieceMoveSound_, captureSound_, gameStartSound_, gameEndSound_, castleSound_,
+		buttonClickSound_;
 
 	sf::Text pauseTitle_;
-	Button pauseDrawButton_, pauseWhiteForfeitButton_, pauseBlackForfeitButton_, pauseMenuButton_, pauseQuitButton_, returnToGame_;
+	Button pauseDrawButton_, pauseWhiteForfeitButton_, pauseBlackForfeitButton_, pauseMenuButton_,
+		pauseQuitButton_, returnToGame_;
 	sf::RectangleShape pauseBackground_;
 
 	sf::RenderWindow window_;

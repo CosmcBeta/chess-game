@@ -1,48 +1,51 @@
 #include "game.hpp"
 #include "pieces/chess_piece.hpp"
-#include "pieces/piece_info.hpp"
-#include "pieces/sliding_piece.hpp"
+#include "pieces/king.hpp"
 #include "pieces/knight.hpp"
 #include "pieces/pawn.hpp"
-#include "pieces/king.hpp"
+#include "pieces/piece_info.hpp"
+#include "pieces/sliding_piece.hpp"
 
 #include <algorithm>
 #include <iostream>
 #include <memory>
 
 Game::Game()
-	:pieceSelected_(false), previousMove_{MoveType::None, {File::A, Rank::One}},
-	blackKingInCheck_(false), whiteKingInCheck_(false), pieceMoved_(false),
-	buttonPressed_(false), lockClick_(false), playAgain_(false),
-	startButton_("Play", FontType::Regular, 60, {320, 320}),
-	settingsButton_("Settings", FontType::Regular, 60, {320, 400}),
-	exitButton_("Exit", FontType::Regular, 60, {320, 480}),
-	settingsBackButton_("Main Menu", FontType::Regular, 40, {320, 600}),
-	playAgainButton_("Play Again", FontType::Regular, 35, {200, 400}),
-	mainMenuButton_("Main Menu", FontType::Regular, 35, {420, 400}),
-	settingsColorChoiceBrown_("Brown", FontType::Regular, 35, {280, 290}),
-	settingsColorChoiceBlue_("Blue", FontType::Regular, 35, {500, 290}),
-	settingsColorChoiceGreen_("Green", FontType::Regular, 35, {400, 290}),
-	settingsAudioChoiceYes_("Yes", FontType::Regular, 35, {280, 420}),
-	settingsAudioChoiceNo_("No", FontType::Regular, 35, {420, 420}),
-	pauseDrawButton_("Draw Game", FontType::Regular, 35, {210, 360}),
-	pauseWhiteForfeitButton_("White Forfeit", FontType::Regular, 35, {440, 290}),
-	pauseBlackForfeitButton_("Black Forfeit", FontType::Regular, 35, {210, 290}),
-	pauseQuitButton_("Quit Game", FontType::Regular, 35, {440, 420}),
-	pauseMenuButton_("Main Menu", FontType::Regular, 35, {440, 360}),
-	returnToGame_("Resume", FontType::Regular, 35, {210, 420}),
-	titleText_(myriadBoldFont_), settingsTitleText_(myriadBoldFont_), gameOverTitleText_(myriadBoldFont_), winnerText_(myriadSemiboldFont_),
-	settingsAudioText_(myriadRegularFont_), settingsColorText_(myriadRegularFont_), pauseTitle_(myriadBoldFont_),
-	pieceMoveSound_(pieceMoveBuffer_), captureSound_(captureBuffer_), buttonClickSound_(buttonClickBuffer_),
-	gameStartSound_(gameStartBuffer_), gameEndSound_(gameEndBuffer_), castleSound_(castleBuffer_),
-	isDone_(false), selectedPiecePosition_(File::A, Rank::One)
+: pieceSelected_(false),
+  previousMove_ {
+	  MoveType::None, {File::A, Rank::One}
+},
+  blackKingInCheck_(false), whiteKingInCheck_(false), pieceMoved_(false), buttonPressed_(false),
+  lockClick_(false), playAgain_(false), startButton_("Play", FontType::Regular, 60, {320, 320}),
+  settingsButton_("Settings", FontType::Regular, 60, {320, 400}),
+  exitButton_("Exit", FontType::Regular, 60, {320, 480}),
+  settingsBackButton_("Main Menu", FontType::Regular, 40, {320, 600}),
+  playAgainButton_("Play Again", FontType::Regular, 35, {200, 400}),
+  mainMenuButton_("Main Menu", FontType::Regular, 35, {420, 400}),
+  settingsColorChoiceBrown_("Brown", FontType::Regular, 35, {280, 290}),
+  settingsColorChoiceBlue_("Blue", FontType::Regular, 35, {500, 290}),
+  settingsColorChoiceGreen_("Green", FontType::Regular, 35, {400, 290}),
+  settingsAudioChoiceYes_("Yes", FontType::Regular, 35, {280, 420}),
+  settingsAudioChoiceNo_("No", FontType::Regular, 35, {420, 420}),
+  pauseDrawButton_("Draw Game", FontType::Regular, 35, {210, 360}),
+  pauseWhiteForfeitButton_("White Forfeit", FontType::Regular, 35, {440, 290}),
+  pauseBlackForfeitButton_("Black Forfeit", FontType::Regular, 35, {210, 290}),
+  pauseQuitButton_("Quit Game", FontType::Regular, 35, {440, 420}),
+  pauseMenuButton_("Main Menu", FontType::Regular, 35, {440, 360}),
+  returnToGame_("Resume", FontType::Regular, 35, {210, 420}), titleText_(myriadBoldFont_),
+  settingsTitleText_(myriadBoldFont_), gameOverTitleText_(myriadBoldFont_),
+  winnerText_(myriadSemiboldFont_), settingsAudioText_(myriadRegularFont_),
+  settingsColorText_(myriadRegularFont_), pauseTitle_(myriadBoldFont_),
+  pieceMoveSound_(pieceMoveBuffer_), captureSound_(captureBuffer_),
+  buttonClickSound_(buttonClickBuffer_), gameStartSound_(gameStartBuffer_),
+  gameEndSound_(gameEndBuffer_), castleSound_(castleBuffer_), isDone_(false),
+  selectedPiecePosition_(File::A, Rank::One)
 {
 	restartClock();
 	srand(static_cast<unsigned int>(time(NULL)));
 
 	window_.create(sf::VideoMode({640, 640}), "Chess", sf::Style::Default);
 	window_.setFramerateLimit(60);
-
 
 	loadResources();
 	createTexts();
@@ -61,8 +64,15 @@ bool Game::getIsDone()
 	return isDone_;
 }
 
-sf::Time Game::getElapsed() { return elapsed_; }
-void Game::restartClock() { elapsed_ = clock_.restart(); }
+sf::Time Game::getElapsed()
+{
+	return elapsed_;
+}
+
+void Game::restartClock()
+{
+	elapsed_ = clock_.restart();
+}
 
 // Changes gamestates
 void Game::changeGamestate(State newState)
@@ -81,17 +91,10 @@ void Game::changeGamestate(State newState)
 		gameEndSound_.play();
 		switch (gameOutcome_)
 		{
-		case GameOutcome::WhiteWins:
-			winnerText_.setString("White Wins");
-			break;
-		case GameOutcome::BlackWins:
-			winnerText_.setString("Black Wins");
-			break;
-		case GameOutcome::Stalemate:
-			winnerText_.setString("Stalemate");
-			break;
-		default:
-			break;
+		case GameOutcome::WhiteWins: winnerText_.setString("White Wins"); break;
+		case GameOutcome::BlackWins: winnerText_.setString("Black Wins"); break;
+		case GameOutcome::Stalemate: winnerText_.setString("Stalemate"); break;
+		default					   : break;
 		}
 	}
 }
@@ -104,28 +107,19 @@ void Game::handleInput()
 	bool leftButtonClicked {false};
 	if (auto mouse = event->getIf<sf::Event::MouseButtonPressed>())
 	{
-    	leftButtonClicked = (mouse->button == sf::Mouse::Button::Left && !lockClick_);
+		leftButtonClicked = (mouse->button == sf::Mouse::Button::Left && !lockClick_);
 	}
 
 	switch (gameState_)
 	{
-		case State::Menu:
-			menuState(mousePos, leftButtonClicked);
-			break;
-		case State::Settings:
-			settingsState(mousePos, leftButtonClicked);
-			break;
-		case State::PlayingGame:
-			if (!playingGameState(mousePos, event, leftButtonClicked)) return;
-			break;
-		case State::GameOver:
-			gameOverState(mousePos, leftButtonClicked);
-			break;
-		case State::Pause:
-			pauseState(mousePos, leftButtonClicked, event);
-			break;
-		default:
-			break;
+	case State::Menu	: menuState(mousePos, leftButtonClicked); break;
+	case State::Settings: settingsState(mousePos, leftButtonClicked); break;
+	case State::PlayingGame:
+		if (!playingGameState(mousePos, event, leftButtonClicked)) return;
+		break;
+	case State::GameOver: gameOverState(mousePos, leftButtonClicked); break;
+	case State::Pause	: pauseState(mousePos, leftButtonClicked, event); break;
+	default				: break;
 	}
 
 	if (auto mouse = event->getIf<sf::Event::MouseButtonReleased>())
@@ -269,8 +263,10 @@ void Game::setAudio(bool audioOn)
 	}
 }
 
-// pauseDrawButton, pauseWhiteForfeitButton, pauseBlackForfeitButton, pauseMenuButton, pauseQuitButton
-void Game::pauseState(sf::Vector2i mousePosition, bool leftButtonClicked, std::optional<sf::Event> event)
+// pauseDrawButton, pauseWhiteForfeitButton, pauseBlackForfeitButton, pauseMenuButton,
+// pauseQuitButton
+void Game::pauseState(sf::Vector2i mousePosition, bool leftButtonClicked,
+					  std::optional<sf::Event> event)
 {
 	pauseDrawButton_.update(mousePosition);
 	pauseWhiteForfeitButton_.update(mousePosition);
@@ -334,11 +330,15 @@ void Game::pauseState(sf::Vector2i mousePosition, bool leftButtonClicked, std::o
 	}
 }
 
-
-bool Game::playingGameState(sf::Vector2i actualMousePosition, std::optional<sf::Event> event, bool leftButtonClicked)
+bool Game::playingGameState(sf::Vector2i actualMousePosition, std::optional<sf::Event> event,
+							bool leftButtonClicked)
 {
-    int fileIndex {std::clamp(actualMousePosition.x / SQUARE_SIZE, static_cast<int>(toIndex(File::A)), static_cast<int>(toIndex(File::H)))};
-    int rankIndex {std::clamp(actualMousePosition.y / SQUARE_SIZE, static_cast<int>(toIndex(Rank::One)), static_cast<int>(toIndex(Rank::Eight)))};
+	int fileIndex {std::clamp(actualMousePosition.x / SQUARE_SIZE,
+							  static_cast<int>(toIndex(File::A)),
+							  static_cast<int>(toIndex(File::H)))};
+	int rankIndex {std::clamp(actualMousePosition.y / SQUARE_SIZE,
+							  static_cast<int>(toIndex(Rank::One)),
+							  static_cast<int>(toIndex(Rank::Eight)))};
 	Position mousePosition {static_cast<File>(fileIndex), static_cast<Rank>(rankIndex)};
 	// static Position selectedPiecePosition {File::A, Rank::One};
 
@@ -355,7 +355,8 @@ bool Game::playingGameState(sf::Vector2i actualMousePosition, std::optional<sf::
 	}
 
 	// Piece is not selected
-	if (!pieceSelected_ && leftButtonClicked && board_[mousePosition] && board_[mousePosition]->getTeam() == playerTurn_)
+	if (!pieceSelected_ && leftButtonClicked && board_[mousePosition] &&
+		board_[mousePosition]->getTeam() == playerTurn_)
 	{
 		// Clicks a spot where your teams piece isn't
 		// if (!board_[mousePosition] || board_[mousePosition]->getTeam() != playerTurn_)
@@ -375,12 +376,12 @@ bool Game::playingGameState(sf::Vector2i actualMousePosition, std::optional<sf::
 		selectedPiecePosition_ = mousePosition;
 	}
 
-
 	if (pieceSelected_ && leftButtonClicked)
 	{
-	    // auto& selectedPiece {board_[selectedPiecePosition]};
-	    // Checks if the new tile selected is the same team as the piece that is trying to move
-		if (board_[mousePosition] && board_[mousePosition]->getTeam() == board_[selectedPiecePosition_]->getTeam())
+		// auto& selectedPiece {board_[selectedPiecePosition]};
+		// Checks if the new tile selected is the same team as the piece that is trying to move
+		if (board_[mousePosition] &&
+			board_[mousePosition]->getTeam() == board_[selectedPiecePosition_]->getTeam())
 		{
 			// Clear moves
 			moveCircles_.clear();
@@ -403,12 +404,16 @@ bool Game::playingGameState(sf::Vector2i actualMousePosition, std::optional<sf::
 		{
 			if (mousePosition == move.position) // Checks if move is a possible move
 			{
-				if (willBeInCheck(selectedPiecePosition_, mousePosition, board_[selectedPiecePosition_]->getTeam()))// create a fake board where piece is here and check for check  //getKing(Team::BLACK))
+				if (willBeInCheck(selectedPiecePosition_, mousePosition,
+								  board_[selectedPiecePosition_]
+									  ->getTeam())) // create a fake board where piece is here and
+													// check for check  //getKing(Team::BLACK))
 				{
 					continue;
 				}
 
-				// Sets the current move type to capture if the place the piece is moving to has a piece already there
+				// Sets the current move type to capture if the place the piece is moving to has a
+				// piece already there
 				if (board_[mousePosition])
 				{
 					move.moveType = MoveType::Capture;
@@ -433,15 +438,19 @@ bool Game::playingGameState(sf::Vector2i actualMousePosition, std::optional<sf::
 
 				// Changes pawn into queen if it reaches the end
 				if (board_[selectedPiecePosition_]->getPieceType() == PieceType::Pawn &&
-					board_[selectedPiecePosition_]->getTeam() == Team::White && mousePosition.rank == Rank::One)
+					board_[selectedPiecePosition_]->getTeam() == Team::White &&
+					mousePosition.rank == Rank::One)
 				{
-					board_[mousePosition] = std::make_unique<SlidingPiece>(Team::White, mousePosition, PieceType::Queen);
+					board_[mousePosition] = std::make_unique<SlidingPiece>(
+						Team::White, mousePosition, PieceType::Queen);
 					board_[selectedPiecePosition_].reset();
 				}
 				else if (board_[selectedPiecePosition_]->getPieceType() == PieceType::Pawn &&
-					board_[selectedPiecePosition_]->getTeam() == Team::Black && mousePosition.rank == Rank::Eight)
+						 board_[selectedPiecePosition_]->getTeam() == Team::Black &&
+						 mousePosition.rank == Rank::Eight)
 				{
-					board_[mousePosition] = std::make_unique<SlidingPiece>(Team::Black, mousePosition, PieceType::Queen);
+					board_[mousePosition] = std::make_unique<SlidingPiece>(
+						Team::Black, mousePosition, PieceType::Queen);
 					board_[selectedPiecePosition_].reset();
 				}
 				else
@@ -452,19 +461,19 @@ bool Game::playingGameState(sf::Vector2i actualMousePosition, std::optional<sf::
 				// Movement of rook for castling
 				if (move.moveType == MoveType::Castle)
 				{
-					if (move.position == Position{File::C, Rank::One})
+					if (move.position == Position {File::C, Rank::One})
 					{
 						board_[{File::D, Rank::One}] = std::move(board_[{File::A, Rank::One}]);
 					}
-					if (move.position == Position{File::G, Rank::One})
+					if (move.position == Position {File::G, Rank::One})
 					{
 						board_[{File::F, Rank::One}] = std::move(board_[{File::H, Rank::One}]);
 					}
-					if (move.position == Position{File::C, Rank::Eight})
+					if (move.position == Position {File::C, Rank::Eight})
 					{
 						board_[{File::D, Rank::Eight}] = std::move(board_[{File::A, Rank::Eight}]);
 					}
-					if (move.position == Position{File::G, Rank::Eight})
+					if (move.position == Position {File::G, Rank::Eight})
 					{
 						board_[{File::F, Rank::Eight}] = std::move(board_[{File::H, Rank::Eight}]);
 					}
@@ -548,43 +557,50 @@ void Game::createTexts()
 	titleText_ = sf::Text(myriadBoldFont_, "Chess", 185);
 	titleText_.setFillColor(theme_.darkMain);
 	textBounds = titleText_.getLocalBounds();
-	titleText_.setOrigin({textBounds.position.x + textBounds.size.x / 2.f, textBounds.position.y + textBounds.size.y / 2.f});
+	titleText_.setOrigin({textBounds.position.x + textBounds.size.x / 2.f,
+						  textBounds.position.y + textBounds.size.y / 2.f});
 	titleText_.setPosition({320, 160});
 
 	settingsTitleText_ = sf::Text(myriadBoldFont_, "Settings", 135);
 	settingsTitleText_.setFillColor(theme_.darkMain);
 	textBounds = settingsTitleText_.getLocalBounds();
-	settingsTitleText_.setOrigin({textBounds.position.x + textBounds.size.x / 2.f, textBounds.position.y + textBounds.size.y / 2.f});
+	settingsTitleText_.setOrigin({textBounds.position.x + textBounds.size.x / 2.f,
+								  textBounds.position.y + textBounds.size.y / 2.f});
 	settingsTitleText_.setPosition({320, 120});
 
 	gameOverTitleText_ = sf::Text(myriadBoldFont_, "Game Over", 80);
 	gameOverTitleText_.setFillColor(theme_.darkMain);
 	textBounds = gameOverTitleText_.getLocalBounds();
-	gameOverTitleText_.setOrigin({textBounds.position.x + textBounds.size.x / 2.f, textBounds.position.y + textBounds.size.y / 2.f});
+	gameOverTitleText_.setOrigin({textBounds.position.x + textBounds.size.x / 2.f,
+								  textBounds.position.y + textBounds.size.y / 2.f});
 	gameOverTitleText_.setPosition({320, 235});
 
 	winnerText_ = sf::Text(myriadSemiboldFont_, "Stalemate", 45);
 	winnerText_.setFillColor(theme_.darkMain);
 	textBounds = winnerText_.getLocalBounds();
-	winnerText_.setOrigin({textBounds.position.x + textBounds.size.x / 2.f, textBounds.position.y + textBounds.size.y / 2.f});
+	winnerText_.setOrigin({textBounds.position.x + textBounds.size.x / 2.f,
+						   textBounds.position.y + textBounds.size.y / 2.f});
 	winnerText_.setPosition({320, 290});
 
 	settingsColorText_ = sf::Text(myriadRegularFont_, "Color:", 50);
 	settingsColorText_.setFillColor(theme_.darkMain);
 	textBounds = settingsColorText_.getLocalBounds();
-	settingsColorText_.setOrigin({textBounds.position.x + textBounds.size.x / 2.f, textBounds.position.y + textBounds.size.y / 2.f});
+	settingsColorText_.setOrigin({textBounds.position.x + textBounds.size.x / 2.f,
+								  textBounds.position.y + textBounds.size.y / 2.f});
 	settingsColorText_.setPosition({120, 290});
 
 	settingsAudioText_ = sf::Text(myriadRegularFont_, "Audio:", 50);
 	settingsAudioText_.setFillColor(theme_.darkMain);
 	textBounds = settingsAudioText_.getLocalBounds();
-	settingsAudioText_.setOrigin({textBounds.position.x + textBounds.size.x / 2.f, textBounds.position.y + textBounds.size.y / 2.f});
+	settingsAudioText_.setOrigin({textBounds.position.x + textBounds.size.x / 2.f,
+								  textBounds.position.y + textBounds.size.y / 2.f});
 	settingsAudioText_.setPosition({120, 420});
 
 	pauseTitle_ = sf::Text(myriadBoldFont_, "Pause Menu", 80);
 	pauseTitle_.setFillColor(theme_.darkMain);
 	textBounds = pauseTitle_.getLocalBounds();
-	pauseTitle_.setOrigin({textBounds.position.x + textBounds.size.x / 2.f, textBounds.position.y + textBounds.size.y / 2.f});
+	pauseTitle_.setOrigin({textBounds.position.x + textBounds.size.x / 2.f,
+						   textBounds.position.y + textBounds.size.y / 2.f});
 	pauseTitle_.setPosition({320, 210});
 }
 
@@ -638,7 +654,9 @@ void Game::displayMoves()
 		// Create circle for each point and adds them to an array
 		sf::CircleShape tempCircle(circleRadius_);
 		tempCircle.setFillColor(theme_.moveCircle);
-		tempCircle.setPosition(sf::Vector2f(toIndex(i.position.file) * SQUARE_SIZE + circleRadius_, toIndex(i.position.rank) * SQUARE_SIZE + circleRadius_));
+		tempCircle.setPosition(
+			sf::Vector2f(toIndex(i.position.file) * SQUARE_SIZE + circleRadius_,
+						 toIndex(i.position.rank) * SQUARE_SIZE + circleRadius_));
 		moveCircles_.push_back(tempCircle);
 	}
 }
@@ -658,7 +676,7 @@ void Game::update()
 	{
 		for (Rank rank = Rank::One; rank <= Rank::Eight; rank += 1)
 		{
-		    Position position {file, rank};
+			Position position {file, rank};
 			if (!board_[position])
 			{
 				continue;
@@ -793,7 +811,7 @@ bool Game::isInCheck(Position kingPosition, Team kingTeam)
 
 			for (const Move& move : pieceMoves)
 			{
-			    if (move.position == kingPosition)
+				if (move.position == kingPosition)
 				{
 					return true;
 				}
@@ -825,7 +843,7 @@ bool Game::willBeInCheck(Position oldPosition, Position newPosition, Team team)
 			{
 				if (kingPos == move.position)
 				{
-				    return true;
+					return true;
 				}
 			}
 		}
@@ -842,14 +860,14 @@ void Game::createPotentialBoard(Position oldPosition, Position newPosition, Team
 	{
 		for (Rank rank = Rank::One; rank <= Rank::Eight; rank += 1)
 		{
-		    Position position {file, rank};
+			Position position {file, rank};
 			if (board_[position])
 			{
-			    potentialBoard_[position] = board_[position]->clone();
+				potentialBoard_[position] = board_[position]->clone();
 			}
 			else
 			{
-                potentialBoard_[position] = nullptr;
+				potentialBoard_[position] = nullptr;
 			}
 		}
 	}
@@ -861,7 +879,7 @@ void Game::createPotentialBoard(Position oldPosition, Position newPosition, Team
 // Called at the end of a players turn
 void Game::endTurn(Position mousePosition)
 {
-	playerTurn_ = (playerTurn_ == Team::White) ? Team::Black: Team::White;
+	playerTurn_ = (playerTurn_ == Team::White) ? Team::Black : Team::White;
 
 	board_[mousePosition]->setFirstMove(false);
 
@@ -879,58 +897,57 @@ void Game::render()
 	// Playing game display
 	switch (gameState_)
 	{
-		case State::PlayingGame:
-			renderBoard();
+	case State::PlayingGame:
+		renderBoard();
 
-			if (moveCircles_.size() == 0)
-			{
-				break;
-			}
+		if (moveCircles_.size() == 0)
+		{
+			break;
+		}
 
-			for (sf::CircleShape i : moveCircles_)
-			{
-				window_.draw(i);
-			}
-			break;
-		case State::Menu:
-			window_.draw(background_);
-			window_.draw(titleText_);
-			window_.draw(startButton_);
-			window_.draw(settingsButton_);
-			window_.draw(exitButton_);
-			break;
-		case State::Settings:
-			window_.draw(background_);
-			window_.draw(settingsBackButton_);
-			window_.draw(settingsTitleText_);
-			window_.draw(settingsAudioText_);
-			window_.draw(settingsColorText_);
-			window_.draw(settingsAudioChoiceNo_);
-			window_.draw(settingsAudioChoiceYes_);
-			window_.draw(settingsColorChoiceBrown_);
-			window_.draw(settingsColorChoiceGreen_);
-			window_.draw(settingsColorChoiceBlue_);
-			break;
-		case State::GameOver:
-			renderBoard();
-			window_.draw(gameOverBackground_);
-			window_.draw(gameOverTitleText_);
-			window_.draw(winnerText_);
-			window_.draw(mainMenuButton_);
-			window_.draw(playAgainButton_);
-			break;
-		case State::Pause:
-			renderBoard();
-			window_.draw(pauseBackground_);
-			window_.draw(pauseTitle_);
-			window_.draw(pauseDrawButton_);
-			window_.draw(pauseWhiteForfeitButton_);
-			window_.draw(pauseBlackForfeitButton_);
-			window_.draw(pauseMenuButton_);
-			window_.draw(pauseQuitButton_);
-			window_.draw(returnToGame_);
-		default:
-			break;
+		for (sf::CircleShape i : moveCircles_)
+		{
+			window_.draw(i);
+		}
+		break;
+	case State::Menu:
+		window_.draw(background_);
+		window_.draw(titleText_);
+		window_.draw(startButton_);
+		window_.draw(settingsButton_);
+		window_.draw(exitButton_);
+		break;
+	case State::Settings:
+		window_.draw(background_);
+		window_.draw(settingsBackButton_);
+		window_.draw(settingsTitleText_);
+		window_.draw(settingsAudioText_);
+		window_.draw(settingsColorText_);
+		window_.draw(settingsAudioChoiceNo_);
+		window_.draw(settingsAudioChoiceYes_);
+		window_.draw(settingsColorChoiceBrown_);
+		window_.draw(settingsColorChoiceGreen_);
+		window_.draw(settingsColorChoiceBlue_);
+		break;
+	case State::GameOver:
+		renderBoard();
+		window_.draw(gameOverBackground_);
+		window_.draw(gameOverTitleText_);
+		window_.draw(winnerText_);
+		window_.draw(mainMenuButton_);
+		window_.draw(playAgainButton_);
+		break;
+	case State::Pause:
+		renderBoard();
+		window_.draw(pauseBackground_);
+		window_.draw(pauseTitle_);
+		window_.draw(pauseDrawButton_);
+		window_.draw(pauseWhiteForfeitButton_);
+		window_.draw(pauseBlackForfeitButton_);
+		window_.draw(pauseMenuButton_);
+		window_.draw(pauseQuitButton_);
+		window_.draw(returnToGame_);
+	default: break;
 	}
 
 	window_.display(); // Display
@@ -955,27 +972,27 @@ void Game::renderBoard()
 			sf::Texture texture {};
 			switch (piece->getPieceType())
 			{
-    		    case PieceType::Pawn:
-                    texture = piece->getTeam() == Team::White ? whitePawnTexture_ : blackPawnTexture_;
-    				break;
-    			case PieceType::King:
-                    texture = piece->getTeam() == Team::White ? whiteKingTexture_ : blackKingTexture_;
-    			    break;
-    			case PieceType::Queen:
-                    texture = piece->getTeam() == Team::White ? whiteQueenTexture_ : blackQueenTexture_;
-    			    break;
-    			case PieceType::Bishop:
-                    texture = piece->getTeam() == Team::White ? whiteBishopTexture_ : blackBishopTexture_;
-    			    break;
-    			case PieceType::Rook:
-                    texture = piece->getTeam() == Team::White ? whiteRookTexture_ : blackRookTexture_;
-    				break;
-    			case PieceType::Knight:
-                    texture = piece->getTeam() == Team::White ? whiteKnightTexture_ : blackKnightTexture_;
-    			    break;
-    			default:
-                    texture = whitePawnTexture_;
-    			    break;
+			case PieceType::Pawn:
+				texture = piece->getTeam() == Team::White ? whitePawnTexture_ : blackPawnTexture_;
+				break;
+			case PieceType::King:
+				texture = piece->getTeam() == Team::White ? whiteKingTexture_ : blackKingTexture_;
+				break;
+			case PieceType::Queen:
+				texture = piece->getTeam() == Team::White ? whiteQueenTexture_ : blackQueenTexture_;
+				break;
+			case PieceType::Bishop:
+				texture =
+					piece->getTeam() == Team::White ? whiteBishopTexture_ : blackBishopTexture_;
+				break;
+			case PieceType::Rook:
+				texture = piece->getTeam() == Team::White ? whiteRookTexture_ : blackRookTexture_;
+				break;
+			case PieceType::Knight:
+				texture =
+					piece->getTeam() == Team::White ? whiteKnightTexture_ : blackKnightTexture_;
+				break;
+			default: texture = whitePawnTexture_; break;
 			}
 			sf::Sprite sprite(texture);
 			Position pos = piece->getPosition();
@@ -1008,7 +1025,8 @@ void Game::createBackground()
 			{
 				backgroundArray_[j] = darkRect;
 			}
-			backgroundArray_[j++].setPosition(sf::Vector2f(r * static_cast<float>(SQUARE_SIZE), c * static_cast<float>(SQUARE_SIZE)));
+			backgroundArray_[j++].setPosition(sf::Vector2f(r * static_cast<float>(SQUARE_SIZE),
+														   c * static_cast<float>(SQUARE_SIZE)));
 		}
 	}
 }
@@ -1017,31 +1035,48 @@ void Game::createBackground()
 void Game::createPieces()
 {
 	// Add white pieces
-	board_[{File::E, Rank::Eight}] = std::make_unique<King>(Team::White, Position{File::E, Rank::Eight});
-	board_[{File::D, Rank::Eight}] = std::make_unique<SlidingPiece>(Team::White, Position{File::D, Rank::Eight}, PieceType::Queen);
-	board_[{File::C, Rank::Eight}] = std::make_unique<SlidingPiece>(Team::White, Position{File::C, Rank::Eight}, PieceType::Bishop);
-	board_[{File::F, Rank::Eight}] = std::make_unique<SlidingPiece>(Team::White, Position{File::F, Rank::Eight}, PieceType::Bishop);
-	board_[{File::B, Rank::Eight}] = std::make_unique<Knight>(Team::White, Position{File::B, Rank::Eight});
-	board_[{File::G, Rank::Eight}] = std::make_unique<Knight>(Team::White, Position{File::G, Rank::Eight});
-	board_[{File::A, Rank::Eight}] = std::make_unique<SlidingPiece>(Team::White, Position{File::A, Rank::Eight}, PieceType::Rook);
-	board_[{File::H, Rank::Eight}] = std::make_unique<SlidingPiece>(Team::White, Position{File::H, Rank::Eight}, PieceType::Rook);
+	board_[{File::E, Rank::Eight}] =
+		std::make_unique<King>(Team::White, Position {File::E, Rank::Eight});
+	board_[{File::D, Rank::Eight}] = std::make_unique<SlidingPiece>(
+		Team::White, Position {File::D, Rank::Eight}, PieceType::Queen);
+	board_[{File::C, Rank::Eight}] = std::make_unique<SlidingPiece>(
+		Team::White, Position {File::C, Rank::Eight}, PieceType::Bishop);
+	board_[{File::F, Rank::Eight}] = std::make_unique<SlidingPiece>(
+		Team::White, Position {File::F, Rank::Eight}, PieceType::Bishop);
+	board_[{File::B, Rank::Eight}] =
+		std::make_unique<Knight>(Team::White, Position {File::B, Rank::Eight});
+	board_[{File::G, Rank::Eight}] =
+		std::make_unique<Knight>(Team::White, Position {File::G, Rank::Eight});
+	board_[{File::A, Rank::Eight}] = std::make_unique<SlidingPiece>(
+		Team::White, Position {File::A, Rank::Eight}, PieceType::Rook);
+	board_[{File::H, Rank::Eight}] = std::make_unique<SlidingPiece>(
+		Team::White, Position {File::H, Rank::Eight}, PieceType::Rook);
 	for (File file = File::A; file <= File::H; file += 1)
 	{
-		board_[{file, Rank::Seven}] = std::make_unique<Pawn>(Team::White, Position{file, Rank::Seven});
+		board_[{file, Rank::Seven}] =
+			std::make_unique<Pawn>(Team::White, Position {file, Rank::Seven});
 	}
 
 	// Add black pieces
-	board_[{File::E, Rank::One}] = std::make_unique<King>(Team::Black, Position{File::E, Rank::One});
-	board_[{File::D, Rank::One}] = std::make_unique<SlidingPiece>(Team::Black, Position{File::D, Rank::One}, PieceType::Queen);
-	board_[{File::C, Rank::One}] = std::make_unique<SlidingPiece>(Team::Black, Position{File::C, Rank::One}, PieceType::Bishop);
-	board_[{File::F, Rank::One}] = std::make_unique<SlidingPiece>(Team::Black, Position{File::F, Rank::One}, PieceType::Bishop);
-	board_[{File::B, Rank::One}] = std::make_unique<Knight>(Team::Black, Position{File::B, Rank::One});
-	board_[{File::G, Rank::One}] = std::make_unique<Knight>(Team::Black, Position{File::G, Rank::One});
-	board_[{File::A, Rank::One}] = std::make_unique<SlidingPiece>(Team::Black, Position{File::A, Rank::One}, PieceType::Rook);
-	board_[{File::H, Rank::One}] = std::make_unique<SlidingPiece>(Team::Black, Position{File::H, Rank::One}, PieceType::Rook);
+	board_[{File::E, Rank::One}] =
+		std::make_unique<King>(Team::Black, Position {File::E, Rank::One});
+	board_[{File::D, Rank::One}] = std::make_unique<SlidingPiece>(
+		Team::Black, Position {File::D, Rank::One}, PieceType::Queen);
+	board_[{File::C, Rank::One}] = std::make_unique<SlidingPiece>(
+		Team::Black, Position {File::C, Rank::One}, PieceType::Bishop);
+	board_[{File::F, Rank::One}] = std::make_unique<SlidingPiece>(
+		Team::Black, Position {File::F, Rank::One}, PieceType::Bishop);
+	board_[{File::B, Rank::One}] =
+		std::make_unique<Knight>(Team::Black, Position {File::B, Rank::One});
+	board_[{File::G, Rank::One}] =
+		std::make_unique<Knight>(Team::Black, Position {File::G, Rank::One});
+	board_[{File::A, Rank::One}] =
+		std::make_unique<SlidingPiece>(Team::Black, Position {File::A, Rank::One}, PieceType::Rook);
+	board_[{File::H, Rank::One}] =
+		std::make_unique<SlidingPiece>(Team::Black, Position {File::H, Rank::One}, PieceType::Rook);
 	for (File file = File::A; file <= File::H; file += 1)
 	{
-		board_[{file, Rank::Two}] = std::make_unique<Pawn>(Team::Black, Position{file, Rank::Two});
+		board_[{file, Rank::Two}] = std::make_unique<Pawn>(Team::Black, Position {file, Rank::Two});
 	}
 
 	// Add black spaces

@@ -3,8 +3,8 @@
 #include "chess_piece.hpp"
 #include "piece_info.hpp"
 
-#include <vector>
 #include <memory>
+#include <vector>
 
 class Pawn : public Piece
 {
